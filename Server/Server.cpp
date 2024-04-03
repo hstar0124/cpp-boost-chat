@@ -1,5 +1,5 @@
 ﻿#include <iostream>
-#include <boost/asio.hpp>
+#include "Common.h"
 
 
 using boost::asio::ip::tcp;
@@ -10,18 +10,11 @@ using namespace boost;
 class TcpSession
 {
 public:
-	TcpSession(asio::io_context& io_context)
-		: m_Socket(io_context)
+	TcpSession(asio::io_context& io_context, std::deque<std::string>& deq_msg)
+		: m_Socket(io_context), m_IoContext(io_context), m_DeqMessages(deq_msg)
 	{
 		memset(m_RecvBuffer, 0, m_RecvBufferSize);
 		memset(m_SendBuffer, 0, m_SendBufferSize);
-	}
-
-	// 통신 할 땐, 항상 서버와 클라이언트 간의 시작은 서버의 Read를 통해 이루어집니다.
-	// 따라서 Read 함수를 통해 통신을 시작합니다.
-	void Start()
-	{
-		AsyncRead();
 	}
 
 	tcp::socket& GetSocket()
@@ -29,11 +22,31 @@ public:
 		return m_Socket;
 	}
 
+	void Start()
+	{
+		AsyncRead();
+	}
+
+	void Send(const std::string msg)
+	{
+		asio::post(m_IoContext,
+			[this, msg]()
+			{
+				bool bWritingMessage = !m_DeqMessages.empty();
+				m_DeqMessages.push_back(msg);
+				if (!bWritingMessage)
+				{
+					AsyncWrite();
+				}
+			});
+	}
+
 private:
 
 	void AsyncRead()
 	{
-		m_Socket.async_read_some(boost::asio::buffer(m_RecvBuffer, m_RecvBufferSize), [this](const boost::system::error_code& err, const size_t size)
+		m_Socket.async_read_some(boost::asio::buffer(m_RecvBuffer, m_RecvBufferSize),
+			[this](const boost::system::error_code& err, const size_t size)
 			{
 				this->OnRead(err, size);
 			});
@@ -45,17 +58,15 @@ private:
 
 		if (!err)
 		{
+			m_DeqMessages.push_back(m_RecvBuffer);
 			AsyncRead();
-			AsyncWrite(m_RecvBuffer, size);
 		}
 	}
 
-	void AsyncWrite(char* message, size_t size)
+	void AsyncWrite()
 	{
-		memcpy(m_SendBuffer, message, size);
-
-
-		boost::asio::async_write(m_Socket, boost::asio::buffer(m_SendBuffer, m_SendBufferSize), [this](const boost::system::error_code& err, const size_t transferred)
+		boost::asio::async_write(m_Socket, boost::asio::buffer(&m_DeqMessages.front(), m_SendBufferSize),
+			[this](const boost::system::error_code& err, const size_t transferred)
 			{
 				this->OnWrite(err, transferred);
 			});
@@ -67,7 +78,11 @@ private:
 
 		if (!err)
 		{
-
+			if (!m_DeqMessages.empty())
+			{
+				m_DeqMessages.pop_front();
+				AsyncWrite();
+			}
 		}
 		else
 		{
@@ -78,11 +93,16 @@ private:
 
 private:
 	tcp::socket m_Socket;
+	asio::io_context& m_IoContext;
+
+	std::deque<std::string>& m_DeqMessages;
+
 	static const int m_RecvBufferSize = 1024;
 	char m_RecvBuffer[m_RecvBufferSize];
 
 	static const int m_SendBufferSize = 1024;
 	char m_SendBuffer[m_SendBufferSize];
+
 };
 
 
@@ -97,12 +117,31 @@ public:
 
 	}
 
+	bool Start()
+	{
+		try
+		{
+			StartAccept();
+			m_ThreadContext = std::thread([this]() { m_IoContext.run(); });
+		}
+		catch (std::exception& e)
+		{
+			// 서버가 리스닝을 할 수 없는 경우
+			std::cerr << "Exception: " << e.what() << "\n";
+			return false;
+		}
+
+		std::cout << "Started!\n";
+		return true;
+	}
+
 	// 클라이언트와 통신을 위한 세션을 생성한 후 비동기 accept함수인 async_accept를 호출
 	// 첫 번째 인자로는 연결 후 할당될 소켓을 전달하며, 두 번째 인자로는 async_accept 함수가 성공적으로 수행되고 호출될 함수 포인터를 전달합니다.
 	void StartAccept()
 	{
-		TcpSession* tcpSession = new TcpSession(m_IoContext);
-		m_Acceptor.async_accept(tcpSession->GetSocket(), [this, tcpSession](const boost::system::error_code& err)
+		TcpSession* tcpSession = new TcpSession(m_IoContext, m_DeqMessages);
+		m_Acceptor.async_accept(tcpSession->GetSocket(),
+			[this, tcpSession](const boost::system::error_code& err)
 			{
 				this->OnAccept(tcpSession, err);
 			});
@@ -113,9 +152,9 @@ public:
 	{
 		if (!err)
 		{
-			std::cout << "Accept " << std::endl;
 			tcpSession->Start();
-
+			m_DeqSessions.push_back(tcpSession);
+			std::cout << "Accept Session : " << tcpSession->GetSocket().remote_endpoint() << std::endl;
 		}
 		else
 		{
@@ -125,11 +164,27 @@ public:
 		StartAccept();
 	}
 
+	void OnMessage()
+	{
+		if (!m_DeqMessages.empty())
+		{
+			for (auto& session : m_DeqSessions)
+			{
+				std::string msg = m_DeqMessages.front();
+				session->Send(msg);
+			}
+		}
+	}
+
 
 
 private:
 	tcp::acceptor m_Acceptor;
 	asio::io_context& m_IoContext;
+	std::thread m_ThreadContext;
+
+	std::deque<TcpSession*> m_DeqSessions;
+	std::deque<std::string> m_DeqMessages;
 };
 
 
@@ -141,9 +196,12 @@ int main()
 {
 	boost::asio::io_context io_context;
 	TcpServer tcpServer(io_context, 4242);
-	tcpServer.StartAccept();
-	std::cout << "Start Server" << std::endl;
+	tcpServer.Start();
 
-	io_context.run();
+	while (1)
+	{
+		tcpServer.OnMessage();
+	}
+
 	return 0;
 }
