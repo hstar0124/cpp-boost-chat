@@ -1,20 +1,63 @@
-﻿#include <iostream>
-#include "Common.h"
-
+﻿#include "Common.h"
 
 using boost::asio::ip::tcp;
 using namespace boost;
 
-
-// 서버가 클라이언트랑 연결 후 해당 클라이언트와 통신을 하기 위한 클래스
-class TcpSession
+class User 
 {
 public:
-	TcpSession(asio::io_context& io_context, std::deque<std::string>& deq_msg)
-		: m_Socket(io_context), m_IoContext(io_context), m_DeqMessages(deq_msg)
+	virtual ~User() {}
+	virtual void Send(const char* message) = 0;
+};
+
+class TcpSessionManager
+{
+public:
+	void Connection(std::shared_ptr<User> session)
+	{
+		sessions.push_back(session);
+	}
+	void Disconnection(std::shared_ptr<User> session)
+	{
+		sessions.erase(std::remove(sessions.begin(), sessions.end(), session), sessions.end());
+	}
+	void AllMessage(const char* message)
+	{
+		std::cout << "[TcpSessionManager] msg : " << message << std::endl;
+		for (auto s : sessions)
+		{
+			s->Send(message);
+		}
+	}
+	void DirectMessage();
+
+private:
+	std::vector<std::shared_ptr<User>> sessions;
+};
+
+// 서버가 클라이언트랑 연결 후 해당 클라이언트와 통신을 하기 위한 클래스
+class TcpSession : public User, public std::enable_shared_from_this<TcpSession>
+{
+public:
+	TcpSession(asio::io_context& io_context, TcpSessionManager& tcpSessionMgr)
+		: m_Socket(io_context), m_TcpSessionMgr(tcpSessionMgr)
 	{
 		memset(m_RecvBuffer, 0, m_RecvBufferSize);
 		memset(m_SendBuffer, 0, m_SendBufferSize);
+	}
+
+	// 외부에서 TcpSession 객체를 생성할 수 없게 하기 위해 정적 팩토리 메서드를 제공
+	static std::shared_ptr<TcpSession> Create(boost::asio::io_context& io_context, TcpSessionManager& tcpSessionMgr)
+	{
+		// shared_ptr로 생성된 객체를 반환
+		return std::shared_ptr<TcpSession>(new TcpSession(io_context, tcpSessionMgr));
+	}
+
+	// Start 메서드를 통해 객체를 초기화하고 TcpSessionManager에 등록
+	void Start()
+	{
+		m_TcpSessionMgr.Connection(shared_from_this());
+		AsyncRead();
 	}
 
 	tcp::socket& GetSocket()
@@ -22,23 +65,14 @@ public:
 		return m_Socket;
 	}
 
-	void Start()
+	void Send(const char* message)
 	{
-		AsyncRead();
+		AsyncWrite(message);
 	}
 
-	void Send(const std::string msg)
+	void Close()
 	{
-		asio::post(m_IoContext,
-			[this, msg]()
-			{
-				bool bWritingMessage = !m_DeqMessages.empty();
-				m_DeqMessages.push_back(msg);
-				if (!bWritingMessage)
-				{
-					AsyncWrite();
-				}
-			});
+		m_Socket.close(); // 소켓을 닫습니다.
 	}
 
 private:
@@ -54,18 +88,27 @@ private:
 
 	void OnRead(const boost::system::error_code& err, const size_t size)
 	{
-		std::cout << "OnRead" << size << ", " << m_RecvBuffer << std::endl;
+		std::cout << "[TcpSession] OnRead : " << m_RecvBuffer << std::endl;
 
 		if (!err)
 		{
-			m_DeqMessages.push_back(m_RecvBuffer);
 			AsyncRead();
+			//AsyncWrite(m_RecvBuffer, size);
+			m_TcpSessionMgr.AllMessage(m_RecvBuffer);
+
+		}
+		else
+		{
+			std::cout << "Error " << err.message() << std::endl;
+			m_TcpSessionMgr.Disconnection(shared_from_this());
 		}
 	}
 
-	void AsyncWrite()
+	void AsyncWrite(const char* message)
 	{
-		boost::asio::async_write(m_Socket, boost::asio::buffer(&m_DeqMessages.front(), m_SendBufferSize),
+		memcpy(m_SendBuffer, message, m_SendBufferSize);
+
+		boost::asio::async_write(m_Socket, boost::asio::buffer(m_SendBuffer, m_SendBufferSize),
 			[this](const boost::system::error_code& err, const size_t transferred)
 			{
 				this->OnWrite(err, transferred);
@@ -74,35 +117,27 @@ private:
 
 	void OnWrite(const boost::system::error_code& err, const size_t transferred)
 	{
-		std::cout << "OnWrite" << transferred << std::endl;
-
+		std::cout << "[TcpSession] OnWrite : " << m_SendBuffer << std::endl;
 		if (!err)
 		{
-			if (!m_DeqMessages.empty())
-			{
-				m_DeqMessages.pop_front();
-				AsyncWrite();
-			}
+			// 전송이 성공적으로 완료됐을 때 처리할 내용
 		}
 		else
 		{
 			std::cout << "Error " << err.message() << std::endl;
+			m_TcpSessionMgr.Disconnection(shared_from_this());
 		}
 	}
 
 
 private:
 	tcp::socket m_Socket;
-	asio::io_context& m_IoContext;
-
-	std::deque<std::string>& m_DeqMessages;
-
+	TcpSessionManager& m_TcpSessionMgr;
 	static const int m_RecvBufferSize = 1024;
 	char m_RecvBuffer[m_RecvBufferSize];
 
 	static const int m_SendBufferSize = 1024;
 	char m_SendBuffer[m_SendBufferSize];
-
 };
 
 
@@ -117,29 +152,11 @@ public:
 
 	}
 
-	bool Start()
-	{
-		try
-		{
-			StartAccept();
-			m_ThreadContext = std::thread([this]() { m_IoContext.run(); });
-		}
-		catch (std::exception& e)
-		{
-			// 서버가 리스닝을 할 수 없는 경우
-			std::cerr << "Exception: " << e.what() << "\n";
-			return false;
-		}
-
-		std::cout << "Started!\n";
-		return true;
-	}
-
 	// 클라이언트와 통신을 위한 세션을 생성한 후 비동기 accept함수인 async_accept를 호출
 	// 첫 번째 인자로는 연결 후 할당될 소켓을 전달하며, 두 번째 인자로는 async_accept 함수가 성공적으로 수행되고 호출될 함수 포인터를 전달합니다.
 	void StartAccept()
 	{
-		TcpSession* tcpSession = new TcpSession(m_IoContext, m_DeqMessages);
+		auto tcpSession = TcpSession::Create(m_IoContext, m_TcpSessionMgr);
 		m_Acceptor.async_accept(tcpSession->GetSocket(),
 			[this, tcpSession](const boost::system::error_code& err)
 			{
@@ -148,13 +165,13 @@ public:
 	}
 
 	// 전달한 세션의 Start를 호출해서 통신을 시작하고, StartAccept를 호출하여 다시 클라이언의 접속을 비동기적으로 대기합니다.
-	void OnAccept(TcpSession* tcpSession, const boost::system::error_code& err)
+	void OnAccept(std::shared_ptr<TcpSession> tcpSession, const boost::system::error_code& err)
 	{
 		if (!err)
 		{
+			std::cout << "[TcpServer] Accept" << std::endl;
 			tcpSession->Start();
-			m_DeqSessions.push_back(tcpSession);
-			std::cout << "Accept Session : " << tcpSession->GetSocket().remote_endpoint() << std::endl;
+
 		}
 		else
 		{
@@ -164,27 +181,12 @@ public:
 		StartAccept();
 	}
 
-	void OnMessage()
-	{
-		if (!m_DeqMessages.empty())
-		{
-			for (auto& session : m_DeqSessions)
-			{
-				std::string msg = m_DeqMessages.front();
-				session->Send(msg);
-			}
-		}
-	}
-
 
 
 private:
-	tcp::acceptor m_Acceptor;
 	asio::io_context& m_IoContext;
-	std::thread m_ThreadContext;
-
-	std::deque<TcpSession*> m_DeqSessions;
-	std::deque<std::string> m_DeqMessages;
+	tcp::acceptor m_Acceptor;
+	TcpSessionManager m_TcpSessionMgr;
 };
 
 
@@ -196,12 +198,9 @@ int main()
 {
 	boost::asio::io_context io_context;
 	TcpServer tcpServer(io_context, 4242);
-	tcpServer.Start();
+	tcpServer.StartAccept();
+	std::cout << "Start Server" << std::endl;
 
-	while (1)
-	{
-		tcpServer.OnMessage();
-	}
-
+	io_context.run();
 	return 0;
 }

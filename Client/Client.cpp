@@ -1,5 +1,4 @@
-﻿#include <iostream>
-#include "Common.h"
+﻿#include "Common.h"
 
 class TcpClient
 {
@@ -34,7 +33,8 @@ public:
 	void AsyncWrite(std::string message)
 	{
 		m_Meaasge = message;
-		boost::asio::async_write(m_Socket, boost::asio::buffer(m_Meaasge), [this](const boost::system::error_code& err, const size_t transferred)
+		boost::asio::async_write(m_Socket, boost::asio::buffer(m_Meaasge), 
+			[this](const boost::system::error_code& err, const size_t transferred)
 			{
 				this->OnWrite(err, transferred);
 			});
@@ -47,7 +47,8 @@ public:
 
 	void AsyncRead()
 	{
-		m_Socket.async_read_some(boost::asio::buffer(m_RecvBuffer, m_RecvBufferSize), [this](const boost::system::error_code& err, const size_t size)
+		m_Socket.async_read_some(boost::asio::buffer(m_RecvBuffer, m_RecvBufferSize), 
+			[this](const boost::system::error_code& err, const size_t size)
 			{
 				this->OnRead(err, size);
 			});
