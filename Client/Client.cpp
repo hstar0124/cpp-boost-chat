@@ -47,7 +47,7 @@ public:
 
 	void AsyncRead()
 	{
-		m_Socket.async_read_some(boost::asio::buffer(m_RecvBuffer, m_RecvBufferSize), 
+		boost::asio::async_read(m_Socket, boost::asio::buffer(m_RecvBuffer, 16),
 			[this](const boost::system::error_code& err, const size_t size)
 			{
 				this->OnRead(err, size);
@@ -80,7 +80,7 @@ int main()
 
 	// 비동기 I/O 작업이 처리된 후에 호출되는 함수를 실행시켜주는 함수
 	// 이 함수는 블록 함수 새로운 비동기 작업이 등록되거나, 기존 작업이 완료될 때까지 대기합니다.
-	std::thread thread([&io_context]() {io_context.run(); });
+	std::thread thread([&io_context]() { io_context.run(); });
 
 	while (true)
 	{

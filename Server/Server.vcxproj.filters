@@ -17,7 +17,7 @@
     <ClCompile Include="TcpSession.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Acceptor.cpp">
+    <ClCompile Include="TcpServer.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
@@ -25,10 +25,10 @@
     <ClInclude Include="TcpSession.h">
       <Filter>소스 파일</Filter>
     </ClInclude>
-    <ClInclude Include="TcpSessionManager.h">
+    <ClInclude Include="TcpServer.h">
       <Filter>소스 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Acceptor.h">
+    <ClInclude Include="ThreadSafeQueue.h">
       <Filter>소스 파일</Filter>
     </ClInclude>
   </ItemGroup>
