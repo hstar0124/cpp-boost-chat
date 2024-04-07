@@ -3,7 +3,11 @@
 #include <memory>
 #include <thread>
 #include <mutex>
+#include <optional>
+#include <condition_variable>
+#include <chrono>
 #include <deque>
+#include <queue>
 #include <optional>
 #include <vector>
 #include <iostream>

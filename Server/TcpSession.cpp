@@ -1,16 +1,7 @@
 #include "TcpSession.h"
-#include "TcpSessionManager.h"
-
-TcpSession::TcpSession(boost::asio::io_context& io_context)
-    : m_Socket(io_context)
-{
-    memset(m_RecvBuffer, 0, m_RecvBufferSize);
-    memset(m_SendBuffer, 0, m_SendBufferSize);
-}
 
 void TcpSession::Start()
 {
-    TcpSessionManager::getInstance().Connection(shared_from_this());
     AsyncRead();
 }
 
@@ -19,9 +10,12 @@ boost::asio::ip::tcp::socket& TcpSession::GetSocket()
     return m_Socket;
 }
 
-void TcpSession::Send(const char* message)
+void TcpSession::Send(char* message)
 {
-    AsyncWrite(message);
+    bool bWritingMessage = !m_QMessagesOutServer.Empty();
+    m_QMessagesOutServer.PushBack(message);
+    if(!bWritingMessage)
+        AsyncWrite();
 }
 
 void TcpSession::Close()
@@ -29,36 +23,38 @@ void TcpSession::Close()
     m_Socket.close();
 }
 
+bool TcpSession::IsConnected()
+{
+    return m_Socket.is_open();
+}
+
+
 void TcpSession::AsyncRead()
 {
-    m_Socket.async_read_some(boost::asio::buffer(m_RecvBuffer, m_RecvBufferSize),
+    boost::asio::async_read(m_Socket, boost::asio::buffer(m_RecvBuffer, 16),
         [this](const boost::system::error_code& err, const size_t size)
-        {
+        {   
             this->OnRead(err, size);
         });
 }
 
 void TcpSession::OnRead(const boost::system::error_code& err, const size_t size)
 {
-    std::cout << "[TcpSession] OnRead : " << m_RecvBuffer << std::endl;
 
     if (!err)
     {
+        m_QMessagesInServer.PushBack(m_RecvBuffer);
         AsyncRead();
-        TcpSessionManager::getInstance().AllMessage(m_RecvBuffer);
     }
     else
     {
-        std::cout << "Error " << err.message() << std::endl;
-        TcpSessionManager::getInstance().Disconnection(shared_from_this());
+        std::cout << "[TcpSession] Error " << err.message() << std::endl;
     }
 }
 
-void TcpSession::AsyncWrite(const char* message)
+void TcpSession::AsyncWrite()
 {
-    memcpy(m_SendBuffer, message, m_SendBufferSize);
-
-    boost::asio::async_write(m_Socket, boost::asio::buffer(m_SendBuffer, m_SendBufferSize),
+    boost::asio::async_write(m_Socket, boost::asio::buffer(m_QMessagesOutServer.Front(), 16),
         [this](const boost::system::error_code& err, const size_t transferred)
         {
             this->OnWrite(err, transferred);
@@ -67,14 +63,15 @@ void TcpSession::AsyncWrite(const char* message)
 
 void TcpSession::OnWrite(const boost::system::error_code& err, const size_t transferred)
 {
-    std::cout << "[TcpSession] OnWrite : " << m_SendBuffer << std::endl;
+    std::cout << "[TcpSession] OnWrite : " << m_QMessagesOutServer.Front() << std::endl;
     if (!err)
     {
-        // Success
+        m_QMessagesOutServer.Pop();
+        if (!m_QMessagesOutServer.Empty())
+            AsyncWrite();
     }
     else
     {
-        std::cout << "Error " << err.message() << std::endl;
-        TcpSessionManager::getInstance().Disconnection(shared_from_this());
+        std::cout << "[TcpSession] Error " << err.message() << std::endl;
     }
 }
