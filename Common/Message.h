@@ -7,6 +7,7 @@ enum class PacketType : uint32_t
 {
 	ServerAccept,	
 	ServerPing,
+	ServerMessage,
 	AllMessage	
 };
 
@@ -17,7 +18,6 @@ struct MessageHeader
 	uint32_t size = 0;
 };
 
-template<typename T>
 struct Message
 {
 	MessageHeader header{};
@@ -30,7 +30,7 @@ struct Message
 	}
 
 	// std::cout 호환성을 위한 재정의 - 메시지 관련된 정보 출력
-	friend std::ostream& operator << (std::ostream& os, const message<T>& msg)
+	friend std::ostream& operator << (std::ostream& os, const Message& msg)
 	{
 		os << "ID: " << int(msg.header.id) << " Size: " << msg.header.size;
 		return os;
@@ -38,7 +38,7 @@ struct Message
 
 	// POD(Plain Old Data)와 같은 데이터를 메시지 버퍼에 추가
 	template<typename DataType>
-	friend message<T>& operator << (message<T>& msg, const DataType& data)
+	friend Message& operator << (Message& msg, const DataType& data)
 	{
 		// 들어온 데이터가 복사 가능한지 확인한다.
 		static_assert(std::is_standard_layout<DataType>::value, "Data is too complex to be pushed into vector");
@@ -58,8 +58,9 @@ struct Message
 		return msg;
 	}
 
+
 	template<typename DataType>
-	friend message<T>& operator >> (message<T>& msg, DataType& data)
+	friend Message& operator >> (Message& msg, DataType& data)
 	{
 		static_assert(std::is_standard_layout<DataType>::value, "Data is too complex to be pushed into vector");
 
@@ -82,5 +83,21 @@ struct Message
 
 		// 체인되도록 대상 메시지를 반환
 		return msg;
+	}
+
+
+};
+
+class TcpSession;
+
+struct OwnedMessage
+{
+	std::shared_ptr<TcpSession> remote = nullptr;
+	Message msg;
+
+	friend std::ostream& operator<<(std::ostream& os, const OwnedMessage& msg)
+	{
+		os << msg.msg;
+		return os;
 	}
 };

@@ -38,7 +38,7 @@ public:
     void PushBack(const T& item)
     {
         std::scoped_lock lock(queueMutex);
-        queue.push(std::move(item));        
+        queue.push(std::move(item));
 
         // 항목을 큐에 추가하면 조건 변수에 데이터가 들어갔다는 것을 알려줘
         // 절전모드에서 일어나게 한다.
