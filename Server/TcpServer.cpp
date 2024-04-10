@@ -49,8 +49,45 @@ void TcpServer::Update(size_t nMaxMessages = -1, bool bWait = false)
         while (nMessageCount < nMaxMessages && !m_QMessagesInServer.Empty())
         {
             auto msg = m_QMessagesInServer.Pop();
-            SendAllClients(msg);
+            OnMessage(msg.remote, msg.msg);
             nMessageCount++;
+        }
+    }
+}
+
+void TcpServer::OnMessage(std::shared_ptr<TcpSession> session, Message& msg)
+{
+    switch (msg.header.id)
+    {
+    case PacketType::ServerPing:
+    {
+        std::cout << "[SERVER] Server Ping\n";
+        session->Send(msg);
+    }
+    break;    
+    case PacketType::AllMessage:
+    {
+        std::cout << "[SERVER] Send Message for All Clients\n";
+        Message msg;
+        msg.header.id = PacketType::ServerMessage;
+        SendAllClients(msg, session);
+    }
+    }
+}
+
+void TcpServer::SendAllClients(const Message& msg, std::shared_ptr<TcpSession> session)
+{
+    for (auto session : m_VecTcpSessions)
+    {
+        if (session && session->IsConnected())
+        {
+            std::cout << "[SERVER] Send Message Process\n";
+            session->Send(msg);
+        }
+        else
+        {
+            // TODO : 세션 연결 해제 처리
+            // 이더레이터가 꼬일수 있으니 for문 바깥에서 처리
         }
     }
 }
@@ -71,23 +108,5 @@ void TcpServer::OnAccept(std::shared_ptr<TcpSession> tcpSession, const boost::sy
     }
 
     WaitForClientConnection();
-}
-
-
-void TcpServer::SendAllClients(char* message)
-{
-    std::cout << "[SERVER] Send Msg for All Clients : " << message << std::endl;
-    for (auto session : m_VecTcpSessions)
-    {
-        if (session && session->IsConnected())
-        {
-            session->Send(message);
-        }
-        else
-        {
-            // TODO : 세션 연결 해제 처리
-            // 이더레이터가 꼬일수 있으니 for문 바깥에서 처리
-        }      
-    }
 }
 

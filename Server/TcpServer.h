@@ -10,7 +10,8 @@ public:
     bool Start();
     void WaitForClientConnection();
     void Update(size_t nMaxMessages, bool bWait);
-    void SendAllClients(char* message);
+    void OnMessage(std::shared_ptr<TcpSession> session, Message& msg);
+    void SendAllClients(const Message& msg, std::shared_ptr<TcpSession> session);
 
 private:
     void OnAccept(std::shared_ptr<TcpSession> tcpSession, const boost::system::error_code& err);
@@ -19,6 +20,6 @@ private:
     std::thread m_ThreadContext;
     boost::asio::ip::tcp::acceptor m_Acceptor;
 
-    ThreadSafeQueue<char*> m_QMessagesInServer;
+    ThreadSafeQueue<OwnedMessage> m_QMessagesInServer;
     std::vector<std::shared_ptr<TcpSession>> m_VecTcpSessions;
 };
