@@ -1,7 +1,7 @@
 #include "TcpServer.h"
 
-TcpServer::TcpServer(boost::asio::io_context& io_context, int port)
-    : m_Acceptor(io_context, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), port)),
+TcpServer::TcpServer(std::shared_ptr<boost::asio::io_context> io_context, int port)
+    : m_Acceptor(*io_context, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), port)),
     m_IoContext(io_context)
 {    
 }
@@ -12,7 +12,7 @@ bool TcpServer::Start()
     try
     {
         WaitForClientConnection();
-        m_ThreadContext = std::thread([this]() { m_IoContext.run(); });
+        m_ThreadContext = std::thread([this]() { m_IoContext->run(); });
     }
     catch (std::exception& e)
     {

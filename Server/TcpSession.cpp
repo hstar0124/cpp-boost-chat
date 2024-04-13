@@ -5,14 +5,14 @@ void TcpSession::Start()
     ReadHeader();
 }
 
-boost::asio::ip::tcp::socket& TcpSession::GetSocket()
+boost::asio::ip::tcp::socket &TcpSession::GetSocket()
 {
     return m_Socket;
 }
 
 void TcpSession::Send(const Message& msg)
 {
-    boost::asio::post(m_IoContext,
+    boost::asio::post(*m_IoContext,
         [this, msg]()
         {
             bool bWritingMessage = !m_QMessagesOutServer.Empty();
