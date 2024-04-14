@@ -10,8 +10,8 @@ public:
     bool Start();
     void WaitForClientConnection();
     void Update(size_t nMaxMessages, bool bWait);
-    void OnMessage(std::shared_ptr<TcpSession> session, Message& msg);
-    void SendAllClients(const Message& msg, std::shared_ptr<TcpSession> session);
+    void OnMessage(std::shared_ptr<TcpSession> session, std::shared_ptr<myPayload::Payload> msg);
+    void SendAllClients(std::shared_ptr<myPayload::Payload> msg);
 
 private:
     void OnAccept(std::shared_ptr<TcpSession> tcpSession, const boost::system::error_code& err);

@@ -155,6 +155,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Payload.pb.cc" />
     <ClCompile Include="TcpServer.cpp" />
     <ClCompile Include="App.cpp" />
     <ClCompile Include="TcpSession.cpp" />
@@ -162,9 +163,13 @@
   <ItemGroup>
     <ClInclude Include="Common.h" />
     <ClInclude Include="Message.h" />
+    <ClInclude Include="Payload.pb.h" />
     <ClInclude Include="TcpServer.h" />
     <ClInclude Include="TcpSession.h" />
     <ClInclude Include="ThreadSafeQueue.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Payload.proto" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

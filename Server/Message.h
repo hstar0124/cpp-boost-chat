@@ -1,5 +1,6 @@
 #pragma once
 #include "Common.h"
+#include "Payload.pb.h"
 
 // 메시지 타입을 나타내는 enum 클래스
 // uint32_t 를 하게 되면 각각의 ID의 사이즈는 4바이트
@@ -93,11 +94,5 @@ class TcpSession;
 struct OwnedMessage
 {
 	std::shared_ptr<TcpSession> remote = nullptr;
-	Message msg;
-
-	friend std::ostream& operator<<(std::ostream& os, const OwnedMessage& msg)
-	{
-		os << msg.msg;
-		return os;
-	}
+	std::shared_ptr<myPayload::Payload> payload;
 };

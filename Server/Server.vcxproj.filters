@@ -16,6 +16,9 @@
     <ClCompile Include="TcpServer.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="Payload.pb.cc">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="TcpSession.h">
@@ -33,5 +36,13 @@
     <ClInclude Include="Common.h">
       <Filter>소스 파일</Filter>
     </ClInclude>
+    <ClInclude Include="Payload.pb.h">
+      <Filter>소스 파일</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Payload.proto">
+      <Filter>소스 파일</Filter>
+    </None>
   </ItemGroup>
 </Project>

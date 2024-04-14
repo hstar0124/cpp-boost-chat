@@ -49,33 +49,32 @@ void TcpServer::Update(size_t nMaxMessages = -1, bool bWait = false)
         while (nMessageCount < nMaxMessages && !m_QMessagesInServer.Empty())
         {
             auto msg = m_QMessagesInServer.Pop();
-            OnMessage(msg.remote, msg.msg);
+            OnMessage(msg.remote, msg.payload);
             nMessageCount++;
         }
     }
 }
 
-void TcpServer::OnMessage(std::shared_ptr<TcpSession> session, Message& msg)
+void TcpServer::OnMessage(std::shared_ptr<TcpSession> session, std::shared_ptr<myPayload::Payload> msg)
 {
-    switch (msg.header.id)
+    switch (msg->payloadtype())
     {
-    case PacketType::ServerPing:
+    case myPayload::PayloadType::SERVER_PING:
     {
         std::cout << "[SERVER] Server Ping\n";
         session->Send(msg);
     }
     break;    
-    case PacketType::AllMessage:
+    case myPayload::PayloadType::ALL_MESSAGE:
     {
         std::cout << "[SERVER] Send Message for All Clients\n";
-        Message msg;
-        msg.header.id = PacketType::ServerMessage;
-        SendAllClients(msg, session);
+        msg->set_payloadtype(myPayload::PayloadType::SERVER_MESSAGE);
+        SendAllClients(msg);
     }
     }
 }
 
-void TcpServer::SendAllClients(const Message& msg, std::shared_ptr<TcpSession> session)
+void TcpServer::SendAllClients(std::shared_ptr<myPayload::Payload> msg)
 {
     for (auto session : m_VecTcpSessions)
     {
