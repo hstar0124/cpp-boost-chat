@@ -39,6 +39,9 @@
     <ClInclude Include="Payload.pb.h">
       <Filter>소스 파일</Filter>
     </ClInclude>
+    <ClInclude Include="PacketConverter.hpp">
+      <Filter>소스 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Payload.proto">

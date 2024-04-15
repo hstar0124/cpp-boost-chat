@@ -163,6 +163,7 @@
   <ItemGroup>
     <ClInclude Include="Common.h" />
     <ClInclude Include="Message.h" />
+    <ClInclude Include="PacketConverter.hpp" />
     <ClInclude Include="Payload.pb.h" />
     <ClInclude Include="TcpServer.h" />
     <ClInclude Include="TcpSession.h" />

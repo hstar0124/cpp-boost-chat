@@ -19,4 +19,4 @@
 
 #include <boost/asio.hpp>
 
-const int HEADER_SIZE = 4;
+static constexpr int HEADER_SIZE = 4;
