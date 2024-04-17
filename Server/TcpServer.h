@@ -6,17 +6,17 @@
 class TcpServer
 {
 public:
-    TcpServer(boost::asio::io_context& io_context, int port);
+    TcpServer(std::shared_ptr<boost::asio::io_context> io_context, int port);
     bool Start();
     void WaitForClientConnection();
     void Update(size_t nMaxMessages, bool bWait);
-    void OnMessage(std::shared_ptr<TcpSession> session, Message& msg);
-    void SendAllClients(const Message& msg, std::shared_ptr<TcpSession> session);
+    void OnMessage(std::shared_ptr<TcpSession> session, std::shared_ptr<myPayload::Payload> msg);
+    void SendAllClients(std::shared_ptr<myPayload::Payload> msg);
 
 private:
     void OnAccept(std::shared_ptr<TcpSession> tcpSession, const boost::system::error_code& err);
 
-    boost::asio::io_context& m_IoContext;
+    std::shared_ptr<boost::asio::io_context> m_IoContext;
     std::thread m_ThreadContext;
     boost::asio::ip::tcp::acceptor m_Acceptor;
 

@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package myPayload; 
+
+enum PayloadType 
+{
+    SERVER_PING = 0;
+    SERVER_MESSAGE = 1;
+    ALL_MESSAGE = 2;
+}
+
+message Payload {
+    PayloadType payloadtype = 1;
+    string content = 2;
+}
