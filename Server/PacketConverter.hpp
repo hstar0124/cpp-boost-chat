@@ -21,9 +21,9 @@ public:
 
     static bool SetSizeToBufferHeader(std::vector<uint8_t>& buffer)
     {
-        // bodySize를 네트워크 바이트 순서로 변환하여 버퍼에 설정하는 함수를 구현합니다.
+        
         if (buffer.size() < HEADER_SIZE) {
-            return false; // 버퍼의 크기가 충분하지 않으면 실패를 반환합니다.
+            return false; // 버퍼의 크기가 충분하지 않으면 실패를 반환
         }
 
         // 헤더사이즈를 제외한 payload 사이즈 를 헤더에 저장

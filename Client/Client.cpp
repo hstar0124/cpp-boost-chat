@@ -40,12 +40,6 @@ public:
 
 	void Send(const std::string& userInput)
 	{
-		// TODO : 메시지 분류별로 전송
-		//Message msg;
-		//msg.header.id = PacketType::ServerPing;
-		//std::chrono::system_clock::time_point timeNow = std::chrono::system_clock::now();
-		//msg << timeNow;
-
 		std::shared_ptr<myPayload::Payload> pl = std::make_shared<myPayload::Payload>();
 		pl->set_payloadtype(myPayload::PayloadType::ALL_MESSAGE);
 		pl->set_content(userInput);
@@ -78,14 +72,13 @@ private:
 
 	void OnWrite(const boost::system::error_code& err, const size_t size)
 	{
-		std::cout << "OnWrite" << std::endl;
+		// 입력 완료시
 	}
 
 	void ReadHeader()
 	{
 		m_Readbuf.clear();
 		m_Readbuf.resize(HEADER_SIZE);
-		std::cout << "ReadHeader : " << m_Readbuf.size() << "\n";
 
 		boost::asio::async_read(m_Socket, boost::asio::buffer(m_Readbuf, HEADER_SIZE),
 			[this](std::error_code ec, std::size_t length)
@@ -96,7 +89,6 @@ private:
 					for (int j = 0; j < m_Readbuf.size(); j++) {
 						bodySize = static_cast<size_t>(m_Readbuf[j]);
 					}
-					std::cout << "ReadBody Size : " << bodySize << "\n";
 					if (bodySize > 0)
 					{
 						ReadBody(bodySize);
@@ -116,7 +108,6 @@ private:
 	{
 		m_Readbuf.clear();
 		m_Readbuf.resize(bodySize);
-		std::cout << "ReadBody : " << m_Readbuf.size() << "\n";
 
 		boost::asio::async_read(m_Socket, boost::asio::buffer(m_Readbuf),
 			[this](std::error_code ec, std::size_t size)
