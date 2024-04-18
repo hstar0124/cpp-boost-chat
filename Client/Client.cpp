@@ -22,7 +22,6 @@ public:
 				this->OnConnect(err);
 			});
 
-
 	}
 
 	void OnConnect(const boost::system::error_code& err)
@@ -43,6 +42,20 @@ public:
 		std::shared_ptr<myPayload::Payload> pl = std::make_shared<myPayload::Payload>();
 		pl->set_payloadtype(myPayload::PayloadType::ALL_MESSAGE);
 		pl->set_content(userInput);
+
+		AsyncWrite(pl);
+	}
+
+	void SendPong()
+	{
+		// 현재 시간을 milliseconds로 얻어옴
+		auto now = std::chrono::system_clock::now();
+		auto now_ms = std::chrono::time_point_cast<std::chrono::milliseconds>(now);
+		auto value = now_ms.time_since_epoch().count();
+
+		std::shared_ptr<myPayload::Payload> pl = std::make_shared<myPayload::Payload>();
+		pl->set_payloadtype(myPayload::PayloadType::SERVER_PING);
+		pl->set_content(std::to_string(value));
 
 		AsyncWrite(pl);
 	}
@@ -123,6 +136,29 @@ private:
 						// Payload 메시지에서 필요한 데이터를 출력
 						std::cout << "Payload Type: " << payload->payloadtype() << std::endl;
 						std::cout << "Content: " << payload->content() << std::endl;
+
+						if (payload->payloadtype() == myPayload::PayloadType::SERVER_PING)
+						{
+							try
+							{
+								auto sentTimeMs = std::stoll(payload->content());
+								auto sentTime = std::chrono::milliseconds(sentTimeMs);
+								auto currentTime = std::chrono::system_clock::now().time_since_epoch();
+								auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - sentTime);
+								std::cout << "Response time: " << elapsedTime.count() << "ms" << std::endl;
+								SendPong();
+							}
+							catch (const std::invalid_argument& e)
+							{
+								std::cerr << "Invalid argument: " << e.what() << std::endl;
+							}
+							catch (const std::out_of_range& e)
+							{
+								std::cerr << "Out of range: " << e.what() << std::endl;
+							}
+						}
+
+							
 
 						ReadHeader();
 					}

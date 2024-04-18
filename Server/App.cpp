@@ -4,10 +4,13 @@
 
 int main()
 {
-	std::shared_ptr<boost::asio::io_context> io_context = std::make_shared<boost::asio::io_context>();
+	boost::asio::io_context io_context;
 
 	TcpServer tcpServer(io_context, 4242);
-	tcpServer.Start();
+	if (!tcpServer.Start())
+	{
+		std::cerr << "[SERVER] Server Error!!" << "\n";
+	}
 
 	while (1)
 	{

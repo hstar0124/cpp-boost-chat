@@ -10,13 +10,20 @@ class TcpSession : public std::enable_shared_from_this<TcpSession>
 public:
 
 public:
-    TcpSession(std::shared_ptr<boost::asio::io_context> io_context, ThreadSafeQueue<OwnedMessage>& qToServer)
-        : m_IoContext(io_context), m_Socket(*io_context), m_QMessagesInServer(qToServer)
+    TcpSession(boost::asio::io_context& io_context, ThreadSafeQueue<OwnedMessage>& qToServer)
+        : m_IoContext(io_context)
+        , m_Socket(io_context)
+        , m_QMessagesInServer(qToServer)
+        , m_PingTimer(io_context, std::chrono::seconds(5))
+        , m_IsActive(true)
     {
     }
+
     void Start();
+    void StartPingTimer();
     void Close();
     void Send(std::shared_ptr<myPayload::Payload> msg);
+    void SendPing();
     bool IsConnected();
     boost::asio::ip::tcp::socket& GetSocket();
 
@@ -29,11 +36,14 @@ private:
 
 private:
     boost::asio::ip::tcp::socket m_Socket;
-    std::shared_ptr<boost::asio::io_context> m_IoContext;
+    boost::asio::io_context& m_IoContext;
 
     std::vector<uint8_t> m_Writebuf;
     std::vector<uint8_t> m_Readbuf;
     
     ThreadSafeQueue<OwnedMessage>& m_QMessagesInServer;     
     ThreadSafeQueue<std::shared_ptr<myPayload::Payload>> m_QMessageOutServer;
+
+    boost::asio::steady_timer m_PingTimer;
+    bool m_IsActive;
 };

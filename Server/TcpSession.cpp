@@ -2,6 +2,7 @@
 
 void TcpSession::Start()
 {
+    StartPingTimer();
     ReadHeader();
 }
 
@@ -12,7 +13,7 @@ boost::asio::ip::tcp::socket &TcpSession::GetSocket()
 
 void TcpSession::Send(std::shared_ptr<myPayload::Payload> msg)
 {
-    boost::asio::post(*m_IoContext,
+    boost::asio::post(m_IoContext,
         [this, msg]()
         {
             bool bWritingMessage = !m_QMessageOutServer.Empty();
@@ -20,6 +21,48 @@ void TcpSession::Send(std::shared_ptr<myPayload::Payload> msg)
             if (!bWritingMessage)
                 AsyncWrite();
         });
+}
+
+void TcpSession::SendPing()
+{
+    // 현재 시간을 milliseconds로 얻어옴
+    auto now = std::chrono::system_clock::now();
+    auto now_ms = std::chrono::time_point_cast<std::chrono::milliseconds>(now);
+    auto value = now_ms.time_since_epoch().count();
+
+    // Payload 메시지 생성 및 시간 정보 설정
+    auto pingMsg = std::make_shared<myPayload::Payload>();
+    pingMsg->set_payloadtype(myPayload::PayloadType::SERVER_PING);
+    pingMsg->set_content(std::to_string(value)); // 밀리초로 변환하여 content에 설정
+    Send(pingMsg);
+    m_IsActive = false;
+}
+
+
+void TcpSession::StartPingTimer()
+{
+    
+    m_PingTimer.expires_after(std::chrono::seconds(5)); // 5초마다 ping 전송
+    m_PingTimer.async_wait([this](const boost::system::error_code& ec) {
+
+        if (!ec)
+        {
+            if (IsConnected())
+            {
+                // 클라이언트가 활성 상태인 경우에만 ping 전송
+                SendPing();
+                StartPingTimer(); // 타이머 재시작
+            }
+        }
+        else
+        {
+            // 에러 처리
+            std::cout << "[SERVER] DisConnected Client.\n";
+            m_IsActive = false;
+            Close();
+        }
+
+    });
 }
 
 
@@ -59,6 +102,7 @@ void TcpSession::OnWrite(const boost::system::error_code& err, const size_t size
     else
     {
         std::cout << err.message() << std::endl;
+        Close();
     }
 }
 
@@ -81,8 +125,8 @@ void TcpSession::ReadHeader()
             {
                 // 클라이언트로부터의 읽기가 실패하는 경우
                 // 소켓을 닫고 시스템이 이후 정리하도록 합니다.
-                std::cout << "[SERVER] Read Header Fail.\n";
-                m_Socket.close();
+                std::cout << "[SERVER] DisConnected Client.\n";
+                Close();
             }
         });
 }
@@ -114,8 +158,8 @@ void TcpSession::ReadBody(size_t bodySize)
             }
             else
             {
-                std::cout << "[SERVER] Read Body Fail.\n";
-                m_Socket.close();
+                std::cout << "[SERVER] DisConnected Client.\n";
+                Close();
             }
         });
 }

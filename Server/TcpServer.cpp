@@ -1,7 +1,7 @@
 #include "TcpServer.h"
 
-TcpServer::TcpServer(std::shared_ptr<boost::asio::io_context> io_context, int port)
-    : m_Acceptor(*io_context, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), port)),
+TcpServer::TcpServer(boost::asio::io_context& io_context, int port)
+    : m_Acceptor(io_context, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), port)),
     m_IoContext(io_context)
 {    
 }
@@ -11,8 +11,9 @@ bool TcpServer::Start()
 {
     try
     {
+        // 클라이언트 연결 대기 및 연결
         WaitForClientConnection();
-        m_ThreadContext = std::thread([this]() { m_IoContext->run(); });
+        m_ThreadContext = std::thread([this]() { m_IoContext.run(); });
     }
     catch (std::exception& e)
     {
@@ -28,6 +29,7 @@ bool TcpServer::Start()
 
 void TcpServer::WaitForClientConnection()
 {
+    // 클라이언트 연결 정보 shared_ptr로 관리
     auto tcpSession = std::make_shared<TcpSession>(m_IoContext, m_QMessagesInServer);
     m_Acceptor.async_accept(tcpSession->GetSocket(),
         [this, tcpSession](const boost::system::error_code& err)
@@ -43,7 +45,7 @@ void TcpServer::Update(size_t nMaxMessages = -1, bool bWait = false)
         m_QMessagesInServer.Wait();
     }
 
-    // 메시지를 처리하기 전에 큐가 비어 있는지 확인
+    // 큐에 메시지가 있는 경우 처리 시작
     if (!m_QMessagesInServer.Empty()) {
         size_t nMessageCount = 0;
         while (nMessageCount < nMaxMessages && !m_QMessagesInServer.Empty())
@@ -62,7 +64,11 @@ void TcpServer::OnMessage(std::shared_ptr<TcpSession> session, std::shared_ptr<m
     case myPayload::PayloadType::SERVER_PING:
     {
         std::cout << "[SERVER] Server Ping\n";
-        session->Send(msg);
+        auto sentTimeMs = std::stoll(msg->content());
+        auto sentTime = std::chrono::milliseconds(sentTimeMs);
+        auto currentTime = std::chrono::system_clock::now().time_since_epoch();
+        auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - sentTime);
+        std::cout << "Response time: " << elapsedTime.count() << "ms" << std::endl;
     }
     break;    
     case myPayload::PayloadType::ALL_MESSAGE:
@@ -76,6 +82,8 @@ void TcpServer::OnMessage(std::shared_ptr<TcpSession> session, std::shared_ptr<m
 
 void TcpServer::SendAllClients(std::shared_ptr<myPayload::Payload> msg)
 {
+    bool hasDisconnectedClient = false; // 연결이 끊어진 클라이언트 여부를 추적
+
     for (auto session : m_VecTcpSessions)
     {
         if (session && session->IsConnected())
@@ -85,9 +93,17 @@ void TcpServer::SendAllClients(std::shared_ptr<myPayload::Payload> msg)
         }
         else
         {
-            // TODO : 세션 연결 해제 처리
-            // 이더레이터가 꼬일수 있으니 for문 바깥에서 처리
+            hasDisconnectedClient = true;
+            std::cout << "session : " << session << "\n";
         }
+    }
+
+    if (hasDisconnectedClient)
+    {
+        m_VecTcpSessions.erase(std::remove_if(m_VecTcpSessions.begin(), m_VecTcpSessions.end(),
+        [](const std::shared_ptr<TcpSession>& session) {
+            return !session || !session->IsConnected();
+        }), m_VecTcpSessions.end());
     }
 }
 
