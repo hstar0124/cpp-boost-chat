@@ -8,8 +8,6 @@
 class TcpSession : public std::enable_shared_from_this<TcpSession>
 {
 public:
-
-public:
     TcpSession(boost::asio::io_context& io_context, ThreadSafeQueue<OwnedMessage>& qToServer)
         : m_IoContext(io_context)
         , m_Socket(io_context)

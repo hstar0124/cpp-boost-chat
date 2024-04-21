@@ -1,8 +1,8 @@
 #include "TcpServer.h"
 
 TcpServer::TcpServer(boost::asio::io_context& io_context, int port)
-    : m_Acceptor(io_context, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), port)),
-    m_IoContext(io_context)
+    : m_Acceptor(io_context, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), port))
+    , m_IoContext(io_context)
 {    
 }
 
