@@ -13,7 +13,7 @@ enum PayloadType
 
 message Payload {
     PayloadType payloadtype = 1;
-    string content = 2;
-    string recipient = 3;
-    string partyID = 4;
+    string sender = 2;
+    string receiver = 3;
+    string content = 4;    
 }

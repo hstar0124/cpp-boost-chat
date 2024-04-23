@@ -22,4 +22,6 @@ private:
 
     ThreadSafeQueue<OwnedMessage> m_QMessagesInServer;
     std::vector<std::shared_ptr<TcpSession>> m_VecTcpSessions;
+
+    uint32_t m_IdCounter = 10000;
 };

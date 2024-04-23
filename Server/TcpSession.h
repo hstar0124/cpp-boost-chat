@@ -17,12 +17,13 @@ public:
     {
     }
 
-    void Start();
+    void Start(uint32_t uid);
     void StartPingTimer();
     void Close();
     void Send(std::shared_ptr<myPayload::Payload> msg);
     void SendPing();
     bool IsConnected();
+    uint32_t GetID() const;
     boost::asio::ip::tcp::socket& GetSocket();
 
 private:
@@ -44,4 +45,6 @@ private:
 
     boost::asio::steady_timer m_PingTimer;
     bool m_IsActive;
+
+    uint32_t m_Id = 0;
 };

@@ -11,6 +11,7 @@
 #include <optional>
 #include <vector>
 #include <iostream>
+#include <string>
 #include <algorithm>
 
 #ifdef _WIN32
@@ -19,4 +20,4 @@
 
 #include <boost/asio.hpp>
 
-static constexpr int HEADER_SIZE = 4;
+const int HEADER_SIZE = 4;

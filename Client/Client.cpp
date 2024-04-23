@@ -85,7 +85,6 @@ private:
 
 	void OnWrite(const boost::system::error_code& err, const size_t size)
 	{
-		// 입력 완료시
 	}
 
 	void ReadHeader()
@@ -133,33 +132,7 @@ private:
 					// m_readbuf를 Payload 메시지로 디시리얼라이즈
 					if (payload->ParseFromArray(m_Readbuf.data(), size))
 					{
-						// Payload 메시지에서 필요한 데이터를 출력
-						std::cout << "Payload Type: " << payload->payloadtype() << std::endl;
-						std::cout << "Content: " << payload->content() << std::endl;
-
-						if (payload->payloadtype() == myPayload::PayloadType::SERVER_PING)
-						{
-							try
-							{
-								auto sentTimeMs = std::stoll(payload->content());
-								auto sentTime = std::chrono::milliseconds(sentTimeMs);
-								auto currentTime = std::chrono::system_clock::now().time_since_epoch();
-								auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - sentTime);
-								std::cout << "Response time: " << elapsedTime.count() << "ms" << std::endl;
-								SendPong();
-							}
-							catch (const std::invalid_argument& e)
-							{
-								std::cerr << "Invalid argument: " << e.what() << std::endl;
-							}
-							catch (const std::out_of_range& e)
-							{
-								std::cerr << "Out of range: " << e.what() << std::endl;
-							}
-						}
-
-							
-
+						MessageHandler(payload);
 						ReadHeader();
 					}
 					else
@@ -177,7 +150,26 @@ private:
 			});
 	}
 
-	
+	void MessageHandler(std::shared_ptr<myPayload::Payload>& payload)
+	{
+		//std::cout << "Payload Type: " << payload->payloadtype() << std::endl;
+		if (payload->payloadtype() == myPayload::PayloadType::ALL_MESSAGE)
+		{
+			std::cout << "[" << payload->sender() << "] " <<  payload->content() << std::endl;
+		}
+
+		if (payload->payloadtype() == myPayload::PayloadType::SERVER_PING)
+		{
+			auto sentTimeMs = std::stoll(payload->content());
+			auto sentTime = std::chrono::milliseconds(sentTimeMs);
+			auto currentTime = std::chrono::system_clock::now().time_since_epoch();
+			auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - sentTime);
+			//std::cout << "Response time: " << elapsedTime.count() << "ms" << std::endl;
+			SendPong();
+			
+			return;
+		}
+	}
 
 private:
 	
@@ -201,8 +193,8 @@ int main()
 
 	std::thread thread([&io_context]() { io_context.run(); });
 
-	char userInput[100];
-	while (std::cin.getline(userInput, 100))
+	std::string userInput;
+	while (getline(std::cin, userInput))
 	{	
 		client.Send(userInput);
 	}

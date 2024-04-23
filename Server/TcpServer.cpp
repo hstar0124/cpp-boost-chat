@@ -63,18 +63,18 @@ void TcpServer::OnMessage(std::shared_ptr<TcpSession> session, std::shared_ptr<m
     {
     case myPayload::PayloadType::SERVER_PING:
     {
-        std::cout << "[SERVER] Server Ping\n";
+        //std::cout << "[SERVER] Server Ping\n";
         auto sentTimeMs = std::stoll(msg->content());
         auto sentTime = std::chrono::milliseconds(sentTimeMs);
         auto currentTime = std::chrono::system_clock::now().time_since_epoch();
         auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - sentTime);
-        std::cout << "Response time: " << elapsedTime.count() << "ms" << std::endl;
+        //std::cout << "Response time: " << elapsedTime.count() << "ms" << std::endl;
     }
     break;    
     case myPayload::PayloadType::ALL_MESSAGE:
     {
         std::cout << "[SERVER] Send Message for All Clients\n";
-        msg->set_payloadtype(myPayload::PayloadType::SERVER_MESSAGE);
+        msg->set_payloadtype(myPayload::PayloadType::ALL_MESSAGE);
         SendAllClients(msg);
     }
     }
@@ -88,13 +88,11 @@ void TcpServer::SendAllClients(std::shared_ptr<myPayload::Payload> msg)
     {
         if (session && session->IsConnected())
         {
-            std::cout << "[SERVER] Send Message Process\n";
             session->Send(msg);
         }
         else
         {
             hasDisconnectedClient = true;
-            std::cout << "session : " << session << "\n";
         }
     }
 
@@ -114,8 +112,8 @@ void TcpServer::OnAccept(std::shared_ptr<TcpSession> tcpSession, const boost::sy
     {
         // TODO : 클라이언트 유효성 체크        
         m_VecTcpSessions.push_back(std::move(tcpSession));
-        m_VecTcpSessions.back()->Start();
-        std::cout << "[SERVER] New Connection Approved!!\n";    
+        m_VecTcpSessions.back()->Start(m_IdCounter++);
+        std::cout << "[SERVER] " << m_VecTcpSessions.back()->GetID() << " Connection Approved\n";
     }
     else
     {
