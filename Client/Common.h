@@ -11,6 +11,7 @@
 #include <optional>
 #include <vector>
 #include <iostream>
+#include <string>
 #include <algorithm>
 
 #ifdef _WIN32

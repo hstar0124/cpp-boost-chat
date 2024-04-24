@@ -14,7 +14,7 @@ enum class PacketType : uint32_t
 
 struct MessageHeader
 {
-	PacketType id{};
+	PacketType m_Id{};
 	uint32_t size = 0;
 };
 
@@ -32,7 +32,7 @@ struct Message
 	// std::cout 호환성을 위한 재정의 - 메시지 관련된 정보 출력
 	friend std::ostream& operator << (std::ostream& os, const Message& msg)
 	{
-		os << "ID: " << int(msg.header.id) << " Size: " << msg.header.size;
+		os << "ID: " << int(msg.header.m_Id) << " Size: " << msg.header.size;
 		return os;
 	}
 

@@ -40,8 +40,40 @@ public:
 	void Send(const std::string& userInput)
 	{
 		std::shared_ptr<myPayload::Payload> pl = std::make_shared<myPayload::Payload>();
-		pl->set_payloadtype(myPayload::PayloadType::ALL_MESSAGE);
-		pl->set_content(userInput);
+
+		if (userInput.substr(0, 2) == "/w") {
+			size_t spacePos = userInput.find(' ');
+			size_t receiverEndPos = userInput.find(' ', spacePos + 1);
+
+			if (spacePos == std::string::npos || userInput.size() <= spacePos + 1 || receiverEndPos == std::string::npos) {
+				std::cout << "[CLIENT] 잘못된 메시지 포맷입니다. 형식: /w [수신자] [메시지]\n";
+				return;
+			}
+
+			std::string receiver = userInput.substr(spacePos + 1, receiverEndPos - spacePos - 1);
+			std::string message = userInput.substr(receiverEndPos + 1);
+
+			pl->set_payloadtype(myPayload::PayloadType::WHISPER_MESSAGE);
+			pl->set_receiver(receiver);
+			pl->set_content(message);
+		}
+		else if (userInput.substr(0, 2) == "/p") 
+		{
+			if (userInput.size() > 2) 
+			{
+				pl->set_payloadtype(myPayload::PayloadType::PARTY_MESSAGE);
+				pl->set_content(userInput.substr(2));
+			}
+			else 
+			{
+				std::cout << "[CLIENT] 잘못된 메시지 포맷입니다. 형식: /p [메시지]\n";
+				return;
+			}
+		}
+		else {
+			pl->set_payloadtype(myPayload::PayloadType::ALL_MESSAGE);
+			pl->set_content(userInput);
+		}
 
 		AsyncWrite(pl);
 	}
@@ -85,7 +117,6 @@ private:
 
 	void OnWrite(const boost::system::error_code& err, const size_t size)
 	{
-		// 입력 완료시
 	}
 
 	void ReadHeader()
@@ -133,33 +164,7 @@ private:
 					// m_readbuf를 Payload 메시지로 디시리얼라이즈
 					if (payload->ParseFromArray(m_Readbuf.data(), size))
 					{
-						// Payload 메시지에서 필요한 데이터를 출력
-						std::cout << "Payload Type: " << payload->payloadtype() << std::endl;
-						std::cout << "Content: " << payload->content() << std::endl;
-
-						if (payload->payloadtype() == myPayload::PayloadType::SERVER_PING)
-						{
-							try
-							{
-								auto sentTimeMs = std::stoll(payload->content());
-								auto sentTime = std::chrono::milliseconds(sentTimeMs);
-								auto currentTime = std::chrono::system_clock::now().time_since_epoch();
-								auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - sentTime);
-								std::cout << "Response time: " << elapsedTime.count() << "ms" << std::endl;
-								SendPong();
-							}
-							catch (const std::invalid_argument& e)
-							{
-								std::cerr << "Invalid argument: " << e.what() << std::endl;
-							}
-							catch (const std::out_of_range& e)
-							{
-								std::cerr << "Out of range: " << e.what() << std::endl;
-							}
-						}
-
-							
-
+						MessageHandler(payload);
 						ReadHeader();
 					}
 					else
@@ -167,7 +172,7 @@ private:
 						// 디시리얼라이즈 실패
 						std::cerr << "Failed to parse Payload message" << std::endl;
 					}
-					
+
 				}
 				else
 				{
@@ -177,15 +182,47 @@ private:
 			});
 	}
 
-	
+	void MessageHandler(std::shared_ptr<myPayload::Payload>& payload)
+	{
+		//std::cout << "Payload Type: " << payload->payloadtype() << std::endl;
+		if (payload->payloadtype() == myPayload::PayloadType::ALL_MESSAGE)
+		{
+			std::cout << "[" << payload->sender() << "] " << payload->content() << std::endl;
+			return;
+		}
+
+		if (payload->payloadtype() == myPayload::PayloadType::SERVER_PING)
+		{
+			auto sentTimeMs = std::stoll(payload->content());
+			auto sentTime = std::chrono::milliseconds(sentTimeMs);
+			auto currentTime = std::chrono::system_clock::now().time_since_epoch();
+			auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - sentTime);
+			//std::cout << "Response time: " << elapsedTime.count() << "ms" << std::endl;
+			SendPong();
+
+			return;
+		}
+
+		if (payload->payloadtype() == myPayload::PayloadType::WHISPER_MESSAGE)
+		{
+			std::cout << "<<" << payload->sender() << ">> " << payload->content() << std::endl;
+			return;
+		}
+
+		if (payload->payloadtype() == myPayload::PayloadType::ERROR_MESSAGE)
+		{
+			std::cout << payload->content() << std::endl;
+			return;
+		}
+	}
 
 private:
-	
-	boost::asio::ip::tcp::endpoint m_Endpoint;	
+
+	boost::asio::ip::tcp::endpoint m_Endpoint;
 	boost::asio::io_context& m_IoContext;
 	boost::asio::ip::tcp::socket m_Socket;
 	std::string m_Meaasge;
-		
+
 	Message m_TemporaryMessage;
 	std::vector<uint8_t> m_Readbuf;
 };
@@ -201,9 +238,9 @@ int main()
 
 	std::thread thread([&io_context]() { io_context.run(); });
 
-	char userInput[100];
-	while (std::cin.getline(userInput, 100))
-	{	
+	std::string userInput;
+	while (getline(std::cin, userInput))
+	{
 		client.Send(userInput);
 	}
 

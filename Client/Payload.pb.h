@@ -68,12 +68,15 @@ enum PayloadType : int {
   SERVER_PING = 0,
   SERVER_MESSAGE = 1,
   ALL_MESSAGE = 2,
+  WHISPER_MESSAGE = 3,
+  PARTY_MESSAGE = 4,
+  ERROR_MESSAGE = 99,
   PayloadType_INT_MIN_SENTINEL_DO_NOT_USE_ = std::numeric_limits<::PROTOBUF_NAMESPACE_ID::int32>::min(),
   PayloadType_INT_MAX_SENTINEL_DO_NOT_USE_ = std::numeric_limits<::PROTOBUF_NAMESPACE_ID::int32>::max()
 };
 bool PayloadType_IsValid(int value);
 constexpr PayloadType PayloadType_MIN = SERVER_PING;
-constexpr PayloadType PayloadType_MAX = ALL_MESSAGE;
+constexpr PayloadType PayloadType_MAX = ERROR_MESSAGE;
 constexpr int PayloadType_ARRAYSIZE = PayloadType_MAX + 1;
 
 const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* PayloadType_descriptor();
@@ -204,10 +207,44 @@ class Payload PROTOBUF_FINAL :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kContentFieldNumber = 2,
+    kSenderFieldNumber = 2,
+    kReceiverFieldNumber = 3,
+    kContentFieldNumber = 4,
     kPayloadtypeFieldNumber = 1,
   };
-  // string content = 2;
+  // string sender = 2;
+  void clear_sender();
+  const std::string& sender() const;
+  void set_sender(const std::string& value);
+  void set_sender(std::string&& value);
+  void set_sender(const char* value);
+  void set_sender(const char* value, size_t size);
+  std::string* mutable_sender();
+  std::string* release_sender();
+  void set_allocated_sender(std::string* sender);
+  private:
+  const std::string& _internal_sender() const;
+  void _internal_set_sender(const std::string& value);
+  std::string* _internal_mutable_sender();
+  public:
+
+  // string receiver = 3;
+  void clear_receiver();
+  const std::string& receiver() const;
+  void set_receiver(const std::string& value);
+  void set_receiver(std::string&& value);
+  void set_receiver(const char* value);
+  void set_receiver(const char* value, size_t size);
+  std::string* mutable_receiver();
+  std::string* release_receiver();
+  void set_allocated_receiver(std::string* receiver);
+  private:
+  const std::string& _internal_receiver() const;
+  void _internal_set_receiver(const std::string& value);
+  std::string* _internal_mutable_receiver();
+  public:
+
+  // string content = 4;
   void clear_content();
   const std::string& content() const;
   void set_content(const std::string& value);
@@ -239,6 +276,8 @@ class Payload PROTOBUF_FINAL :
   template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr sender_;
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr receiver_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr content_;
   int payloadtype_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
@@ -275,7 +314,129 @@ inline void Payload::set_payloadtype(::myPayload::PayloadType value) {
   // @@protoc_insertion_point(field_set:myPayload.Payload.payloadtype)
 }
 
-// string content = 2;
+// string sender = 2;
+inline void Payload::clear_sender() {
+  sender_.ClearToEmpty();
+}
+inline const std::string& Payload::sender() const {
+  // @@protoc_insertion_point(field_get:myPayload.Payload.sender)
+  return _internal_sender();
+}
+inline void Payload::set_sender(const std::string& value) {
+  _internal_set_sender(value);
+  // @@protoc_insertion_point(field_set:myPayload.Payload.sender)
+}
+inline std::string* Payload::mutable_sender() {
+  // @@protoc_insertion_point(field_mutable:myPayload.Payload.sender)
+  return _internal_mutable_sender();
+}
+inline const std::string& Payload::_internal_sender() const {
+  return sender_.Get();
+}
+inline void Payload::_internal_set_sender(const std::string& value) {
+  
+  sender_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArena());
+}
+inline void Payload::set_sender(std::string&& value) {
+  
+  sender_.Set(
+    ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::move(value), GetArena());
+  // @@protoc_insertion_point(field_set_rvalue:myPayload.Payload.sender)
+}
+inline void Payload::set_sender(const char* value) {
+  GOOGLE_DCHECK(value != nullptr);
+  
+  sender_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(value), GetArena());
+  // @@protoc_insertion_point(field_set_char:myPayload.Payload.sender)
+}
+inline void Payload::set_sender(const char* value,
+    size_t size) {
+  
+  sender_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(
+      reinterpret_cast<const char*>(value), size), GetArena());
+  // @@protoc_insertion_point(field_set_pointer:myPayload.Payload.sender)
+}
+inline std::string* Payload::_internal_mutable_sender() {
+  
+  return sender_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArena());
+}
+inline std::string* Payload::release_sender() {
+  // @@protoc_insertion_point(field_release:myPayload.Payload.sender)
+  return sender_.Release(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+}
+inline void Payload::set_allocated_sender(std::string* sender) {
+  if (sender != nullptr) {
+    
+  } else {
+    
+  }
+  sender_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), sender,
+      GetArena());
+  // @@protoc_insertion_point(field_set_allocated:myPayload.Payload.sender)
+}
+
+// string receiver = 3;
+inline void Payload::clear_receiver() {
+  receiver_.ClearToEmpty();
+}
+inline const std::string& Payload::receiver() const {
+  // @@protoc_insertion_point(field_get:myPayload.Payload.receiver)
+  return _internal_receiver();
+}
+inline void Payload::set_receiver(const std::string& value) {
+  _internal_set_receiver(value);
+  // @@protoc_insertion_point(field_set:myPayload.Payload.receiver)
+}
+inline std::string* Payload::mutable_receiver() {
+  // @@protoc_insertion_point(field_mutable:myPayload.Payload.receiver)
+  return _internal_mutable_receiver();
+}
+inline const std::string& Payload::_internal_receiver() const {
+  return receiver_.Get();
+}
+inline void Payload::_internal_set_receiver(const std::string& value) {
+  
+  receiver_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArena());
+}
+inline void Payload::set_receiver(std::string&& value) {
+  
+  receiver_.Set(
+    ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::move(value), GetArena());
+  // @@protoc_insertion_point(field_set_rvalue:myPayload.Payload.receiver)
+}
+inline void Payload::set_receiver(const char* value) {
+  GOOGLE_DCHECK(value != nullptr);
+  
+  receiver_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(value), GetArena());
+  // @@protoc_insertion_point(field_set_char:myPayload.Payload.receiver)
+}
+inline void Payload::set_receiver(const char* value,
+    size_t size) {
+  
+  receiver_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(
+      reinterpret_cast<const char*>(value), size), GetArena());
+  // @@protoc_insertion_point(field_set_pointer:myPayload.Payload.receiver)
+}
+inline std::string* Payload::_internal_mutable_receiver() {
+  
+  return receiver_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArena());
+}
+inline std::string* Payload::release_receiver() {
+  // @@protoc_insertion_point(field_release:myPayload.Payload.receiver)
+  return receiver_.Release(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+}
+inline void Payload::set_allocated_receiver(std::string* receiver) {
+  if (receiver != nullptr) {
+    
+  } else {
+    
+  }
+  receiver_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), receiver,
+      GetArena());
+  // @@protoc_insertion_point(field_set_allocated:myPayload.Payload.receiver)
+}
+
+// string content = 4;
 inline void Payload::clear_content() {
   content_.ClearToEmpty();
 }

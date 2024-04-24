@@ -1,7 +1,8 @@
 #include "TcpSession.h"
 
-void TcpSession::Start()
+void TcpSession::Start(uint32_t uid = 0)
 {
+    m_Id = uid;
     StartPingTimer();
     ReadHeader();
 }
@@ -76,6 +77,12 @@ bool TcpSession::IsConnected()
     return m_Socket.is_open();
 }
 
+uint32_t TcpSession::GetID() const
+{
+    return m_Id;
+}
+
+
 void TcpSession::AsyncWrite()
 {
     auto payload = m_QMessageOutServer.Front();
@@ -149,9 +156,9 @@ void TcpSession::ReadBody(size_t bodySize)
                 if (PacketConverter::DeserializePayload(m_Readbuf, payload))
                 {
                     // Payload 메시지에서 필요한 데이터를 출력
-                    std::cout << "Payload Type: " << payload->payloadtype() << std::endl;
-                    std::cout << "Content: " << payload->content() << std::endl;
-
+                    //std::cout << "Payload Type: " << payload->payloadtype() << std::endl;
+                    //std::cout << "Content: " << payload->content() << std::endl;
+                    payload->set_sender(std::to_string(m_Id));
                     // 메시지를 수신 큐에 추가합니다.
                     AddToIncomingMessageQueue(payload);
                 }

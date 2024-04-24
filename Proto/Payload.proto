@@ -7,9 +7,14 @@ enum PayloadType
     SERVER_PING = 0;
     SERVER_MESSAGE = 1;
     ALL_MESSAGE = 2;
+    WHISPER_MESSAGE = 3;
+    PARTY_MESSAGE = 4;
+    ERROR_MESSAGE = 99;
 }
 
 message Payload {
     PayloadType payloadtype = 1;
-    string content = 2;
+    string sender = 2;
+    string receiver = 3;
+    string content = 4;    
 }

@@ -36,10 +36,10 @@
     <ClInclude Include="Common.h">
       <Filter>소스 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Payload.pb.h">
+    <ClInclude Include="PacketConverter.hpp">
       <Filter>소스 파일</Filter>
     </ClInclude>
-    <ClInclude Include="PacketConverter.hpp">
+    <ClInclude Include="Payload.pb.h">
       <Filter>소스 파일</Filter>
     </ClInclude>
   </ItemGroup>
