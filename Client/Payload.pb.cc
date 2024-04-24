@@ -60,10 +60,10 @@ const char descriptor_table_protodef_Payload_2eproto[] PROTOBUF_SECTION_VARIABLE
   "\n\rPayload.proto\022\tmyPayload\"i\n\007Payload\022+\n"
   "\013payloadtype\030\001 \001(\0162\026.myPayload.PayloadTy"
   "pe\022\016\n\006sender\030\002 \001(\t\022\020\n\010receiver\030\003 \001(\t\022\017\n\007"
-  "content\030\004 \001(\t*k\n\013PayloadType\022\017\n\013SERVER_P"
+  "content\030\004 \001(\t*~\n\013PayloadType\022\017\n\013SERVER_P"
   "ING\020\000\022\022\n\016SERVER_MESSAGE\020\001\022\017\n\013ALL_MESSAGE"
   "\020\002\022\023\n\017WHISPER_MESSAGE\020\003\022\021\n\rPARTY_MESSAGE"
-  "\020\004b\006proto3"
+  "\020\004\022\021\n\rERROR_MESSAGE\020cb\006proto3"
   ;
 static const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable*const descriptor_table_Payload_2eproto_deps[1] = {
 };
@@ -72,7 +72,7 @@ static ::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase*const descriptor_table_Pay
 };
 static ::PROTOBUF_NAMESPACE_ID::internal::once_flag descriptor_table_Payload_2eproto_once;
 const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_Payload_2eproto = {
-  false, false, descriptor_table_protodef_Payload_2eproto, "Payload.proto", 250,
+  false, false, descriptor_table_protodef_Payload_2eproto, "Payload.proto", 269,
   &descriptor_table_Payload_2eproto_once, descriptor_table_Payload_2eproto_sccs, descriptor_table_Payload_2eproto_deps, 1, 0,
   schemas, file_default_instances, TableStruct_Payload_2eproto::offsets,
   file_level_metadata_Payload_2eproto, 1, file_level_enum_descriptors_Payload_2eproto, file_level_service_descriptors_Payload_2eproto,
@@ -92,6 +92,7 @@ bool PayloadType_IsValid(int value) {
     case 2:
     case 3:
     case 4:
+    case 99:
       return true;
     default:
       return false;

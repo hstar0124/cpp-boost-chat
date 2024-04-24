@@ -40,8 +40,40 @@ public:
 	void Send(const std::string& userInput)
 	{
 		std::shared_ptr<myPayload::Payload> pl = std::make_shared<myPayload::Payload>();
-		pl->set_payloadtype(myPayload::PayloadType::ALL_MESSAGE);
-		pl->set_content(userInput);
+
+		if (userInput.substr(0, 2) == "/w") {
+			size_t spacePos = userInput.find(' ');
+			size_t receiverEndPos = userInput.find(' ', spacePos + 1);
+
+			if (spacePos == std::string::npos || userInput.size() <= spacePos + 1 || receiverEndPos == std::string::npos) {
+				std::cout << "[CLIENT] 잘못된 메시지 포맷입니다. 형식: /w [수신자] [메시지]\n";
+				return;
+			}
+
+			std::string receiver = userInput.substr(spacePos + 1, receiverEndPos - spacePos - 1);
+			std::string message = userInput.substr(receiverEndPos + 1);
+
+			pl->set_payloadtype(myPayload::PayloadType::WHISPER_MESSAGE);
+			pl->set_receiver(receiver);
+			pl->set_content(message);
+		}
+		else if (userInput.substr(0, 2) == "/p") 
+		{
+			if (userInput.size() > 2) 
+			{
+				pl->set_payloadtype(myPayload::PayloadType::PARTY_MESSAGE);
+				pl->set_content(userInput.substr(2));
+			}
+			else 
+			{
+				std::cout << "[CLIENT] 잘못된 메시지 포맷입니다. 형식: /p [메시지]\n";
+				return;
+			}
+		}
+		else {
+			pl->set_payloadtype(myPayload::PayloadType::ALL_MESSAGE);
+			pl->set_content(userInput);
+		}
 
 		AsyncWrite(pl);
 	}
@@ -140,7 +172,7 @@ private:
 						// 디시리얼라이즈 실패
 						std::cerr << "Failed to parse Payload message" << std::endl;
 					}
-					
+
 				}
 				else
 				{
@@ -155,7 +187,8 @@ private:
 		//std::cout << "Payload Type: " << payload->payloadtype() << std::endl;
 		if (payload->payloadtype() == myPayload::PayloadType::ALL_MESSAGE)
 		{
-			std::cout << "[" << payload->sender() << "] " <<  payload->content() << std::endl;
+			std::cout << "[" << payload->sender() << "] " << payload->content() << std::endl;
+			return;
 		}
 
 		if (payload->payloadtype() == myPayload::PayloadType::SERVER_PING)
@@ -166,18 +199,30 @@ private:
 			auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - sentTime);
 			//std::cout << "Response time: " << elapsedTime.count() << "ms" << std::endl;
 			SendPong();
-			
+
+			return;
+		}
+
+		if (payload->payloadtype() == myPayload::PayloadType::WHISPER_MESSAGE)
+		{
+			std::cout << "<<" << payload->sender() << ">> " << payload->content() << std::endl;
+			return;
+		}
+
+		if (payload->payloadtype() == myPayload::PayloadType::ERROR_MESSAGE)
+		{
+			std::cout << payload->content() << std::endl;
 			return;
 		}
 	}
 
 private:
-	
-	boost::asio::ip::tcp::endpoint m_Endpoint;	
+
+	boost::asio::ip::tcp::endpoint m_Endpoint;
 	boost::asio::io_context& m_IoContext;
 	boost::asio::ip::tcp::socket m_Socket;
 	std::string m_Meaasge;
-		
+
 	Message m_TemporaryMessage;
 	std::vector<uint8_t> m_Readbuf;
 };
@@ -195,7 +240,7 @@ int main()
 
 	std::string userInput;
 	while (getline(std::cin, userInput))
-	{	
+	{
 		client.Send(userInput);
 	}
 

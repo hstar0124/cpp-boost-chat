@@ -9,6 +9,7 @@ enum PayloadType
     ALL_MESSAGE = 2;
     WHISPER_MESSAGE = 3;
     PARTY_MESSAGE = 4;
+    ERROR_MESSAGE = 99;
 }
 
 message Payload {

@@ -12,6 +12,9 @@ public:
     void Update(size_t nMaxMessages, bool bWait);
     void OnMessage(std::shared_ptr<TcpSession> session, std::shared_ptr<myPayload::Payload> msg);
     void SendAllClients(std::shared_ptr<myPayload::Payload> msg);
+    //void SendPartyMessage(std::shared_ptr<TcpSession>& senderSession, std::shared_ptr<myPayload::Payload> msg);
+    void SendWhisperMessage(std::shared_ptr<TcpSession>& senderSession, const std::string& receiver, std::shared_ptr<myPayload::Payload> msg);
+    void SendErrorMessage(std::shared_ptr<TcpSession>& session, const std::string& errorMessage);
 
 private:
     void OnAccept(std::shared_ptr<TcpSession> tcpSession, const boost::system::error_code& err);

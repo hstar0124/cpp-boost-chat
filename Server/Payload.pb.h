@@ -70,12 +70,13 @@ enum PayloadType : int {
   ALL_MESSAGE = 2,
   WHISPER_MESSAGE = 3,
   PARTY_MESSAGE = 4,
+  ERROR_MESSAGE = 99,
   PayloadType_INT_MIN_SENTINEL_DO_NOT_USE_ = std::numeric_limits<::PROTOBUF_NAMESPACE_ID::int32>::min(),
   PayloadType_INT_MAX_SENTINEL_DO_NOT_USE_ = std::numeric_limits<::PROTOBUF_NAMESPACE_ID::int32>::max()
 };
 bool PayloadType_IsValid(int value);
 constexpr PayloadType PayloadType_MIN = SERVER_PING;
-constexpr PayloadType PayloadType_MAX = PARTY_MESSAGE;
+constexpr PayloadType PayloadType_MAX = ERROR_MESSAGE;
 constexpr int PayloadType_ARRAYSIZE = PayloadType_MAX + 1;
 
 const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* PayloadType_descriptor();
