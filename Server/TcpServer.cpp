@@ -38,6 +38,25 @@ void TcpServer::WaitForClientConnection()
         });
 }
 
+void TcpServer::OnAccept(std::shared_ptr<TcpSession> tcpSession, const boost::system::error_code& err)
+{
+    if (!err)
+    {
+        // TODO : 클라이언트 유효성 체크        
+        m_VecTcpSessions.push_back(std::move(tcpSession));
+        m_VecTcpSessions.back()->Start(m_IdCounter++);
+        std::cout << "[SERVER] " << m_VecTcpSessions.back()->GetID() << " Connection Approved\n";
+    }
+    else
+    {
+        std::cout << "[SERVER] Error " << err.message() << std::endl;
+    }
+
+    WaitForClientConnection();
+}
+
+
+
 void TcpServer::Update(size_t nMaxMessages = -1, bool bWait = false)
 {
     // 큐가 비어 있는 경우 대기
@@ -57,16 +76,16 @@ void TcpServer::Update(size_t nMaxMessages = -1, bool bWait = false)
     }
 }
 
-void TcpServer::OnMessage(std::shared_ptr<TcpSession> session, std::shared_ptr<myPayload::Payload> msg)
+void TcpServer::OnMessage(std::shared_ptr<TcpSession> session, std::shared_ptr<myChatMessage::ChatMessage> msg)
 {
 
     //std::cout << "MSG : " << msg->payloadtype() << "\n";
     //std::cout << "MSG : " << msg->receiver() << "\n";
     //std::cout << "MSG : " << msg->content() << "\n";
 
-    switch (msg->payloadtype())
+    switch (msg->messagetype())
     {
-    case myPayload::PayloadType::SERVER_PING:
+    case myChatMessage::ChatMessageType::SERVER_PING:
     {
         //std::cout << "[SERVER] Server Ping\n";
         auto sentTimeMs = std::stoll(msg->content());
@@ -76,24 +95,86 @@ void TcpServer::OnMessage(std::shared_ptr<TcpSession> session, std::shared_ptr<m
         //std::cout << "Response time: " << elapsedTime.count() << "ms" << std::endl;
     }
     break;
-    case myPayload::PayloadType::ALL_MESSAGE:
+    case myChatMessage::ChatMessageType::ALL_MESSAGE:
     {
         std::cout << "[SERVER] 모든 클라이언트에게 메시지 전송\n";
-        msg->set_payloadtype(myPayload::PayloadType::ALL_MESSAGE);
+        msg->set_messagetype(myChatMessage::ChatMessageType::ALL_MESSAGE);
         SendAllClients(msg);
     }
     break;
-    case myPayload::PayloadType::PARTY_MESSAGE:
+    case myChatMessage::ChatMessageType::PARTY_CREATE:
+    {
+        if (msg->content().empty()) {
+            SendErrorMessage(session, "파티명이 비어 있습니다.");
+            return;
+        }
+        std::cout << "[SERVER] 파티 생성\n";
+        // TODO : 파티 정보 확인 및 중복 체크
+        CreateParty(session, msg->content());
+    }
+    break;
+    case myChatMessage::ChatMessageType::PARTY_DELETE:
+    {
+        if (msg->content().empty()) {
+            SendErrorMessage(session, "파티명이 비어 있습니다.");
+            return;
+        }
+        std::cout << "[SERVER] 파티 삭제\n";
+        DeleteParty(msg->content());
+    }
+    break;
+    case myChatMessage::ChatMessageType::PARTY_JOIN:
+    {
+        if (msg->content().empty()) {
+            SendErrorMessage(session, "파티명이 비어 있습니다.");
+            return;
+        }
+        
+        auto it = FindPartyByName(msg->content());
+
+        std::cout << "[SERVER] 파티 가입\n";
+        // 파티가 존재하는 경우 파티 내 멤버 추가
+        if (it == nullptr || it->HasMember(session))
+        {
+            SendErrorMessage(session, "파티가 없거나, 이미 가입된 멤버입니다.");
+            return;
+        }
+
+        it->AddMember(session);
+        std::cout << "[SERVER] Add Member in Party : " << it->GetName() << " : " << session->GetID() << std::endl;
+    }
+    break;
+    case myChatMessage::ChatMessageType::PARTY_LEAVE:
+    {
+        if (msg->content().empty()) {
+            SendErrorMessage(session, "파티명이 비어 있습니다.");
+            return;
+        }
+        auto it = FindPartyByName(msg->content());
+
+        std::cout << "[SERVER] 파티 탈퇴\n";
+        if (it == nullptr || !it->HasMember(session))
+        {
+            SendErrorMessage(session, "파티가 없거나, 가입하지 않은 파티입니다.");
+            return;
+        }
+
+        it->RemoveMember(session);
+        std::cout << "[SERVER] Remove Member in Party : " << it->GetName() << " : " << session->GetID() << std::endl;
+
+    }
+    break;
+    case myChatMessage::ChatMessageType::PARTY_MESSAGE:
     {
         if (msg->content().empty()) {
             SendErrorMessage(session, "파티 메시지의 내용이 비어 있습니다.");
             return;
         }
         std::cout << "[SERVER] 파티 메시지 전송\n";
-        //SendPartyMessage(session, msg);
+        SendPartyMessage(session, msg);
     }
     break;
-    case myPayload::PayloadType::WHISPER_MESSAGE:
+    case myChatMessage::ChatMessageType::WHISPER_MESSAGE:
     {
         if (msg->receiver().empty() || msg->content().empty()) {
             SendErrorMessage(session, "[SERVER] 수신자 또는 내용이 비어 있습니다.");
@@ -106,9 +187,11 @@ void TcpServer::OnMessage(std::shared_ptr<TcpSession> session, std::shared_ptr<m
         SendErrorMessage(session, "[SERVER] 알 수 없는 메시지 유형이 수신되었습니다.");
         break;
     }
+
+    std::cout << "PP : " << m_VecParties.Count() << "\n";
 }
 
-void TcpServer::SendAllClients(std::shared_ptr<myPayload::Payload> msg)
+void TcpServer::SendAllClients(std::shared_ptr<myChatMessage::ChatMessage> msg)
 {
     bool hasDisconnectedClient = false; // 연결이 끊어진 클라이언트 여부를 추적
 
@@ -124,6 +207,7 @@ void TcpServer::SendAllClients(std::shared_ptr<myPayload::Payload> msg)
         }
     }
 
+    // 끊어진 연결은 Vector에서 제거
     if (hasDisconnectedClient)
     {
         m_VecTcpSessions.erase(std::remove_if(m_VecTcpSessions.begin(), m_VecTcpSessions.end(),
@@ -134,7 +218,7 @@ void TcpServer::SendAllClients(std::shared_ptr<myPayload::Payload> msg)
 }
 
 
-void TcpServer::SendWhisperMessage(std::shared_ptr<TcpSession>& senderSession, const std::string& receiver, std::shared_ptr<myPayload::Payload> msg)
+void TcpServer::SendWhisperMessage(std::shared_ptr<TcpSession>& senderSession, const std::string& receiver, std::shared_ptr<myChatMessage::ChatMessage> msg)
 {
     if (std::to_string(senderSession->GetID()) == receiver)
     {
@@ -153,33 +237,75 @@ void TcpServer::SendWhisperMessage(std::shared_ptr<TcpSession>& senderSession, c
     SendErrorMessage(senderSession, "[SERVER] 수신자를 찾을 수 없습니다.");
 }
 
+void TcpServer::SendPartyMessage(std::shared_ptr<TcpSession>& senderSession, std::shared_ptr<myChatMessage::ChatMessage> msg)
+{
+    for (auto it = m_VecParties.Begin(); it != m_VecParties.End(); ++it)
+    {
+        if ((*it)->HasMember(senderSession)) 
+        {
+            std::cout << (*it)->GetName() << "\n";
+            (*it)->Send(msg); 
+            return;
+        }
+    }
+
+    SendErrorMessage(senderSession, "[SERVER] 수신자를 찾을 수 없습니다.");
+}
+
+
 void TcpServer::SendErrorMessage(std::shared_ptr<TcpSession>& session, const std::string& errorMessage)
 {
-    std::cout << "[" << session->GetID() << "] " << errorMessage << "\n";
+    std::cout << "[SERVER] " << session->GetID() << " : " << errorMessage << "\n";
     // 에러 메시지 생성
-    auto errorPayload = std::make_shared<myPayload::Payload>();
-    errorPayload->set_payloadtype(myPayload::PayloadType::ERROR_MESSAGE);
+    auto errorPayload = std::make_shared<myChatMessage::ChatMessage>();
+    errorPayload->set_messagetype(myChatMessage::ChatMessageType::ERROR_MESSAGE);
     errorPayload->set_content(errorMessage);
 
     // 해당 세션에게 에러 메시지 전송
     session->Send(errorPayload);
 }
 
-
-void TcpServer::OnAccept(std::shared_ptr<TcpSession> tcpSession, const boost::system::error_code& err)
+std::shared_ptr<Party> TcpServer::CreateParty(std::shared_ptr<TcpSession> creatorSession, const std::string& partyName)
 {
-    if (!err)
+    auto party = std::make_shared<Party>(m_PartyIdCounter++, creatorSession->GetID(), partyName);  // 파티 생성
+    party->AddMember(creatorSession);                                                   // 파티 생성자를 파티 멤버로 추가
+    m_VecParties.PushBack(party);                                                       // 파티를 파티 리스트에 추가
+    return party;
+}
+
+// TcpServer 클래스의 DeleteParty 함수 구현
+void TcpServer::DeleteParty(const std::string& partyName)
+{
+    // 파티 이름에 해당하는 파티를 찾음
+    auto it = FindPartyByName(partyName);
+
+    // 파티가 존재하는 경우 삭제
+    if (it != nullptr)
     {
-        // TODO : 클라이언트 유효성 체크        
-        m_VecTcpSessions.push_back(std::move(tcpSession));
-        m_VecTcpSessions.back()->Start(m_IdCounter++);
-        std::cout << "[SERVER] " << m_VecTcpSessions.back()->GetID() << " Connection Approved\n";
+        // 파티를 파티 컨테이너에서 삭제
+        m_VecParties.Erase(it);
+        std::cout << "[SERVER] Deleted party: " << partyName << std::endl;
     }
     else
     {
-        std::cout << "[SERVER] Error " << err.message() << std::endl;
+        // 해당 이름을 가진 파티가 없는 경우 처리
+        std::cout << "[SERVER] Party not found: " << partyName << std::endl;
     }
+}   
 
-    WaitForClientConnection();
+// TcpServer 클래스의 FindPartyIdByName 함수 구현
+std::shared_ptr<Party> TcpServer::FindPartyByName(const std::string& partyName)
+{
+    // 파티 이름에 해당하는 파티를 찾음
+    auto it = std::find_if(m_VecParties.Begin(), m_VecParties.End(), 
+        [&partyName](std::shared_ptr<Party>& party) 
+        {
+            return party->GetName() == partyName;
+        });
+
+    // 파티가 존재하는 경우 해당 파티를 반환
+    if (it != m_VecParties.End())
+        return *it;
+    else
+        return nullptr;
 }
-

@@ -20,7 +20,7 @@ public:
     void Start(uint32_t uid);
     void StartPingTimer();
     void Close();
-    void Send(std::shared_ptr<myPayload::Payload> msg);
+    void Send(std::shared_ptr<myChatMessage::ChatMessage> msg);
     void SendPing();
     bool IsConnected();
     uint32_t GetID() const;
@@ -31,7 +31,7 @@ private:
     void OnWrite(const boost::system::error_code& err, const size_t size);
     void ReadHeader();
     void ReadBody(size_t body_size);
-    void AddToIncomingMessageQueue(std::shared_ptr<myPayload::Payload> payload);
+    void AddToIncomingMessageQueue(std::shared_ptr<myChatMessage::ChatMessage> payload);
 
 private:
     boost::asio::ip::tcp::socket m_Socket;
@@ -41,7 +41,7 @@ private:
     std::vector<uint8_t> m_Readbuf;
     
     ThreadSafeQueue<OwnedMessage>& m_QMessagesInServer;     
-    ThreadSafeQueue<std::shared_ptr<myPayload::Payload>> m_QMessageOutServer;
+    ThreadSafeQueue<std::shared_ptr<myChatMessage::ChatMessage>> m_QMessageOutServer;
 
     boost::asio::steady_timer m_PingTimer;
     bool m_IsActive;

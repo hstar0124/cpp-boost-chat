@@ -12,7 +12,7 @@ boost::asio::ip::tcp::socket &TcpSession::GetSocket()
     return m_Socket;
 }
 
-void TcpSession::Send(std::shared_ptr<myPayload::Payload> msg)
+void TcpSession::Send(std::shared_ptr<myChatMessage::ChatMessage> msg)
 {
     boost::asio::post(m_IoContext,
         [this, msg]()
@@ -32,8 +32,8 @@ void TcpSession::SendPing()
     auto value = now_ms.time_since_epoch().count();
 
     // Payload 메시지 생성 및 시간 정보 설정
-    auto pingMsg = std::make_shared<myPayload::Payload>();
-    pingMsg->set_payloadtype(myPayload::PayloadType::SERVER_PING);
+    auto pingMsg = std::make_shared<myChatMessage::ChatMessage>();
+    pingMsg->set_messagetype(myChatMessage::ChatMessageType::SERVER_PING);
     pingMsg->set_content(std::to_string(value)); // 밀리초로 변환하여 content에 설정
     Send(pingMsg);
     m_IsActive = false;
@@ -86,8 +86,8 @@ uint32_t TcpSession::GetID() const
 void TcpSession::AsyncWrite()
 {
     auto payload = m_QMessageOutServer.Front();
-    PacketConverter::SerializePayload(payload, m_Writebuf);
-    PacketConverter::SetSizeToBufferHeader(m_Writebuf);
+    PacketConverter<myChatMessage::ChatMessage>::SerializePayload(payload, m_Writebuf);
+    PacketConverter<myChatMessage::ChatMessage>::SetSizeToBufferHeader(m_Writebuf);
 
     boost::asio::async_write(m_Socket, boost::asio::buffer(m_Writebuf.data(), m_Writebuf.size()),
         [this](const boost::system::error_code& err, const size_t transferred)
@@ -125,7 +125,7 @@ void TcpSession::ReadHeader()
         {
             if (!err)
             {
-                size_t bodySize = PacketConverter::GetPayloadBodySize(m_Readbuf);
+                size_t bodySize = PacketConverter<myChatMessage::ChatMessage>::GetPayloadBodySize(m_Readbuf);
                 ReadBody(bodySize);
             }
             else
@@ -150,10 +150,10 @@ void TcpSession::ReadBody(size_t bodySize)
             if (!ec)
             {
 
-                std::shared_ptr<myPayload::Payload> payload = std::make_shared<myPayload::Payload>();
+                std::shared_ptr<myChatMessage::ChatMessage> payload = std::make_shared<myChatMessage::ChatMessage>();
 
                 // m_readbuf를 Payload 메시지로 디시리얼라이즈
-                if (PacketConverter::DeserializePayload(m_Readbuf, payload))
+                if (PacketConverter<myChatMessage::ChatMessage>::DeserializePayload(m_Readbuf, payload))
                 {
                     // Payload 메시지에서 필요한 데이터를 출력
                     //std::cout << "Payload Type: " << payload->payloadtype() << std::endl;
@@ -172,8 +172,8 @@ void TcpSession::ReadBody(size_t bodySize)
 }
 
 // 완전한 메시지를 받으면 수신 큐에 추가합니다.
-void TcpSession::AddToIncomingMessageQueue(std::shared_ptr<myPayload::Payload> payload)
+void TcpSession::AddToIncomingMessageQueue(std::shared_ptr<myChatMessage::ChatMessage> message)
 {
-    m_QMessagesInServer.PushBack({ this->shared_from_this(), payload });
+    m_QMessagesInServer.PushBack({ this->shared_from_this(), message });
     ReadHeader();
 }

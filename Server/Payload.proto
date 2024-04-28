@@ -1,19 +1,27 @@
 syntax = "proto3";
 
-package myPayload; 
+package myChatMessage; 
 
-enum PayloadType 
+enum ChatMessageType
 {
     SERVER_PING = 0;
     SERVER_MESSAGE = 1;
     ALL_MESSAGE = 2;
     WHISPER_MESSAGE = 3;
+    
     PARTY_MESSAGE = 4;
+    PARTY_CREATE = 41;
+    PARTY_UPDATE = 42;
+    PARTY_DELETE = 43;
+    PARTY_JOIN = 44; 
+    PARTY_LEAVE = 45;
+
+    
     ERROR_MESSAGE = 99;
 }
 
-message Payload {
-    PayloadType payloadtype = 1;
+message ChatMessage {
+    ChatMessageType messageType = 1;
     string sender = 2;
     string receiver = 3;
     string content = 4;    

@@ -54,64 +54,69 @@ struct TableStruct_Payload_2eproto {
   static const ::PROTOBUF_NAMESPACE_ID::uint32 offsets[];
 };
 extern const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_Payload_2eproto;
-namespace myPayload {
-class Payload;
-class PayloadDefaultTypeInternal;
-extern PayloadDefaultTypeInternal _Payload_default_instance_;
-}  // namespace myPayload
+namespace myChatMessage {
+class ChatMessage;
+class ChatMessageDefaultTypeInternal;
+extern ChatMessageDefaultTypeInternal _ChatMessage_default_instance_;
+}  // namespace myChatMessage
 PROTOBUF_NAMESPACE_OPEN
-template<> ::myPayload::Payload* Arena::CreateMaybeMessage<::myPayload::Payload>(Arena*);
+template<> ::myChatMessage::ChatMessage* Arena::CreateMaybeMessage<::myChatMessage::ChatMessage>(Arena*);
 PROTOBUF_NAMESPACE_CLOSE
-namespace myPayload {
+namespace myChatMessage {
 
-enum PayloadType : int {
+enum ChatMessageType : int {
   SERVER_PING = 0,
   SERVER_MESSAGE = 1,
   ALL_MESSAGE = 2,
   WHISPER_MESSAGE = 3,
   PARTY_MESSAGE = 4,
+  PARTY_CREATE = 41,
+  PARTY_UPDATE = 42,
+  PARTY_DELETE = 43,
+  PARTY_JOIN = 44,
+  PARTY_LEAVE = 45,
   ERROR_MESSAGE = 99,
-  PayloadType_INT_MIN_SENTINEL_DO_NOT_USE_ = std::numeric_limits<::PROTOBUF_NAMESPACE_ID::int32>::min(),
-  PayloadType_INT_MAX_SENTINEL_DO_NOT_USE_ = std::numeric_limits<::PROTOBUF_NAMESPACE_ID::int32>::max()
+  ChatMessageType_INT_MIN_SENTINEL_DO_NOT_USE_ = std::numeric_limits<::PROTOBUF_NAMESPACE_ID::int32>::min(),
+  ChatMessageType_INT_MAX_SENTINEL_DO_NOT_USE_ = std::numeric_limits<::PROTOBUF_NAMESPACE_ID::int32>::max()
 };
-bool PayloadType_IsValid(int value);
-constexpr PayloadType PayloadType_MIN = SERVER_PING;
-constexpr PayloadType PayloadType_MAX = ERROR_MESSAGE;
-constexpr int PayloadType_ARRAYSIZE = PayloadType_MAX + 1;
+bool ChatMessageType_IsValid(int value);
+constexpr ChatMessageType ChatMessageType_MIN = SERVER_PING;
+constexpr ChatMessageType ChatMessageType_MAX = ERROR_MESSAGE;
+constexpr int ChatMessageType_ARRAYSIZE = ChatMessageType_MAX + 1;
 
-const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* PayloadType_descriptor();
+const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* ChatMessageType_descriptor();
 template<typename T>
-inline const std::string& PayloadType_Name(T enum_t_value) {
-  static_assert(::std::is_same<T, PayloadType>::value ||
+inline const std::string& ChatMessageType_Name(T enum_t_value) {
+  static_assert(::std::is_same<T, ChatMessageType>::value ||
     ::std::is_integral<T>::value,
-    "Incorrect type passed to function PayloadType_Name.");
+    "Incorrect type passed to function ChatMessageType_Name.");
   return ::PROTOBUF_NAMESPACE_ID::internal::NameOfEnum(
-    PayloadType_descriptor(), enum_t_value);
+    ChatMessageType_descriptor(), enum_t_value);
 }
-inline bool PayloadType_Parse(
-    ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, PayloadType* value) {
-  return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<PayloadType>(
-    PayloadType_descriptor(), name, value);
+inline bool ChatMessageType_Parse(
+    ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, ChatMessageType* value) {
+  return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<ChatMessageType>(
+    ChatMessageType_descriptor(), name, value);
 }
 // ===================================================================
 
-class Payload PROTOBUF_FINAL :
-    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:myPayload.Payload) */ {
+class ChatMessage PROTOBUF_FINAL :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:myChatMessage.ChatMessage) */ {
  public:
-  inline Payload() : Payload(nullptr) {}
-  virtual ~Payload();
+  inline ChatMessage() : ChatMessage(nullptr) {}
+  virtual ~ChatMessage();
 
-  Payload(const Payload& from);
-  Payload(Payload&& from) noexcept
-    : Payload() {
+  ChatMessage(const ChatMessage& from);
+  ChatMessage(ChatMessage&& from) noexcept
+    : ChatMessage() {
     *this = ::std::move(from);
   }
 
-  inline Payload& operator=(const Payload& from) {
+  inline ChatMessage& operator=(const ChatMessage& from) {
     CopyFrom(from);
     return *this;
   }
-  inline Payload& operator=(Payload&& from) noexcept {
+  inline ChatMessage& operator=(ChatMessage&& from) noexcept {
     if (GetArena() == from.GetArena()) {
       if (this != &from) InternalSwap(&from);
     } else {
@@ -129,19 +134,19 @@ class Payload PROTOBUF_FINAL :
   static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
     return GetMetadataStatic().reflection;
   }
-  static const Payload& default_instance();
+  static const ChatMessage& default_instance();
 
-  static inline const Payload* internal_default_instance() {
-    return reinterpret_cast<const Payload*>(
-               &_Payload_default_instance_);
+  static inline const ChatMessage* internal_default_instance() {
+    return reinterpret_cast<const ChatMessage*>(
+               &_ChatMessage_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
     0;
 
-  friend void swap(Payload& a, Payload& b) {
+  friend void swap(ChatMessage& a, ChatMessage& b) {
     a.Swap(&b);
   }
-  inline void Swap(Payload* other) {
+  inline void Swap(ChatMessage* other) {
     if (other == this) return;
     if (GetArena() == other->GetArena()) {
       InternalSwap(other);
@@ -149,7 +154,7 @@ class Payload PROTOBUF_FINAL :
       ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
     }
   }
-  void UnsafeArenaSwap(Payload* other) {
+  void UnsafeArenaSwap(ChatMessage* other) {
     if (other == this) return;
     GOOGLE_DCHECK(GetArena() == other->GetArena());
     InternalSwap(other);
@@ -157,17 +162,17 @@ class Payload PROTOBUF_FINAL :
 
   // implements Message ----------------------------------------------
 
-  inline Payload* New() const final {
-    return CreateMaybeMessage<Payload>(nullptr);
+  inline ChatMessage* New() const final {
+    return CreateMaybeMessage<ChatMessage>(nullptr);
   }
 
-  Payload* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
-    return CreateMaybeMessage<Payload>(arena);
+  ChatMessage* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
+    return CreateMaybeMessage<ChatMessage>(arena);
   }
   void CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
   void MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
-  void CopyFrom(const Payload& from);
-  void MergeFrom(const Payload& from);
+  void CopyFrom(const ChatMessage& from);
+  void MergeFrom(const ChatMessage& from);
   PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
   bool IsInitialized() const final;
 
@@ -181,13 +186,13 @@ class Payload PROTOBUF_FINAL :
   inline void SharedCtor();
   inline void SharedDtor();
   void SetCachedSize(int size) const final;
-  void InternalSwap(Payload* other);
+  void InternalSwap(ChatMessage* other);
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "myPayload.Payload";
+    return "myChatMessage.ChatMessage";
   }
   protected:
-  explicit Payload(::PROTOBUF_NAMESPACE_ID::Arena* arena);
+  explicit ChatMessage(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   private:
   static void ArenaDtor(void* object);
   inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
@@ -210,7 +215,7 @@ class Payload PROTOBUF_FINAL :
     kSenderFieldNumber = 2,
     kReceiverFieldNumber = 3,
     kContentFieldNumber = 4,
-    kPayloadtypeFieldNumber = 1,
+    kMessageTypeFieldNumber = 1,
   };
   // string sender = 2;
   void clear_sender();
@@ -260,16 +265,16 @@ class Payload PROTOBUF_FINAL :
   std::string* _internal_mutable_content();
   public:
 
-  // .myPayload.PayloadType payloadtype = 1;
-  void clear_payloadtype();
-  ::myPayload::PayloadType payloadtype() const;
-  void set_payloadtype(::myPayload::PayloadType value);
+  // .myChatMessage.ChatMessageType messageType = 1;
+  void clear_messagetype();
+  ::myChatMessage::ChatMessageType messagetype() const;
+  void set_messagetype(::myChatMessage::ChatMessageType value);
   private:
-  ::myPayload::PayloadType _internal_payloadtype() const;
-  void _internal_set_payloadtype(::myPayload::PayloadType value);
+  ::myChatMessage::ChatMessageType _internal_messagetype() const;
+  void _internal_set_messagetype(::myChatMessage::ChatMessageType value);
   public:
 
-  // @@protoc_insertion_point(class_scope:myPayload.Payload)
+  // @@protoc_insertion_point(class_scope:myChatMessage.ChatMessage)
  private:
   class _Internal;
 
@@ -279,7 +284,7 @@ class Payload PROTOBUF_FINAL :
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr sender_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr receiver_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr content_;
-  int payloadtype_;
+  int messagetype_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_Payload_2eproto;
 };
@@ -292,79 +297,79 @@ class Payload PROTOBUF_FINAL :
   #pragma GCC diagnostic push
   #pragma GCC diagnostic ignored "-Wstrict-aliasing"
 #endif  // __GNUC__
-// Payload
+// ChatMessage
 
-// .myPayload.PayloadType payloadtype = 1;
-inline void Payload::clear_payloadtype() {
-  payloadtype_ = 0;
+// .myChatMessage.ChatMessageType messageType = 1;
+inline void ChatMessage::clear_messagetype() {
+  messagetype_ = 0;
 }
-inline ::myPayload::PayloadType Payload::_internal_payloadtype() const {
-  return static_cast< ::myPayload::PayloadType >(payloadtype_);
+inline ::myChatMessage::ChatMessageType ChatMessage::_internal_messagetype() const {
+  return static_cast< ::myChatMessage::ChatMessageType >(messagetype_);
 }
-inline ::myPayload::PayloadType Payload::payloadtype() const {
-  // @@protoc_insertion_point(field_get:myPayload.Payload.payloadtype)
-  return _internal_payloadtype();
+inline ::myChatMessage::ChatMessageType ChatMessage::messagetype() const {
+  // @@protoc_insertion_point(field_get:myChatMessage.ChatMessage.messageType)
+  return _internal_messagetype();
 }
-inline void Payload::_internal_set_payloadtype(::myPayload::PayloadType value) {
+inline void ChatMessage::_internal_set_messagetype(::myChatMessage::ChatMessageType value) {
   
-  payloadtype_ = value;
+  messagetype_ = value;
 }
-inline void Payload::set_payloadtype(::myPayload::PayloadType value) {
-  _internal_set_payloadtype(value);
-  // @@protoc_insertion_point(field_set:myPayload.Payload.payloadtype)
+inline void ChatMessage::set_messagetype(::myChatMessage::ChatMessageType value) {
+  _internal_set_messagetype(value);
+  // @@protoc_insertion_point(field_set:myChatMessage.ChatMessage.messageType)
 }
 
 // string sender = 2;
-inline void Payload::clear_sender() {
+inline void ChatMessage::clear_sender() {
   sender_.ClearToEmpty();
 }
-inline const std::string& Payload::sender() const {
-  // @@protoc_insertion_point(field_get:myPayload.Payload.sender)
+inline const std::string& ChatMessage::sender() const {
+  // @@protoc_insertion_point(field_get:myChatMessage.ChatMessage.sender)
   return _internal_sender();
 }
-inline void Payload::set_sender(const std::string& value) {
+inline void ChatMessage::set_sender(const std::string& value) {
   _internal_set_sender(value);
-  // @@protoc_insertion_point(field_set:myPayload.Payload.sender)
+  // @@protoc_insertion_point(field_set:myChatMessage.ChatMessage.sender)
 }
-inline std::string* Payload::mutable_sender() {
-  // @@protoc_insertion_point(field_mutable:myPayload.Payload.sender)
+inline std::string* ChatMessage::mutable_sender() {
+  // @@protoc_insertion_point(field_mutable:myChatMessage.ChatMessage.sender)
   return _internal_mutable_sender();
 }
-inline const std::string& Payload::_internal_sender() const {
+inline const std::string& ChatMessage::_internal_sender() const {
   return sender_.Get();
 }
-inline void Payload::_internal_set_sender(const std::string& value) {
+inline void ChatMessage::_internal_set_sender(const std::string& value) {
   
   sender_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArena());
 }
-inline void Payload::set_sender(std::string&& value) {
+inline void ChatMessage::set_sender(std::string&& value) {
   
   sender_.Set(
     ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::move(value), GetArena());
-  // @@protoc_insertion_point(field_set_rvalue:myPayload.Payload.sender)
+  // @@protoc_insertion_point(field_set_rvalue:myChatMessage.ChatMessage.sender)
 }
-inline void Payload::set_sender(const char* value) {
+inline void ChatMessage::set_sender(const char* value) {
   GOOGLE_DCHECK(value != nullptr);
   
   sender_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(value), GetArena());
-  // @@protoc_insertion_point(field_set_char:myPayload.Payload.sender)
+  // @@protoc_insertion_point(field_set_char:myChatMessage.ChatMessage.sender)
 }
-inline void Payload::set_sender(const char* value,
+inline void ChatMessage::set_sender(const char* value,
     size_t size) {
   
   sender_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(
       reinterpret_cast<const char*>(value), size), GetArena());
-  // @@protoc_insertion_point(field_set_pointer:myPayload.Payload.sender)
+  // @@protoc_insertion_point(field_set_pointer:myChatMessage.ChatMessage.sender)
 }
-inline std::string* Payload::_internal_mutable_sender() {
+inline std::string* ChatMessage::_internal_mutable_sender() {
   
   return sender_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArena());
 }
-inline std::string* Payload::release_sender() {
-  // @@protoc_insertion_point(field_release:myPayload.Payload.sender)
+inline std::string* ChatMessage::release_sender() {
+  // @@protoc_insertion_point(field_release:myChatMessage.ChatMessage.sender)
   return sender_.Release(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
 }
-inline void Payload::set_allocated_sender(std::string* sender) {
+inline void ChatMessage::set_allocated_sender(std::string* sender) {
   if (sender != nullptr) {
     
   } else {
@@ -372,60 +377,60 @@ inline void Payload::set_allocated_sender(std::string* sender) {
   }
   sender_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), sender,
       GetArena());
-  // @@protoc_insertion_point(field_set_allocated:myPayload.Payload.sender)
+  // @@protoc_insertion_point(field_set_allocated:myChatMessage.ChatMessage.sender)
 }
 
 // string receiver = 3;
-inline void Payload::clear_receiver() {
+inline void ChatMessage::clear_receiver() {
   receiver_.ClearToEmpty();
 }
-inline const std::string& Payload::receiver() const {
-  // @@protoc_insertion_point(field_get:myPayload.Payload.receiver)
+inline const std::string& ChatMessage::receiver() const {
+  // @@protoc_insertion_point(field_get:myChatMessage.ChatMessage.receiver)
   return _internal_receiver();
 }
-inline void Payload::set_receiver(const std::string& value) {
+inline void ChatMessage::set_receiver(const std::string& value) {
   _internal_set_receiver(value);
-  // @@protoc_insertion_point(field_set:myPayload.Payload.receiver)
+  // @@protoc_insertion_point(field_set:myChatMessage.ChatMessage.receiver)
 }
-inline std::string* Payload::mutable_receiver() {
-  // @@protoc_insertion_point(field_mutable:myPayload.Payload.receiver)
+inline std::string* ChatMessage::mutable_receiver() {
+  // @@protoc_insertion_point(field_mutable:myChatMessage.ChatMessage.receiver)
   return _internal_mutable_receiver();
 }
-inline const std::string& Payload::_internal_receiver() const {
+inline const std::string& ChatMessage::_internal_receiver() const {
   return receiver_.Get();
 }
-inline void Payload::_internal_set_receiver(const std::string& value) {
+inline void ChatMessage::_internal_set_receiver(const std::string& value) {
   
   receiver_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArena());
 }
-inline void Payload::set_receiver(std::string&& value) {
+inline void ChatMessage::set_receiver(std::string&& value) {
   
   receiver_.Set(
     ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::move(value), GetArena());
-  // @@protoc_insertion_point(field_set_rvalue:myPayload.Payload.receiver)
+  // @@protoc_insertion_point(field_set_rvalue:myChatMessage.ChatMessage.receiver)
 }
-inline void Payload::set_receiver(const char* value) {
+inline void ChatMessage::set_receiver(const char* value) {
   GOOGLE_DCHECK(value != nullptr);
   
   receiver_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(value), GetArena());
-  // @@protoc_insertion_point(field_set_char:myPayload.Payload.receiver)
+  // @@protoc_insertion_point(field_set_char:myChatMessage.ChatMessage.receiver)
 }
-inline void Payload::set_receiver(const char* value,
+inline void ChatMessage::set_receiver(const char* value,
     size_t size) {
   
   receiver_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(
       reinterpret_cast<const char*>(value), size), GetArena());
-  // @@protoc_insertion_point(field_set_pointer:myPayload.Payload.receiver)
+  // @@protoc_insertion_point(field_set_pointer:myChatMessage.ChatMessage.receiver)
 }
-inline std::string* Payload::_internal_mutable_receiver() {
+inline std::string* ChatMessage::_internal_mutable_receiver() {
   
   return receiver_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArena());
 }
-inline std::string* Payload::release_receiver() {
-  // @@protoc_insertion_point(field_release:myPayload.Payload.receiver)
+inline std::string* ChatMessage::release_receiver() {
+  // @@protoc_insertion_point(field_release:myChatMessage.ChatMessage.receiver)
   return receiver_.Release(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
 }
-inline void Payload::set_allocated_receiver(std::string* receiver) {
+inline void ChatMessage::set_allocated_receiver(std::string* receiver) {
   if (receiver != nullptr) {
     
   } else {
@@ -433,60 +438,60 @@ inline void Payload::set_allocated_receiver(std::string* receiver) {
   }
   receiver_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), receiver,
       GetArena());
-  // @@protoc_insertion_point(field_set_allocated:myPayload.Payload.receiver)
+  // @@protoc_insertion_point(field_set_allocated:myChatMessage.ChatMessage.receiver)
 }
 
 // string content = 4;
-inline void Payload::clear_content() {
+inline void ChatMessage::clear_content() {
   content_.ClearToEmpty();
 }
-inline const std::string& Payload::content() const {
-  // @@protoc_insertion_point(field_get:myPayload.Payload.content)
+inline const std::string& ChatMessage::content() const {
+  // @@protoc_insertion_point(field_get:myChatMessage.ChatMessage.content)
   return _internal_content();
 }
-inline void Payload::set_content(const std::string& value) {
+inline void ChatMessage::set_content(const std::string& value) {
   _internal_set_content(value);
-  // @@protoc_insertion_point(field_set:myPayload.Payload.content)
+  // @@protoc_insertion_point(field_set:myChatMessage.ChatMessage.content)
 }
-inline std::string* Payload::mutable_content() {
-  // @@protoc_insertion_point(field_mutable:myPayload.Payload.content)
+inline std::string* ChatMessage::mutable_content() {
+  // @@protoc_insertion_point(field_mutable:myChatMessage.ChatMessage.content)
   return _internal_mutable_content();
 }
-inline const std::string& Payload::_internal_content() const {
+inline const std::string& ChatMessage::_internal_content() const {
   return content_.Get();
 }
-inline void Payload::_internal_set_content(const std::string& value) {
+inline void ChatMessage::_internal_set_content(const std::string& value) {
   
   content_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArena());
 }
-inline void Payload::set_content(std::string&& value) {
+inline void ChatMessage::set_content(std::string&& value) {
   
   content_.Set(
     ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::move(value), GetArena());
-  // @@protoc_insertion_point(field_set_rvalue:myPayload.Payload.content)
+  // @@protoc_insertion_point(field_set_rvalue:myChatMessage.ChatMessage.content)
 }
-inline void Payload::set_content(const char* value) {
+inline void ChatMessage::set_content(const char* value) {
   GOOGLE_DCHECK(value != nullptr);
   
   content_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(value), GetArena());
-  // @@protoc_insertion_point(field_set_char:myPayload.Payload.content)
+  // @@protoc_insertion_point(field_set_char:myChatMessage.ChatMessage.content)
 }
-inline void Payload::set_content(const char* value,
+inline void ChatMessage::set_content(const char* value,
     size_t size) {
   
   content_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(
       reinterpret_cast<const char*>(value), size), GetArena());
-  // @@protoc_insertion_point(field_set_pointer:myPayload.Payload.content)
+  // @@protoc_insertion_point(field_set_pointer:myChatMessage.ChatMessage.content)
 }
-inline std::string* Payload::_internal_mutable_content() {
+inline std::string* ChatMessage::_internal_mutable_content() {
   
   return content_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArena());
 }
-inline std::string* Payload::release_content() {
-  // @@protoc_insertion_point(field_release:myPayload.Payload.content)
+inline std::string* ChatMessage::release_content() {
+  // @@protoc_insertion_point(field_release:myChatMessage.ChatMessage.content)
   return content_.Release(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
 }
-inline void Payload::set_allocated_content(std::string* content) {
+inline void ChatMessage::set_allocated_content(std::string* content) {
   if (content != nullptr) {
     
   } else {
@@ -494,7 +499,7 @@ inline void Payload::set_allocated_content(std::string* content) {
   }
   content_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), content,
       GetArena());
-  // @@protoc_insertion_point(field_set_allocated:myPayload.Payload.content)
+  // @@protoc_insertion_point(field_set_allocated:myChatMessage.ChatMessage.content)
 }
 
 #ifdef __GNUC__
@@ -503,14 +508,14 @@ inline void Payload::set_allocated_content(std::string* content) {
 
 // @@protoc_insertion_point(namespace_scope)
 
-}  // namespace myPayload
+}  // namespace myChatMessage
 
 PROTOBUF_NAMESPACE_OPEN
 
-template <> struct is_proto_enum< ::myPayload::PayloadType> : ::std::true_type {};
+template <> struct is_proto_enum< ::myChatMessage::ChatMessageType> : ::std::true_type {};
 template <>
-inline const EnumDescriptor* GetEnumDescriptor< ::myPayload::PayloadType>() {
-  return ::myPayload::PayloadType_descriptor();
+inline const EnumDescriptor* GetEnumDescriptor< ::myChatMessage::ChatMessageType>() {
+  return ::myChatMessage::ChatMessageType_descriptor();
 }
 
 PROTOBUF_NAMESPACE_CLOSE
