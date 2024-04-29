@@ -45,10 +45,10 @@
     <ClInclude Include="Party.h">
       <Filter>소스 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Payload.pb.h">
+    <ClInclude Include="ThreadSafeVector.h">
       <Filter>소스 파일</Filter>
     </ClInclude>
-    <ClInclude Include="ThreadSafeVector.h">
+    <ClInclude Include="Payload.pb.h">
       <Filter>소스 파일</Filter>
     </ClInclude>
   </ItemGroup>

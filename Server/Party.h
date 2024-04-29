@@ -12,12 +12,14 @@ public:
     {}
 
     uint32_t GetId() const { return m_PartyId; }
+    uint32_t GetPartyCreator() const { return m_PartyCreator; }
     std::string GetName() const { return m_PartyName; }
+    bool SetPartyName(const std::string& partyName) { m_PartyName = partyName; }
 
-    void AddMember(std::weak_ptr<TcpSession> session);
-    void RemoveMember(std::weak_ptr<TcpSession> session);
     const std::vector<std::weak_ptr<TcpSession>>& GetMembers() const;
+    void AddMember(std::weak_ptr<TcpSession> session);
     bool HasMember(std::weak_ptr<TcpSession> session) const;
+    void RemoveMember(std::weak_ptr<TcpSession> session);
     void Send(std::shared_ptr<myChatMessage::ChatMessage> msg);
 
 private:

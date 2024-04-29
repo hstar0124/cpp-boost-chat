@@ -108,7 +108,7 @@ public:
 		}
 
 
-		if (option == "-create" || option == "-update" || option == "-delete" || option == "-join" || option == "-leave") 
+		if (option == "-create" || option == "-delete" || option == "-join" || option == "-leave") 
 		{
 			if (partyName.empty()) 
 			{
@@ -118,8 +118,6 @@ public:
 
 			if (option == "-create")
 				chatMessage->set_messagetype(myChatMessage::ChatMessageType::PARTY_CREATE);
-			else if (option == "-update")
-				chatMessage->set_messagetype(myChatMessage::ChatMessageType::PARTY_UPDATE);
 			else if (option == "-delete")
 				chatMessage->set_messagetype(myChatMessage::ChatMessageType::PARTY_DELETE);
 			else if (option == "-join")
@@ -130,7 +128,7 @@ public:
 			chatMessage->set_content(partyName);
 		}
 		else {
-			std::cout << "[CLIENT] 잘못된 메시지 포맷입니다. 형식: /p [-create | -update | -delete | -join | -leave] [파티명]\n";
+			std::cout << "[CLIENT] 잘못된 메시지 포맷입니다. 형식: /p [-create | -delete | -join | -leave] [파티명]\n";
 			return false;
 		}
 
@@ -287,6 +285,11 @@ private:
 			//std::cout << "Response time: " << elapsedTime.count() << "ms" << std::endl;
 			SendPong();
 
+			return;
+		}
+		else if (message->messagetype() == myChatMessage::ChatMessageType::SERVER_MESSAGE)
+		{
+			std::cout << "[SERVER] " << message->content() << std::endl;
 			return;
 		}
 		else if (message->messagetype() == myChatMessage::ChatMessageType::WHISPER_MESSAGE)

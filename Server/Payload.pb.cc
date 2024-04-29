@@ -60,13 +60,12 @@ const char descriptor_table_protodef_Payload_2eproto[] PROTOBUF_SECTION_VARIABLE
   "\n\rPayload.proto\022\rmyChatMessage\"u\n\013ChatMe"
   "ssage\0223\n\013messageType\030\001 \001(\0162\036.myChatMessa"
   "ge.ChatMessageType\022\016\n\006sender\030\002 \001(\t\022\020\n\010re"
-  "ceiver\030\003 \001(\t\022\017\n\007content\030\004 \001(\t*\331\001\n\017ChatMe"
+  "ceiver\030\003 \001(\t\022\017\n\007content\030\004 \001(\t*\307\001\n\017ChatMe"
   "ssageType\022\017\n\013SERVER_PING\020\000\022\022\n\016SERVER_MES"
   "SAGE\020\001\022\017\n\013ALL_MESSAGE\020\002\022\023\n\017WHISPER_MESSA"
   "GE\020\003\022\021\n\rPARTY_MESSAGE\020\004\022\020\n\014PARTY_CREATE\020"
-  ")\022\020\n\014PARTY_UPDATE\020*\022\020\n\014PARTY_DELETE\020+\022\016\n"
-  "\nPARTY_JOIN\020,\022\017\n\013PARTY_LEAVE\020-\022\021\n\rERROR_"
-  "MESSAGE\020cb\006proto3"
+  ")\022\020\n\014PARTY_DELETE\020*\022\016\n\nPARTY_JOIN\020+\022\017\n\013P"
+  "ARTY_LEAVE\020,\022\021\n\rERROR_MESSAGE\020cb\006proto3"
   ;
 static const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable*const descriptor_table_Payload_2eproto_deps[1] = {
 };
@@ -75,7 +74,7 @@ static ::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase*const descriptor_table_Pay
 };
 static ::PROTOBUF_NAMESPACE_ID::internal::once_flag descriptor_table_Payload_2eproto_once;
 const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_Payload_2eproto = {
-  false, false, descriptor_table_protodef_Payload_2eproto, "Payload.proto", 377,
+  false, false, descriptor_table_protodef_Payload_2eproto, "Payload.proto", 359,
   &descriptor_table_Payload_2eproto_once, descriptor_table_Payload_2eproto_sccs, descriptor_table_Payload_2eproto_deps, 1, 0,
   schemas, file_default_instances, TableStruct_Payload_2eproto::offsets,
   file_level_metadata_Payload_2eproto, 1, file_level_enum_descriptors_Payload_2eproto, file_level_service_descriptors_Payload_2eproto,
@@ -99,7 +98,6 @@ bool ChatMessageType_IsValid(int value) {
     case 42:
     case 43:
     case 44:
-    case 45:
     case 99:
       return true;
     default:

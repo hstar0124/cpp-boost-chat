@@ -108,9 +108,14 @@ void TcpServer::OnMessage(std::shared_ptr<TcpSession> session, std::shared_ptr<m
             SendErrorMessage(session, "파티명이 비어 있습니다.");
             return;
         }
-        std::cout << "[SERVER] 파티 생성\n";
-        // TODO : 파티 정보 확인 및 중복 체크
-        CreateParty(session, msg->content());
+        if (FindPartyByName(msg->content())) 
+        {
+            SendErrorMessage(session, "해당 파티명은 이미 존재합니다.");
+            return;
+        }
+
+        if (CreateParty(session, msg->content()))
+            SendServerMessage(session, "파티 생성 성공");
     }
     break;
     case myChatMessage::ChatMessageType::PARTY_DELETE:
@@ -120,7 +125,7 @@ void TcpServer::OnMessage(std::shared_ptr<TcpSession> session, std::shared_ptr<m
             return;
         }
         std::cout << "[SERVER] 파티 삭제\n";
-        DeleteParty(msg->content());
+        DeleteParty(session, msg->content());
     }
     break;
     case myChatMessage::ChatMessageType::PARTY_JOIN:
@@ -249,7 +254,7 @@ void TcpServer::SendPartyMessage(std::shared_ptr<TcpSession>& senderSession, std
         }
     }
 
-    SendErrorMessage(senderSession, "[SERVER] 수신자를 찾을 수 없습니다.");
+    SendErrorMessage(senderSession, "[SERVER] 가입된 파티가 없습니다.");
 }
 
 
@@ -257,12 +262,24 @@ void TcpServer::SendErrorMessage(std::shared_ptr<TcpSession>& session, const std
 {
     std::cout << "[SERVER] " << session->GetID() << " : " << errorMessage << "\n";
     // 에러 메시지 생성
-    auto errorPayload = std::make_shared<myChatMessage::ChatMessage>();
-    errorPayload->set_messagetype(myChatMessage::ChatMessageType::ERROR_MESSAGE);
-    errorPayload->set_content(errorMessage);
+    auto errMsg = std::make_shared<myChatMessage::ChatMessage>();
+    errMsg->set_messagetype(myChatMessage::ChatMessageType::ERROR_MESSAGE);
+    errMsg->set_content(errorMessage);
 
     // 해당 세션에게 에러 메시지 전송
-    session->Send(errorPayload);
+    session->Send(errMsg);
+}
+
+void TcpServer::SendServerMessage(std::shared_ptr<TcpSession>& session, const std::string& serverMessage)
+{
+    std::cout << "[SERVER] " << session->GetID() << " : " << serverMessage << "\n";
+    // 에러 메시지 생성
+    auto serverMsg = std::make_shared<myChatMessage::ChatMessage>();
+    serverMsg->set_messagetype(myChatMessage::ChatMessageType::SERVER_MESSAGE);
+    serverMsg->set_content(serverMessage);
+
+    // 해당 세션에게 에러 메시지 전송
+    session->Send(serverMsg);
 }
 
 std::shared_ptr<Party> TcpServer::CreateParty(std::shared_ptr<TcpSession> creatorSession, const std::string& partyName)
@@ -273,14 +290,13 @@ std::shared_ptr<Party> TcpServer::CreateParty(std::shared_ptr<TcpSession> creato
     return party;
 }
 
-// TcpServer 클래스의 DeleteParty 함수 구현
-void TcpServer::DeleteParty(const std::string& partyName)
+void TcpServer::DeleteParty(std::shared_ptr<TcpSession> session, const std::string& partyName)
 {
-    // 파티 이름에 해당하는 파티를 찾음
+    // 파티 이름에 해당하는 파티를 찾음|
     auto it = FindPartyByName(partyName);
 
-    // 파티가 존재하는 경우 삭제
-    if (it != nullptr)
+    // 파티가 존재하고 파티 창설자인 경우
+    if (it != nullptr && it->GetPartyCreator() == session->GetID())
     {
         // 파티를 파티 컨테이너에서 삭제
         m_VecParties.Erase(it);
@@ -288,12 +304,12 @@ void TcpServer::DeleteParty(const std::string& partyName)
     }
     else
     {
-        // 해당 이름을 가진 파티가 없는 경우 처리
-        std::cout << "[SERVER] Party not found: " << partyName << std::endl;
+        // 해당 이름을 가진 파티가 없거나 창시자가 아닌 경우
+        std::cout << "[SERVER] Fail Deleted Party : " << partyName << std::endl;
+        SendErrorMessage(session, "[SERVER] 파티 삭제를 실패하였습니다.");
     }
 }   
 
-// TcpServer 클래스의 FindPartyIdByName 함수 구현
 std::shared_ptr<Party> TcpServer::FindPartyByName(const std::string& partyName)
 {
     // 파티 이름에 해당하는 파티를 찾음
