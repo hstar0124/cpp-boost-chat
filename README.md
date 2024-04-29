@@ -27,6 +27,10 @@ Protobuf를 통해 메시지 직렬화/역직렬화를 진행하였습니다.
 - 파티 생성/삭제/가입/탈퇴 기능
 - 파티채팅 기능
 
+## 구조도
+![구조도](https://github.com/hstar0124/cpp-boost-chat/assets/57317290/82acf6d5-ea63-4643-94e2-216b1fcbc2dc)
+
+
 
 ## 기술 스택
 
