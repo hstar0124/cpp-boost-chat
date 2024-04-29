@@ -16,6 +16,9 @@
     <ClCompile Include="TcpServer.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="Party.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
     <ClCompile Include="Payload.pb.cc">
       <Filter>소스 파일</Filter>
     </ClCompile>
@@ -37,6 +40,12 @@
       <Filter>소스 파일</Filter>
     </ClInclude>
     <ClInclude Include="PacketConverter.hpp">
+      <Filter>소스 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Party.h">
+      <Filter>소스 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="ThreadSafeVector.h">
       <Filter>소스 파일</Filter>
     </ClInclude>
     <ClInclude Include="Payload.pb.h">

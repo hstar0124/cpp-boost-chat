@@ -2,15 +2,16 @@
 #include "Payload.pb.h"
 #include "Common.h"
 
+template <typename T>
 class PacketConverter
 {
 public:
-    static bool DeserializePayload(std::vector<uint8_t>& buffer, std::shared_ptr<myPayload::Payload>& payload)
+    static bool DeserializePayload(std::vector<uint8_t>& buffer, std::shared_ptr<T>& payload)
     {
         return payload->ParseFromArray(buffer.data(), buffer.size());
     }
 
-    static bool SerializePayload(std::shared_ptr<myPayload::Payload>& payload, std::vector<uint8_t>& buffer)
+    static bool SerializePayload(std::shared_ptr<T>& payload, std::vector<uint8_t>& buffer)
     {
 
         size_t size = GetPayloadSize(payload);
@@ -36,7 +37,7 @@ public:
         return true;
     }
 
-    static size_t GetPayloadSize(const std::shared_ptr<myPayload::Payload>& payload)
+    static size_t GetPayloadSize(const std::shared_ptr<T>& payload)
     {
         return payload->ByteSizeLong();
     }

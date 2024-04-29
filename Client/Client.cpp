@@ -37,46 +37,132 @@ public:
 		}
 	}
 
-	void Send(const std::string& userInput)
+	bool IsWhisperMessage(const std::string& userInput)
 	{
-		std::shared_ptr<myPayload::Payload> pl = std::make_shared<myPayload::Payload>();
+		return userInput.substr(0, 2) == "/w";
+	}
 
-		if (userInput.substr(0, 2) == "/w") {
-			size_t spacePos = userInput.find(' ');
-			size_t receiverEndPos = userInput.find(' ', spacePos + 1);
+	bool CreateWhisperMessage(std::shared_ptr<myChatMessage::ChatMessage>& chatMessage, const std::string& userInput)
+	{
+		size_t spacePos = userInput.find(' ');
+		size_t receiverEndPos = userInput.find(' ', spacePos + 1);
 
-			if (spacePos == std::string::npos || userInput.size() <= spacePos + 1 || receiverEndPos == std::string::npos) {
-				std::cout << "[CLIENT] 잘못된 메시지 포맷입니다. 형식: /w [수신자] [메시지]\n";
-				return;
-			}
-
-			std::string receiver = userInput.substr(spacePos + 1, receiverEndPos - spacePos - 1);
-			std::string message = userInput.substr(receiverEndPos + 1);
-
-			pl->set_payloadtype(myPayload::PayloadType::WHISPER_MESSAGE);
-			pl->set_receiver(receiver);
-			pl->set_content(message);
+		if (spacePos == std::string::npos || userInput.size() <= spacePos + 1 || receiverEndPos == std::string::npos) {
+			std::cout << "[CLIENT] 잘못된 메시지 포맷입니다. 형식: /w [수신자] [메시지]\n";
+			return false;
 		}
-		else if (userInput.substr(0, 2) == "/p") 
-		{
-			if (userInput.size() > 2) 
-			{
-				pl->set_payloadtype(myPayload::PayloadType::PARTY_MESSAGE);
-				pl->set_content(userInput.substr(2));
-			}
-			else 
-			{
-				std::cout << "[CLIENT] 잘못된 메시지 포맷입니다. 형식: /p [메시지]\n";
-				return;
+
+		std::string receiver = userInput.substr(spacePos + 1, receiverEndPos - spacePos - 1);
+		std::string message = userInput.substr(receiverEndPos + 1);
+
+		chatMessage->set_messagetype(myChatMessage::ChatMessageType::WHISPER_MESSAGE);
+		chatMessage->set_receiver(receiver);
+		chatMessage->set_content(message);
+
+		return true;
+	}
+
+	bool IsPartyMessage(const std::string& userInput)
+	{
+		return userInput.substr(0, 2) == "/p";
+	}
+
+	std::pair<std::string, std::string> ExtractOptionAndPartyName(const std::string& userInput) {
+		size_t spacePos = userInput.find(' ');
+		if (spacePos == std::string::npos)
+			return std::make_pair("", "");
+
+		std::string option;
+		std::string partyName;
+
+		if (userInput.substr(0, 3) == "/p ") {
+			size_t optionPos = userInput.find('-', 3); // Start searching from index 3
+			if (optionPos != std::string::npos) {
+				size_t optionEndPos = userInput.find(' ', optionPos + 1);
+				if (optionEndPos != std::string::npos) {
+					option = userInput.substr(optionPos, optionEndPos - optionPos);
+					partyName = userInput.substr(optionEndPos + 1);
+				}
 			}
 		}
 		else {
-			pl->set_payloadtype(myPayload::PayloadType::ALL_MESSAGE);
-			pl->set_content(userInput);
+			partyName = userInput.substr(spacePos + 1);
 		}
 
-		AsyncWrite(pl);
+		return std::make_pair(option, partyName);
 	}
+
+	bool CreatePartyMessage(std::shared_ptr<myChatMessage::ChatMessage>& chatMessage, const std::string& userInput) {
+		std::pair<std::string, std::string> optionAndPartyName = ExtractOptionAndPartyName(userInput);
+		std::string& option = optionAndPartyName.first;
+		std::string& partyName = optionAndPartyName.second;
+
+		std::cout << "option : " << option << "\n";
+		std::cout << "partyName : " << partyName << "\n";
+
+		if (option.empty()) {
+			// 파티 채팅 메시지인 경우
+			chatMessage->set_messagetype(myChatMessage::ChatMessageType::PARTY_MESSAGE) ;
+			chatMessage->set_content(userInput.substr(3)); // Remove "/p "
+			return true;
+		}
+
+
+		if (option == "-create" || option == "-delete" || option == "-join" || option == "-leave") 
+		{
+			if (partyName.empty()) 
+			{
+				std::cout << "[CLIENT] 잘못된 메시지 포맷입니다. 형식: /p -create [파티명]\n";
+				return false;
+			}
+
+			if (option == "-create")
+				chatMessage->set_messagetype(myChatMessage::ChatMessageType::PARTY_CREATE);
+			else if (option == "-delete")
+				chatMessage->set_messagetype(myChatMessage::ChatMessageType::PARTY_DELETE);
+			else if (option == "-join")
+				chatMessage->set_messagetype(myChatMessage::ChatMessageType::PARTY_JOIN);
+			else if (option == "-leave")
+				chatMessage->set_messagetype(myChatMessage::ChatMessageType::PARTY_LEAVE);
+
+			chatMessage->set_content(partyName);
+		}
+		else {
+			std::cout << "[CLIENT] 잘못된 메시지 포맷입니다. 형식: /p [-create | -delete | -join | -leave] [파티명]\n";
+			return false;
+		}
+
+		std::cout << "MSG : " << chatMessage->messagetype() << "\n";
+		std::cout << "Content : " << chatMessage->content() << "\n";
+		return true;
+	}
+
+	bool CreateNormalMessage(std::shared_ptr<myChatMessage::ChatMessage>& chatMessage, const std::string& userInput)
+	{
+
+		chatMessage->set_messagetype(myChatMessage::ChatMessageType::ALL_MESSAGE);
+		chatMessage->set_content(userInput);
+
+		return true;
+	}
+
+	void Send(const std::string& userInput)
+	{
+		std::shared_ptr<myChatMessage::ChatMessage> chatMessage = std::make_shared<myChatMessage::ChatMessage>();
+
+		bool isSuccess = false;
+
+		if (IsWhisperMessage(userInput))
+			isSuccess = CreateWhisperMessage(chatMessage, userInput);
+		else if (IsPartyMessage(userInput))
+			isSuccess = CreatePartyMessage(chatMessage, userInput);
+		else
+			isSuccess = CreateNormalMessage(chatMessage, userInput);
+
+		if(isSuccess)
+			AsyncWrite(chatMessage);
+	}
+
 
 	void SendPong()
 	{
@@ -85,22 +171,22 @@ public:
 		auto now_ms = std::chrono::time_point_cast<std::chrono::milliseconds>(now);
 		auto value = now_ms.time_since_epoch().count();
 
-		std::shared_ptr<myPayload::Payload> pl = std::make_shared<myPayload::Payload>();
-		pl->set_payloadtype(myPayload::PayloadType::SERVER_PING);
-		pl->set_content(std::to_string(value));
+		std::shared_ptr<myChatMessage::ChatMessage> message = std::make_shared<myChatMessage::ChatMessage>();
+		message->set_messagetype(myChatMessage::ChatMessageType::SERVER_PING);
+		message->set_content(std::to_string(value));
 
-		AsyncWrite(pl);
+		AsyncWrite(message);
 	}
 
 private:
-	void AsyncWrite(std::shared_ptr<myPayload::Payload> payload)
+	void AsyncWrite(std::shared_ptr<myChatMessage::ChatMessage> message)
 	{
-		int size = static_cast<int>(payload->ByteSizeLong());
+		int size = static_cast<int>(message->ByteSizeLong());
 
 		std::vector<uint8_t> buffer;
 		buffer.resize(HEADER_SIZE + size);
 
-		payload->SerializePartialToArray(buffer.data() + HEADER_SIZE, size);
+		message->SerializePartialToArray(buffer.data() + HEADER_SIZE, size);
 
 		int bodySize = static_cast<int>(buffer.size()) - HEADER_SIZE;
 		buffer[0] = static_cast<uint8_t>((bodySize >> 24) & 0xFF);
@@ -159,12 +245,12 @@ private:
 				if (!ec)
 				{
 					// 디시리얼라이즈할 Payload 메시지 객체 생성
-					std::shared_ptr<myPayload::Payload> payload = std::make_shared<myPayload::Payload>();
+					std::shared_ptr<myChatMessage::ChatMessage> payload = std::make_shared<myChatMessage::ChatMessage>();
 
 					// m_readbuf를 Payload 메시지로 디시리얼라이즈
 					if (payload->ParseFromArray(m_Readbuf.data(), size))
 					{
-						MessageHandler(payload);
+						MessageRecvHandler(payload);
 						ReadHeader();
 					}
 					else
@@ -182,18 +268,17 @@ private:
 			});
 	}
 
-	void MessageHandler(std::shared_ptr<myPayload::Payload>& payload)
+	void MessageRecvHandler(std::shared_ptr<myChatMessage::ChatMessage>& message)
 	{
 		//std::cout << "Payload Type: " << payload->payloadtype() << std::endl;
-		if (payload->payloadtype() == myPayload::PayloadType::ALL_MESSAGE)
+		if (message->messagetype() == myChatMessage::ChatMessageType::ALL_MESSAGE)
 		{
-			std::cout << "[" << payload->sender() << "] " << payload->content() << std::endl;
+			std::cout << "[" << message->sender() << "] " << message->content() << std::endl;
 			return;
 		}
-
-		if (payload->payloadtype() == myPayload::PayloadType::SERVER_PING)
+		else if (message->messagetype() == myChatMessage::ChatMessageType::SERVER_PING)
 		{
-			auto sentTimeMs = std::stoll(payload->content());
+			auto sentTimeMs = std::stoll(message->content());
 			auto sentTime = std::chrono::milliseconds(sentTimeMs);
 			auto currentTime = std::chrono::system_clock::now().time_since_epoch();
 			auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - sentTime);
@@ -202,16 +287,24 @@ private:
 
 			return;
 		}
-
-		if (payload->payloadtype() == myPayload::PayloadType::WHISPER_MESSAGE)
+		else if (message->messagetype() == myChatMessage::ChatMessageType::SERVER_MESSAGE)
 		{
-			std::cout << "<<" << payload->sender() << ">> " << payload->content() << std::endl;
+			std::cout << "[SERVER] " << message->content() << std::endl;
 			return;
 		}
-
-		if (payload->payloadtype() == myPayload::PayloadType::ERROR_MESSAGE)
+		else if (message->messagetype() == myChatMessage::ChatMessageType::WHISPER_MESSAGE)
 		{
-			std::cout << payload->content() << std::endl;
+			std::cout << "<<" << message->sender() << ">> " << message->content() << std::endl;
+			return;
+		}
+		else if (message->messagetype() == myChatMessage::ChatMessageType::PARTY_MESSAGE)
+		{
+			std::cout << "##" << message->sender() << "## " << message->content() << std::endl;
+			return;
+		}
+		else if (message->messagetype() == myChatMessage::ChatMessageType::ERROR_MESSAGE)
+		{
+			std::cout << message->content() << std::endl;
 			return;
 		}
 	}
