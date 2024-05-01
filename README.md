@@ -32,6 +32,15 @@ Protobuf를 통해 메시지 직렬화/역직렬화를 진행하였습니다.
 ![구조도](https://github.com/hstar0124/cpp-boost-chat/assets/57317290/82acf6d5-ea63-4643-94e2-216b1fcbc2dc)
 
 
+## 흐름도
+
+[연결 및 일반 메시지 발송]
+![Connect_Normal_Message](https://github.com/hstar0124/cpp-boost-chat/assets/57317290/9aa10fce-931c-4b09-aa45-f3b2bef4ec4d)
+
+
+[파티 생성 및 파티 메시지 발송]
+![Party_Message](https://github.com/hstar0124/cpp-boost-chat/assets/57317290/cb5a1ae3-beb0-453f-944f-0860e413c2cb)
+
 
 ## 기술 스택
 
