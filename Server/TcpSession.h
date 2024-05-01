@@ -7,6 +7,21 @@
 
 class TcpSession : public std::enable_shared_from_this<TcpSession>
 {
+private:
+    boost::asio::ip::tcp::socket m_Socket;
+    boost::asio::io_context& m_IoContext;
+
+    std::vector<uint8_t> m_Writebuf;
+    std::vector<uint8_t> m_Readbuf;
+
+    ThreadSafeQueue<OwnedMessage>& m_QMessagesInServer;
+    ThreadSafeQueue<std::shared_ptr<myChatMessage::ChatMessage>> m_QMessageOutServer;
+
+    boost::asio::steady_timer m_PingTimer;
+    bool m_IsActive;
+
+    uint32_t m_Id = 0;
+
 public:
     TcpSession(boost::asio::io_context& io_context, ThreadSafeQueue<OwnedMessage>& qToServer)
         : m_IoContext(io_context)
@@ -33,18 +48,4 @@ private:
     void ReadBody(size_t body_size);
     void AddToIncomingMessageQueue(std::shared_ptr<myChatMessage::ChatMessage> payload);
 
-private:
-    boost::asio::ip::tcp::socket m_Socket;
-    boost::asio::io_context& m_IoContext;
-
-    std::vector<uint8_t> m_Writebuf;
-    std::vector<uint8_t> m_Readbuf;
-    
-    ThreadSafeQueue<OwnedMessage>& m_QMessagesInServer;     
-    ThreadSafeQueue<std::shared_ptr<myChatMessage::ChatMessage>> m_QMessageOutServer;
-
-    boost::asio::steady_timer m_PingTimer;
-    bool m_IsActive;
-
-    uint32_t m_Id = 0;
 };

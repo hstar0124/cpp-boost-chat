@@ -5,6 +5,16 @@
 
 class TcpClient
 {
+private:
+
+	boost::asio::ip::tcp::endpoint m_Endpoint;
+	boost::asio::io_context& m_IoContext;
+	boost::asio::ip::tcp::socket m_Socket;
+	std::string m_Meaasge;
+
+	Message m_TemporaryMessage;
+	std::vector<uint8_t> m_Readbuf;
+
 public:
 
 	TcpClient(boost::asio::io_context& io_context)
@@ -24,6 +34,25 @@ public:
 
 	}
 
+	void Send(const std::string& userInput)
+	{
+		std::shared_ptr<myChatMessage::ChatMessage> chatMessage = std::make_shared<myChatMessage::ChatMessage>();
+
+		bool isSuccess = false;
+
+		if (IsWhisperMessage(userInput))
+			isSuccess = CreateWhisperMessage(chatMessage, userInput);
+		else if (IsPartyMessage(userInput))
+			isSuccess = CreatePartyMessage(chatMessage, userInput);
+		else
+			isSuccess = CreateNormalMessage(chatMessage, userInput);
+
+		if(isSuccess)
+			AsyncWrite(chatMessage);
+	}
+
+
+private:
 	void OnConnect(const boost::system::error_code& err)
 	{
 		std::cout << "OnConnect" << std::endl;
@@ -102,15 +131,15 @@ public:
 
 		if (option.empty()) {
 			// 파티 채팅 메시지인 경우
-			chatMessage->set_messagetype(myChatMessage::ChatMessageType::PARTY_MESSAGE) ;
+			chatMessage->set_messagetype(myChatMessage::ChatMessageType::PARTY_MESSAGE);
 			chatMessage->set_content(userInput.substr(3)); // Remove "/p "
 			return true;
 		}
 
 
-		if (option == "-create" || option == "-delete" || option == "-join" || option == "-leave") 
+		if (option == "-create" || option == "-delete" || option == "-join" || option == "-leave")
 		{
-			if (partyName.empty()) 
+			if (partyName.empty())
 			{
 				std::cout << "[CLIENT] 잘못된 메시지 포맷입니다. 형식: /p -create [파티명]\n";
 				return false;
@@ -146,24 +175,6 @@ public:
 		return true;
 	}
 
-	void Send(const std::string& userInput)
-	{
-		std::shared_ptr<myChatMessage::ChatMessage> chatMessage = std::make_shared<myChatMessage::ChatMessage>();
-
-		bool isSuccess = false;
-
-		if (IsWhisperMessage(userInput))
-			isSuccess = CreateWhisperMessage(chatMessage, userInput);
-		else if (IsPartyMessage(userInput))
-			isSuccess = CreatePartyMessage(chatMessage, userInput);
-		else
-			isSuccess = CreateNormalMessage(chatMessage, userInput);
-
-		if(isSuccess)
-			AsyncWrite(chatMessage);
-	}
-
-
 	void SendPong()
 	{
 		// 현재 시간을 milliseconds로 얻어옴
@@ -178,7 +189,6 @@ public:
 		AsyncWrite(message);
 	}
 
-private:
 	void AsyncWrite(std::shared_ptr<myChatMessage::ChatMessage> message)
 	{
 		int size = static_cast<int>(message->ByteSizeLong());
@@ -309,15 +319,7 @@ private:
 		}
 	}
 
-private:
 
-	boost::asio::ip::tcp::endpoint m_Endpoint;
-	boost::asio::io_context& m_IoContext;
-	boost::asio::ip::tcp::socket m_Socket;
-	std::string m_Meaasge;
-
-	Message m_TemporaryMessage;
-	std::vector<uint8_t> m_Readbuf;
 };
 
 int main()
