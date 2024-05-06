@@ -8,7 +8,8 @@ void Party::AddMember(std::weak_ptr<TcpSession> session)
 void Party::RemoveMember(std::weak_ptr<TcpSession> session)
 {
     m_Members.erase(std::remove_if(m_Members.begin(), m_Members.end(),
-        [&](const auto& weakSession) {
+        [&](const auto& weakSession) 
+        {
             return weakSession.expired() || weakSession.lock() == session.lock();
         }),
         m_Members.end());
@@ -22,7 +23,8 @@ const std::vector<std::weak_ptr<TcpSession>>& Party::GetMembers() const
 bool Party::HasMember(std::weak_ptr<TcpSession> session) const
 {
     return std::any_of(m_Members.begin(), m_Members.end(),
-        [&](const auto& weakSession) {
+        [&](const auto& weakSession) 
+        {
             return !weakSession.expired() && weakSession.lock() == session.lock();
         });
 }

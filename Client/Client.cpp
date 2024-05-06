@@ -1,10 +1,18 @@
 ﻿#include "Common.h"
-#include "Message.h"
 #include "ThreadSafeQueue.h"
 #include "Payload.pb.h"
 
 class TcpClient
 {
+private:
+
+	boost::asio::ip::tcp::endpoint m_Endpoint;
+	boost::asio::io_context& m_IoContext;
+	boost::asio::ip::tcp::socket m_Socket;
+	std::string m_Meaasge;
+
+	std::vector<uint8_t> m_Readbuf;
+
 public:
 
 	TcpClient(boost::asio::io_context& io_context)
@@ -24,9 +32,37 @@ public:
 
 	}
 
+	void Send(const std::string& userInput)
+	{
+		std::shared_ptr<myChatMessage::ChatMessage> chatMessage = std::make_shared<myChatMessage::ChatMessage>();
+
+		// 메시지 성공 플래그 값
+		bool isSuccess = false;
+
+		if (IsWhisperMessage(userInput))
+		{
+			isSuccess = CreateWhisperMessage(chatMessage, userInput);
+		}
+		else if (IsPartyMessage(userInput))
+		{
+			isSuccess = CreatePartyMessage(chatMessage, userInput);
+		}
+		else
+		{
+			isSuccess = CreateNormalMessage(chatMessage, userInput);
+		}
+
+		if (isSuccess)
+		{
+			AsyncWrite(chatMessage);
+		}
+	}
+
+
+private:
 	void OnConnect(const boost::system::error_code& err)
 	{
-		std::cout << "OnConnect" << std::endl;
+		std::cout << "[CLIENT] Connected!!" << std::endl;
 		if (!err)
 		{
 			ReadHeader();
@@ -47,8 +83,9 @@ public:
 		size_t spacePos = userInput.find(' ');
 		size_t receiverEndPos = userInput.find(' ', spacePos + 1);
 
-		if (spacePos == std::string::npos || userInput.size() <= spacePos + 1 || receiverEndPos == std::string::npos) {
-			std::cout << "[CLIENT] 잘못된 메시지 포맷입니다. 형식: /w [수신자] [메시지]\n";
+		if (spacePos == std::string::npos || userInput.size() <= spacePos + 1 || receiverEndPos == std::string::npos) 
+		{
+			std::cout << "[CLIENT] Invalid message format. Format: /w [recipient] [message]\n";
 			return false;
 		}
 
@@ -68,67 +105,94 @@ public:
 	}
 
 	std::pair<std::string, std::string> ExtractOptionAndPartyName(const std::string& userInput) {
+		
+		if (userInput.size() < 3)
+		{
+			return std::make_pair("Error", "");
+		}
+
 		size_t spacePos = userInput.find(' ');
 		if (spacePos == std::string::npos)
+		{
 			return std::make_pair("", "");
+		}
 
 		std::string option;
 		std::string partyName;
 
-		if (userInput.substr(0, 3) == "/p ") {
-			size_t optionPos = userInput.find('-', 3); // Start searching from index 3
-			if (optionPos != std::string::npos) {
+		if (userInput.substr(0, 3) == "/p ") 
+		{
+			// 3번째 위치부터 검색
+			size_t optionPos = userInput.find('-', 3); 
+			if (optionPos != std::string::npos) 
+			{
 				size_t optionEndPos = userInput.find(' ', optionPos + 1);
-				if (optionEndPos != std::string::npos) {
+				if (optionEndPos != std::string::npos) 
+				{
 					option = userInput.substr(optionPos, optionEndPos - optionPos);
 					partyName = userInput.substr(optionEndPos + 1);
 				}
+				else
+				{
+					return std::make_pair("Error", "");
+				}
 			}
 		}
-		else {
+		else 
+		{
 			partyName = userInput.substr(spacePos + 1);
 		}
 
 		return std::make_pair(option, partyName);
 	}
 
-	bool CreatePartyMessage(std::shared_ptr<myChatMessage::ChatMessage>& chatMessage, const std::string& userInput) {
+	bool CreatePartyMessage(std::shared_ptr<myChatMessage::ChatMessage>& chatMessage, const std::string& userInput) {\
 		std::pair<std::string, std::string> optionAndPartyName = ExtractOptionAndPartyName(userInput);
 		std::string& option = optionAndPartyName.first;
 		std::string& partyName = optionAndPartyName.second;
 
-		std::cout << "option : " << option << "\n";
-		std::cout << "partyName : " << partyName << "\n";
+		//std::cout << "option : " << option << "\n";
+		//std::cout << "partyName : " << partyName << "\n";
 
-		if (option.empty()) {
-			// 파티 채팅 메시지인 경우
-			chatMessage->set_messagetype(myChatMessage::ChatMessageType::PARTY_MESSAGE) ;
+		if (option.empty()) 
+		{
+			// 파티 메시지의 경우
+			chatMessage->set_messagetype(myChatMessage::ChatMessageType::PARTY_MESSAGE);
 			chatMessage->set_content(userInput.substr(3)); // Remove "/p "
 			return true;
 		}
 
 
-		if (option == "-create" || option == "-delete" || option == "-join" || option == "-leave") 
+		if (option == "-create" || option == "-delete" || option == "-join" || option == "-leave")
 		{
-			if (partyName.empty()) 
+			if (partyName.empty() || partyName == "")
 			{
-				std::cout << "[CLIENT] 잘못된 메시지 포맷입니다. 형식: /p -create [파티명]\n";
+				std::cout << "[CLIENT] Invalid message format. Format: /p -create [party name]\n";
 				return false;
 			}
 
 			if (option == "-create")
+			{
 				chatMessage->set_messagetype(myChatMessage::ChatMessageType::PARTY_CREATE);
+			}
 			else if (option == "-delete")
+			{
 				chatMessage->set_messagetype(myChatMessage::ChatMessageType::PARTY_DELETE);
+			}
 			else if (option == "-join")
+			{
 				chatMessage->set_messagetype(myChatMessage::ChatMessageType::PARTY_JOIN);
+			}
 			else if (option == "-leave")
+			{
 				chatMessage->set_messagetype(myChatMessage::ChatMessageType::PARTY_LEAVE);
+			}
 
 			chatMessage->set_content(partyName);
 		}
-		else {
-			std::cout << "[CLIENT] 잘못된 메시지 포맷입니다. 형식: /p [-create | -delete | -join | -leave] [파티명]\n";
+		else 
+		{
+			std::cout << "[CLIENT] Invalid message format. Format: /p [-create | -delete | -join | -leave] [party name]\n";
 			return false;
 		}
 
@@ -146,27 +210,8 @@ public:
 		return true;
 	}
 
-	void Send(const std::string& userInput)
-	{
-		std::shared_ptr<myChatMessage::ChatMessage> chatMessage = std::make_shared<myChatMessage::ChatMessage>();
-
-		bool isSuccess = false;
-
-		if (IsWhisperMessage(userInput))
-			isSuccess = CreateWhisperMessage(chatMessage, userInput);
-		else if (IsPartyMessage(userInput))
-			isSuccess = CreatePartyMessage(chatMessage, userInput);
-		else
-			isSuccess = CreateNormalMessage(chatMessage, userInput);
-
-		if(isSuccess)
-			AsyncWrite(chatMessage);
-	}
-
-
 	void SendPong()
 	{
-		// 현재 시간을 milliseconds로 얻어옴
 		auto now = std::chrono::system_clock::now();
 		auto now_ms = std::chrono::time_point_cast<std::chrono::milliseconds>(now);
 		auto value = now_ms.time_since_epoch().count();
@@ -178,7 +223,6 @@ public:
 		AsyncWrite(message);
 	}
 
-private:
 	void AsyncWrite(std::shared_ptr<myChatMessage::ChatMessage> message)
 	{
 		int size = static_cast<int>(message->ByteSizeLong());
@@ -216,7 +260,8 @@ private:
 				if (!ec)
 				{
 					size_t bodySize = 0;
-					for (int j = 0; j < m_Readbuf.size(); j++) {
+					for (int j = 0; j < m_Readbuf.size(); j++) 
+					{
 						bodySize = static_cast<size_t>(m_Readbuf[j]);
 					}
 					if (bodySize > 0)
@@ -226,8 +271,8 @@ private:
 				}
 				else
 				{
-					// 클라이언트로부터의 읽기가 실패하는 경우
-					// 소켓을 닫고 시스템이 이후 정리하도록 합니다.
+					// 소켓으로부터 읽어오는 것을 실패한다면
+					// 소켓을 닫는다.
 					std::cout << "[CLIENT] Read Header Fail.\n";
 					m_Socket.close();
 				}
@@ -244,10 +289,10 @@ private:
 			{
 				if (!ec)
 				{
-					// 디시리얼라이즈할 Payload 메시지 객체 생성
+					// 메시지 객체를 만듬
 					std::shared_ptr<myChatMessage::ChatMessage> payload = std::make_shared<myChatMessage::ChatMessage>();
 
-					// m_readbuf를 Payload 메시지로 디시리얼라이즈
+					// 메시지 버퍼로 디시리얼라이즈
 					if (payload->ParseFromArray(m_Readbuf.data(), size))
 					{
 						MessageRecvHandler(payload);
@@ -256,7 +301,7 @@ private:
 					else
 					{
 						// 디시리얼라이즈 실패
-						std::cerr << "Failed to parse Payload message" << std::endl;
+						std::cerr << "[CLIENT] Failed to parse message" << std::endl;
 					}
 
 				}
@@ -309,15 +354,7 @@ private:
 		}
 	}
 
-private:
 
-	boost::asio::ip::tcp::endpoint m_Endpoint;
-	boost::asio::io_context& m_IoContext;
-	boost::asio::ip::tcp::socket m_Socket;
-	std::string m_Meaasge;
-
-	Message m_TemporaryMessage;
-	std::vector<uint8_t> m_Readbuf;
 };
 
 int main()
@@ -325,9 +362,6 @@ int main()
 	boost::asio::io_context io_context;
 	TcpClient client(io_context);
 	client.Connect(std::string("127.0.0.1"), 4242);
-
-	// 비동기 I/O 작업이 처리된 후에 호출되는 함수를 실행시켜주는 함수
-	// 이 함수는 블록 함수 새로운 비동기 작업이 등록되거나, 기존 작업이 완료될 때까지 대기합니다.
 
 	std::thread thread([&io_context]() { io_context.run(); });
 

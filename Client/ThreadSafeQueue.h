@@ -4,6 +4,12 @@
 template<typename T>
 class ThreadSafeQueue
 {
+private:
+    std::mutex queueMutex;              // 큐에 대한 뮤텍스
+    std::queue<T> queue;                // 요소를 보유하는 큐
+    std::condition_variable cvBlocking;
+    std::mutex muxBlocking;
+
 public:
     // 기본 생성자
     ThreadSafeQueue() = default;
@@ -76,9 +82,5 @@ public:
     }
 
 
-private:
-    std::mutex queueMutex;              // 큐에 대한 뮤텍스
-    std::queue<T> queue;                // 요소를 보유하는 큐
-    std::condition_variable cvBlocking;
-    std::mutex muxBlocking;
+
 };
