@@ -4,6 +4,12 @@
 template<typename T>
 class ThreadSafeVector
 {
+private:
+	std::mutex vectorMutex;
+	std::vector<T> vector;
+	std::condition_variable cvBlocking;
+	std::mutex muxBlocking;
+
 public:
 	ThreadSafeVector() = default;
 
@@ -95,9 +101,5 @@ public:
 	}
 
 
-private:
-	std::mutex vectorMutex;
-	std::vector<T> vector;
-	std::condition_variable cvBlocking;
-	std::mutex muxBlocking;
+
 };

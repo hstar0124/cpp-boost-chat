@@ -23,7 +23,8 @@ public:
     static bool SetSizeToBufferHeader(std::vector<uint8_t>& buffer)
     {
         
-        if (buffer.size() < HEADER_SIZE) {
+        if (buffer.size() < HEADER_SIZE) 
+        {
             return false; // 버퍼의 크기가 충분하지 않으면 실패를 반환
         }
 
@@ -45,7 +46,8 @@ public:
     static size_t GetPayloadBodySize(const std::vector<uint8_t>& buffer)
     {
         size_t size = 0;
-        for (int i = 0; i < HEADER_SIZE; i++) {
+        for (int i = 0; i < HEADER_SIZE; i++) 
+        {
             size = static_cast<size_t>(buffer[i]);
         }
 

@@ -160,7 +160,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common.h" />
-    <ClInclude Include="Message.h" />
     <ClInclude Include="Payload.pb.h" />
     <ClInclude Include="ThreadSafeQueue.h" />
   </ItemGroup>
