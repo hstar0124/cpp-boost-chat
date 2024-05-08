@@ -85,9 +85,9 @@ uint32_t TcpSession::GetID() const
 
 void TcpSession::AsyncWrite()
 {
-    auto payload = m_QMessageOutServer.Front();
-    PacketConverter<myChatMessage::ChatMessage>::SerializePayload(payload, m_Writebuf);
-    PacketConverter<myChatMessage::ChatMessage>::SetSizeToBufferHeader(m_Writebuf);
+    auto chatMessage = m_QMessageOutServer.Front();
+    MessageConverter<myChatMessage::ChatMessage>::SerializeMessage(chatMessage, m_Writebuf);
+    MessageConverter<myChatMessage::ChatMessage>::SetSizeToBufferHeader(m_Writebuf);
 
     boost::asio::async_write(m_Socket, boost::asio::buffer(m_Writebuf.data(), m_Writebuf.size()),
         [this](const boost::system::error_code& err, const size_t transferred)
@@ -125,7 +125,7 @@ void TcpSession::ReadHeader()
         {
             if (!err)
             {
-                size_t bodySize = PacketConverter<myChatMessage::ChatMessage>::GetPayloadBodySize(m_Readbuf);
+                size_t bodySize = MessageConverter<myChatMessage::ChatMessage>::GetMessageBodySize(m_Readbuf);
                 ReadBody(bodySize);
             }
             else
@@ -150,17 +150,17 @@ void TcpSession::ReadBody(size_t bodySize)
             if (!ec)
             {
 
-                std::shared_ptr<myChatMessage::ChatMessage> payload = std::make_shared<myChatMessage::ChatMessage>();
+                std::shared_ptr<myChatMessage::ChatMessage> chatMessage = std::make_shared<myChatMessage::ChatMessage>();
 
                 // m_readbuf를 Payload 메시지로 디시리얼라이즈
-                if (PacketConverter<myChatMessage::ChatMessage>::DeserializePayload(m_Readbuf, payload))
+                if (MessageConverter<myChatMessage::ChatMessage>::DeserializeMessage(m_Readbuf, chatMessage))
                 {
                     // Payload 메시지에서 필요한 데이터를 출력
                     //std::cout << "Payload Type: " << payload->payloadtype() << std::endl;
                     //std::cout << "Content: " << payload->content() << std::endl;
-                    payload->set_sender(std::to_string(m_Id));
+                    chatMessage->set_sender(std::to_string(m_Id));
                     // 메시지를 수신 큐에 추가합니다.
-                    AddToIncomingMessageQueue(payload);
+                    AddToIncomingMessageQueue(chatMessage);
                 }
             }
             else

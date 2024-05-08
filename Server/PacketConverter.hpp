@@ -1,23 +1,23 @@
 #pragma once
-#include "Payload.pb.h"
+#include "MyMessage.pb.h"
 #include "Common.h"
 
 template <typename T>
-class PacketConverter
+class MessageConverter
 {
 public:
-    static bool DeserializePayload(std::vector<uint8_t>& buffer, std::shared_ptr<T>& payload)
+    static bool DeserializeMessage(std::vector<uint8_t>& buffer, std::shared_ptr<T>& message)
     {
-        return payload->ParseFromArray(buffer.data(), buffer.size());
+        return message->ParseFromArray(buffer.data(), buffer.size());
     }
 
-    static bool SerializePayload(std::shared_ptr<T>& payload, std::vector<uint8_t>& buffer)
+    static bool SerializeMessage(std::shared_ptr<T>& message, std::vector<uint8_t>& buffer)
     {
 
-        size_t size = GetPayloadSize(payload);
+        size_t size = GetMessageSize(message);
         buffer.clear();
         buffer.resize(HEADER_SIZE + size);
-        return payload->SerializePartialToArray(buffer.data() + HEADER_SIZE, size);
+        return message->SerializePartialToArray(buffer.data() + HEADER_SIZE, size);
     }
 
     static bool SetSizeToBufferHeader(std::vector<uint8_t>& buffer)
@@ -38,12 +38,12 @@ public:
         return true;
     }
 
-    static size_t GetPayloadSize(const std::shared_ptr<T>& payload)
+    static size_t GetMessageSize(const std::shared_ptr<T>& message)
     {
-        return payload->ByteSizeLong();
+        return message->ByteSizeLong();
     }
 
-    static size_t GetPayloadBodySize(const std::vector<uint8_t>& buffer)
+    static size_t GetMessageBodySize(const std::vector<uint8_t>& buffer)
     {
         size_t size = 0;
         for (int i = 0; i < HEADER_SIZE; i++) 

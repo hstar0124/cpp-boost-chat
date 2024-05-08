@@ -1,1 +1,1 @@
-protoc.exe -I=./ --cpp_out=./ ./Payload.proto
+protoc.exe -I=./ --cpp_out=./ ./MyMessage.proto
