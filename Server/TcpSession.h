@@ -3,7 +3,7 @@
 #include "ThreadSafeQueue.h"
 #include "Message.h"
 #include "PacketConverter.hpp"
-#include "Payload.pb.h"
+#include "MyMessage.pb.h"
 
 class TcpSession : public std::enable_shared_from_this<TcpSession>
 {
@@ -46,6 +46,6 @@ private:
     void OnWrite(const boost::system::error_code& err, const size_t size);
     void ReadHeader();
     void ReadBody(size_t body_size);
-    void AddToIncomingMessageQueue(std::shared_ptr<myChatMessage::ChatMessage> payload);
+    void AddToIncomingMessageQueue(std::shared_ptr<myChatMessage::ChatMessage> chatMessage);
 
 };

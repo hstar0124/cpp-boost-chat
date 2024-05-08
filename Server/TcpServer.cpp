@@ -72,7 +72,7 @@ void TcpServer::Update(size_t nMaxMessages = -1, bool bWait = false)
         while (nMessageCount < nMaxMessages && !m_QMessagesInServer.Empty())
         {
             auto msg = m_QMessagesInServer.Pop();
-            OnMessage(msg.remote, msg.payload);
+            OnMessage(msg.remote, msg.chatMessage);
             nMessageCount++;
         }
     }

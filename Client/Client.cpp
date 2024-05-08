@@ -1,6 +1,6 @@
 ﻿#include "Common.h"
 #include "ThreadSafeQueue.h"
-#include "Payload.pb.h"
+#include "MyMessage.pb.h"
 
 class TcpClient
 {
@@ -146,7 +146,7 @@ private:
 		return std::make_pair(option, partyName);
 	}
 
-	bool CreatePartyMessage(std::shared_ptr<myChatMessage::ChatMessage>& chatMessage, const std::string& userInput) {\
+	bool CreatePartyMessage(std::shared_ptr<myChatMessage::ChatMessage>& chatMessage, const std::string& userInput) {
 		std::pair<std::string, std::string> optionAndPartyName = ExtractOptionAndPartyName(userInput);
 		std::string& option = optionAndPartyName.first;
 		std::string& partyName = optionAndPartyName.second;
@@ -290,12 +290,12 @@ private:
 				if (!ec)
 				{
 					// 메시지 객체를 만듬
-					std::shared_ptr<myChatMessage::ChatMessage> payload = std::make_shared<myChatMessage::ChatMessage>();
+					std::shared_ptr<myChatMessage::ChatMessage> chatMessage = std::make_shared<myChatMessage::ChatMessage>();
 
 					// 메시지 버퍼로 디시리얼라이즈
-					if (payload->ParseFromArray(m_Readbuf.data(), size))
+					if (chatMessage->ParseFromArray(m_Readbuf.data(), size))
 					{
-						MessageRecvHandler(payload);
+						MessageRecvHandler(chatMessage);
 						ReadHeader();
 					}
 					else
