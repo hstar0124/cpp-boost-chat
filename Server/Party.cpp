@@ -1,42 +1,54 @@
 #include "Party.h"
 
-void Party::AddMember(std::weak_ptr<TcpSession> session)
+Party::Party(uint32_t partyId, uint32_t creator, const std::string& partyName) :
+m_PartyId(partyId)
+, m_PartyCreator(creator)
+, m_PartyName(partyName)
+{}
+
+bool Party::AddMember(uint32_t sessionId)
 {
-    m_Members.push_back(session);
+    m_Members.push_back(sessionId);
+    std::cout << "[SERVER] Add Member in Party {" << m_PartyName << ", " << sessionId << "}" << std::endl;
+    PrintMembers();
+    return true;
 }
 
-void Party::RemoveMember(std::weak_ptr<TcpSession> session)
+bool Party::RemoveMember(uint32_t sessionId)
 {
     m_Members.erase(std::remove_if(m_Members.begin(), m_Members.end(),
-        [&](const auto& weakSession) 
+        [&](uint32_t sid)
         {
-            return weakSession.expired() || weakSession.lock() == session.lock();
+            return sid == sessionId;
         }),
         m_Members.end());
+    
+    std::cout << "[SERVER] Remove Member in Party {" << m_PartyName << ", " << sessionId << "}" << std::endl;
+    PrintMembers();
+    return true;
 }
 
-const std::vector<std::weak_ptr<TcpSession>>& Party::GetMembers() const
+void Party::PrintMembers() const
+{
+    std::cout << "Member List : ";
+    for (auto it = m_Members.begin(); it != m_Members.end(); it++)
+    {
+        std::cout << *it << " ";
+    }
+    std::cout << "\n";
+}
+
+
+const std::vector<uint32_t>& Party::GetMembers() const
 {
     return m_Members;
 }
 
-bool Party::HasMember(std::weak_ptr<TcpSession> session) const
+bool Party::HasMember(uint32_t sessionId) const
 {
     return std::any_of(m_Members.begin(), m_Members.end(),
-        [&](const auto& weakSession) 
+        [&](uint32_t sid)
         {
-            return !weakSession.expired() && weakSession.lock() == session.lock();
+            return sid == sessionId;
         });
-}
-
-void Party::Send(std::shared_ptr<myChatMessage::ChatMessage> msg)
-{
-    for (auto& weakMember : m_Members)
-    {
-        if (auto member = weakMember.lock())
-        {
-            std::cout << "Member : " << member->GetID() << "\n";
-            member->Send(msg);
-        }
-    }
 }

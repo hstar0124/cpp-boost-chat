@@ -111,27 +111,37 @@ void TcpServer::OnMessage(std::shared_ptr<TcpSession> session, std::shared_ptr<m
             SendErrorMessage(session, "The party name is empty.");
             return;
         }
-        if (FindPartyByName(msg->content())) 
+
+        std::cout << "[SERVER] Create party\n";
+
+        if (PartyManager::getInstance().HasParty(msg->content()))
         {
             SendErrorMessage(session, "The party name already exists.");
             return;
         }
 
-        if (CreateParty(session, msg->content()))
+        if (PartyManager::getInstance().CreateParty(session, msg->content()))
         {
             SendServerMessage(session, "Party creation successful");
+            return;
         }
+
     }
     break;
     case myChatMessage::ChatMessageType::PARTY_DELETE:
     {
-        if (msg->content().empty()) 
+        if (msg->content().empty())
         {
             SendErrorMessage(session, "The party name is empty.");
             return;
         }
         std::cout << "[SERVER] Delete party\n";
-        DeleteParty(session, msg->content());
+
+        if (PartyManager::getInstance().DeleteParty(session, msg->content()))
+        {
+            SendServerMessage(session, "Party Delete successful");
+            return;
+        }
     }
     break;
     case myChatMessage::ChatMessageType::PARTY_JOIN:
@@ -142,18 +152,21 @@ void TcpServer::OnMessage(std::shared_ptr<TcpSession> session, std::shared_ptr<m
             return;
         }
         
-        auto it = FindPartyByName(msg->content());
 
-        std::cout << "[SERVER] Join party\n";
-        // 파티가 존재하는 경우 파티 내 멤버 추가
-        if (it == nullptr || it->HasMember(session))
+        if (!PartyManager::getInstance().HasParty(msg->content()))
         {
-            SendErrorMessage(session, "The party does not exist or the member is already joined.");
+            SendErrorMessage(session, "The party does not exist.");
             return;
         }
 
-        it->AddMember(session);
-        std::cout << "[SERVER] Add Member in Party : " << it->GetName() << " : " << session->GetID() << std::endl;
+        auto party = PartyManager::getInstance().FindPartyByName(msg->content());
+        if (party->HasMember(session->GetID()))
+        {
+            SendErrorMessage(session, "Already joined.");
+            return;
+        }
+
+        party->AddMember(session->GetID());
     }
     break;
     case myChatMessage::ChatMessageType::PARTY_LEAVE:
@@ -163,18 +176,27 @@ void TcpServer::OnMessage(std::shared_ptr<TcpSession> session, std::shared_ptr<m
             SendErrorMessage(session, "The party name is empty.");
             return;
         }
-        auto it = FindPartyByName(msg->content());
-
-        std::cout << "[SERVER] Leave party\n";
-        if (it == nullptr || !it->HasMember(session))
+        
+        if (!PartyManager::getInstance().HasParty(msg->content()))
         {
-            SendErrorMessage(session, "The party does not exist or it's a party not joined.");
+            SendErrorMessage(session, "The party does not exist.");
             return;
         }
 
-        it->RemoveMember(session);
-        std::cout << "[SERVER] Remove Member in Party : " << it->GetName() << " : " << session->GetID() << std::endl;
+        auto party = PartyManager::getInstance().FindPartyByName(msg->content());
+        if (!party->HasMember(session->GetID()))
+        {
+            SendErrorMessage(session, "It's a party not joined.");
+            return;
+        }
 
+        if (party->GetPartyCreator() == session->GetID())
+        {
+            SendErrorMessage(session, "Sorry, as the party leader, you cannot leave the party. Deletion is the only option.");
+            return;
+        }
+
+        party->RemoveMember(session->GetID());
     }
     break;
     case myChatMessage::ChatMessageType::PARTY_MESSAGE:
@@ -184,8 +206,15 @@ void TcpServer::OnMessage(std::shared_ptr<TcpSession> session, std::shared_ptr<m
             SendErrorMessage(session, "The content of the party message is empty.");
             return;
         }
-        std::cout << "[SERVER] Send party message\n";
-        SendPartyMessage(session, msg);
+
+        auto party = PartyManager::getInstance().FindPartyBySessionId(session->GetID());
+        if (!party)
+        {
+            SendErrorMessage(session, "It's a party not joined.");
+            return;
+        }
+
+        SendPartyMessage(party, msg);
     }
     break;
     case myChatMessage::ChatMessageType::WHISPER_MESSAGE:
@@ -252,19 +281,21 @@ void TcpServer::SendWhisperMessage(std::shared_ptr<TcpSession>& senderSession, c
     SendErrorMessage(senderSession, "Receiver not found.");
 }
 
-void TcpServer::SendPartyMessage(std::shared_ptr<TcpSession>& senderSession, std::shared_ptr<myChatMessage::ChatMessage> msg)
+void TcpServer::SendPartyMessage(std::shared_ptr<Party>& party, std::shared_ptr<myChatMessage::ChatMessage> msg)
 {
-    for (auto it = m_VecParties.Begin(); it != m_VecParties.End(); ++it)
+    if (party != nullptr)
     {
-        if ((*it)->HasMember(senderSession)) 
+        auto partyMembers = party->GetMembers();
+        for (auto member : partyMembers)
         {
-            std::cout << (*it)->GetName() << "\n";
-            (*it)->Send(msg); 
-            return;
+            auto session = GetSessionById(member);
+            if (session != nullptr)
+            {
+                session->Send(msg);
+            }
         }
     }
 
-    SendErrorMessage(senderSession, "There are no joined parties.");
 }
 
 
@@ -292,50 +323,17 @@ void TcpServer::SendServerMessage(std::shared_ptr<TcpSession>& session, const st
     session->Send(serverMsg);
 }
 
-std::shared_ptr<Party> TcpServer::CreateParty(std::shared_ptr<TcpSession> creatorSession, const std::string& partyName)
+std::shared_ptr<TcpSession> TcpServer::GetSessionById(uint32_t sessionId)
 {
-    auto party = std::make_shared<Party>(m_PartyIdCounter++, creatorSession->GetID(), partyName);  // 파티 생성
-    party->AddMember(creatorSession);                                                   // 파티 생성자를 파티 멤버로 추가
-    m_VecParties.PushBack(party);                                                       // 파티를 파티 리스트에 추가
-
-    std::cout << "Party Count : " << m_VecParties.Count() << "\n";
-    return party;
-}
-
-void TcpServer::DeleteParty(std::shared_ptr<TcpSession> session, const std::string& partyName)
-{
-    // 파티 이름에 해당하는 파티를 찾음|
-    auto it = FindPartyByName(partyName);
-
-    // 파티가 존재하고 파티 창설자인 경우
-    if (it != nullptr && it->GetPartyCreator() == session->GetID())
+    for (auto session : m_VecTcpSessions)
     {
-        // 파티를 파티 컨테이너에서 삭제
-        m_VecParties.Erase(it);
-        std::cout << "[SERVER] Deleted party: " << partyName << std::endl;
-    }
-    else
-    {
-        // 해당 이름을 가진 파티가 없거나 창시자가 아닌 경우
-        std::cout << "[SERVER] Fail Deleted Party : " << partyName << std::endl;
-        SendErrorMessage(session, "Failed to delete the party.");
-    }
-
-    std::cout << "Party Count : " << m_VecParties.Count() << "\n";
-}   
-
-std::shared_ptr<Party> TcpServer::FindPartyByName(const std::string& partyName)
-{
-    // 파티 이름에 해당하는 파티를 찾음
-    auto it = std::find_if(m_VecParties.Begin(), m_VecParties.End(), 
-        [&partyName](std::shared_ptr<Party>& party) 
+        if (session->GetID() == sessionId)
         {
-            return party->GetName() == partyName;
-        });
+            // 해당 세션 ID를 가진 세션을 찾았을 때
+            return session;
+        }
+    }
 
-    // 파티가 존재하는 경우 해당 파티를 반환
-    if (it != m_VecParties.End())
-        return *it;
-    else
-        return nullptr;
+    // 해당 세션 ID를 가진 세션이 없을 때
+    return nullptr;
 }
