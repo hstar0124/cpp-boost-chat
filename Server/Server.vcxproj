@@ -157,6 +157,7 @@
   <ItemGroup>
     <ClCompile Include="MyMessage.pb.cc" />
     <ClCompile Include="Party.cpp" />
+    <ClCompile Include="PartyManager.cpp" />
     <ClCompile Include="TcpServer.cpp" />
     <ClCompile Include="App.cpp" />
     <ClCompile Include="TcpSession.cpp" />
@@ -167,6 +168,7 @@
     <ClInclude Include="MyMessage.pb.h" />
     <ClInclude Include="PacketConverter.hpp" />
     <ClInclude Include="Party.h" />
+    <ClInclude Include="PartyManager.h" />
     <ClInclude Include="TcpServer.h" />
     <ClInclude Include="TcpSession.h" />
     <ClInclude Include="ThreadSafeVector.h" />

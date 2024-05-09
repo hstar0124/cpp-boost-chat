@@ -23,14 +23,7 @@ private:
     uint32_t m_Id = 0;
 
 public:
-    TcpSession(boost::asio::io_context& io_context, ThreadSafeQueue<OwnedMessage>& qToServer)
-        : m_IoContext(io_context)
-        , m_Socket(io_context)
-        , m_QMessagesInServer(qToServer)
-        , m_PingTimer(io_context, std::chrono::seconds(5))
-        , m_IsActive(true)
-    {
-    }
+    TcpSession(boost::asio::io_context& io_context, ThreadSafeQueue<OwnedMessage>& qToServer);
 
     void Start(uint32_t uid);
     void StartPingTimer();

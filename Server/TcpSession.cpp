@@ -1,5 +1,14 @@
 #include "TcpSession.h"
 
+TcpSession::TcpSession(boost::asio::io_context& io_context, ThreadSafeQueue<OwnedMessage>& qToServer)
+    : m_IoContext(io_context)
+    , m_Socket(io_context)
+    , m_QMessagesInServer(qToServer)
+    , m_PingTimer(io_context, std::chrono::seconds(5))
+    , m_IsActive(true)
+{
+}
+
 void TcpSession::Start(uint32_t uid = 0)
 {
     m_Id = uid;
