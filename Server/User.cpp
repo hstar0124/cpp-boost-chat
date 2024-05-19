@@ -41,7 +41,6 @@ std::shared_ptr<myChatMessage::ChatMessage> User::GetMessageInUserQueue()
 {
 	if (m_OutputQueue->empty() && !SwapQueues())
 	{
-		std::cout << "[USER] Queue is empty! \n";
 		return nullptr;
 	}
 
@@ -120,13 +119,9 @@ void User::AsyncWrite(std::shared_ptr<myChatMessage::ChatMessage> msg)
 	boost::asio::async_write(m_Socket, boost::asio::buffer(m_Writebuf.data(), m_Writebuf.size()),
 		[this](const boost::system::error_code& err, const size_t transferred)
 		{
-			if (!err)
+			if (err)
 			{
-				std::cout << "[SERVER] Success Send Message\n";
-			}
-			else
-			{
-				HandleError("[SERVER] DisConnected Client.");
+				HandleError("[SERVER] DisConnected Client");
 			}
 		});
 }

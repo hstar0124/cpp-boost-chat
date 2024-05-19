@@ -2,7 +2,7 @@
 #include "ThreadSafeQueue.h"
 #include "MyMessage.pb.h"
 
-class TcpClient
+class User
 {
 private:
 
@@ -15,7 +15,7 @@ private:
 
 public:
 
-	TcpClient(boost::asio::io_context& io_context)
+	User(boost::asio::io_context& io_context)
 		: m_IoContext(io_context), m_Socket(io_context)
 	{
 	}
@@ -360,15 +360,15 @@ private:
 int main()
 {
 	boost::asio::io_context io_context;
-	TcpClient client(io_context);
-	client.Connect(std::string("127.0.0.1"), 4242);
+	User user(io_context);
+	user.Connect(std::string("127.0.0.1"), 4242);
 
 	std::thread thread([&io_context]() { io_context.run(); });
 
 	std::string userInput;
 	while (getline(std::cin, userInput))
 	{
-		client.Send(userInput);
+		user.Send(userInput);
 	}
 
 }

@@ -32,6 +32,7 @@ public:
 
 	uint32_t GetID() const;
 	std::shared_ptr<myChatMessage::ChatMessage> GetMessageInUserQueue();
+	void Send(std::shared_ptr<myChatMessage::ChatMessage> msg);
 
 	boost::asio::ip::tcp::socket& GetSocket();
 
@@ -39,7 +40,6 @@ private:
 	void SendPing();
 	void StartPingTimer();
 	std::string GetCurrentTimeMilliseconds();
-	void Send(std::shared_ptr<myChatMessage::ChatMessage> msg);
 
 	bool SwapQueues();
 

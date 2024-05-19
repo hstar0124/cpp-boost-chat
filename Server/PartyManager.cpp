@@ -1,23 +1,23 @@
 #include "PartyManager.h"
 
 
-bool PartyManager::CreateParty(std::shared_ptr<TcpSession> creatorSession, const std::string& partyName)
+bool PartyManager::CreateParty(std::shared_ptr<User> user, const std::string& partyName)
 {
-    if (creatorSession == nullptr || partyName == "")
+    if (user == nullptr || partyName == "")
     {
         std::cout << "[SERVER] Invalid Party Name" << std::endl;
         return false;
     }
 
-    auto party = std::make_shared<Party>(m_PartyIdCounter++, creatorSession->GetID(), partyName);  // 파티 생성
-    party->AddMember(creatorSession->GetID());                                                   // 파티 생성자를 파티 멤버로 추가
+    auto party = std::make_shared<Party>(m_PartyIdCounter++, user->GetID(), partyName);  // 파티 생성
+    party->AddMember(user->GetID());                                                   // 파티 생성자를 파티 멤버로 추가
     m_VecParties.PushBack(party);                                                       // 파티를 파티 리스트에 추가
 
     std::cout << "Party Count : " << m_VecParties.Count() << "\n";
     return true;
 }
 
-bool PartyManager::DeleteParty(std::shared_ptr<TcpSession> session, const std::string& partyName)
+bool PartyManager::DeleteParty(std::shared_ptr<User> user, const std::string& partyName)
 {
     // 파티 이름에 해당하는 파티를 찾음|
     auto it = FindPartyByName(partyName);
@@ -28,7 +28,7 @@ bool PartyManager::DeleteParty(std::shared_ptr<TcpSession> session, const std::s
     }
 
     // 파티가 존재하고 파티 창설자인 경우
-    if (it != nullptr && it->GetPartyCreator() == session->GetID())
+    if (it != nullptr && it->GetPartyCreator() == user->GetID())
     {
         // 파티를 파티 컨테이너에서 삭제
         m_VecParties.Erase(it);

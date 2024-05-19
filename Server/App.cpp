@@ -14,7 +14,7 @@ int main()
 
 	while (1)
 	{
-		tcpServer.Update(-1, true);
+		tcpServer.Update();
 	}
 
 	return 0;
