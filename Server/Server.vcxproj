@@ -161,6 +161,7 @@
     <ClCompile Include="TcpServer.cpp" />
     <ClCompile Include="App.cpp" />
     <ClCompile Include="TcpSession.cpp" />
+    <ClCompile Include="User.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common.h" />
@@ -173,6 +174,7 @@
     <ClInclude Include="TcpSession.h" />
     <ClInclude Include="ThreadSafeVector.h" />
     <ClInclude Include="ThreadSafeQueue.h" />
+    <ClInclude Include="User.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="MyMessage.proto" />

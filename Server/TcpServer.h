@@ -5,6 +5,7 @@
 #include "ThreadSafeQueue.h"
 #include "ThreadSafeVector.h""
 #include "PartyManager.h"
+#include "User.h"
 
 class TcpServer
 {
@@ -16,12 +17,14 @@ private:
     ThreadSafeQueue<OwnedMessage> m_QMessagesInServer;
 
     std::vector<std::shared_ptr<TcpSession>> m_VecTcpSessions;
+    std::vector<std::shared_ptr<User>> m_Users;
     uint32_t m_IdCounter = 10'000;
 
 public:
     TcpServer(boost::asio::io_context& io_context, int port);
     bool Start();
     void Update(size_t nMaxMessages, bool bWait);
+    void Update();
     
     std::shared_ptr<TcpSession> GetSessionById(uint32_t sessionId);
 

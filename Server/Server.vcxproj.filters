@@ -25,6 +25,9 @@
     <ClCompile Include="PartyManager.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="User.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="TcpSession.h">
@@ -55,6 +58,9 @@
       <Filter>소스 파일</Filter>
     </ClInclude>
     <ClInclude Include="PartyManager.h">
+      <Filter>소스 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="User.h">
       <Filter>소스 파일</Filter>
     </ClInclude>
   </ItemGroup>

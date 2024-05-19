@@ -78,6 +78,27 @@ void TcpServer::Update(size_t nMaxMessages = -1, bool bWait = false)
     }
 }
 
+void TcpServer::Update()
+{
+    //User 벡터 순회하면서 메시지 처리
+    while (true)
+    {
+        bool HasdisconnectedUser = false;
+
+        for (auto u : m_Users)
+        {
+            // 접속 끊긴 유저 확인
+            if (!u->IsConnected())
+            {
+                HasdisconnectedUser = true;
+                continue;
+            }
+
+            u->GetMessageInUserQueue();
+        }
+    }
+}
+
 void TcpServer::OnMessage(std::shared_ptr<TcpSession> session, std::shared_ptr<myChatMessage::ChatMessage> msg)
 {
 
