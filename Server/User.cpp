@@ -45,6 +45,11 @@ std::shared_ptr<myChatMessage::ChatMessage> User::GetMessageInUserQueue()
 	}
 
 	auto msg = m_OutputQueue->front();
+	if (!msg)
+	{
+		return nullptr;
+	}
+
 	m_OutputQueue->pop();
 	return msg;
 }

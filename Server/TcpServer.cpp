@@ -14,7 +14,6 @@ bool TcpServer::Start()
         // 클라이언트 연결 대기 및 연결
         WaitForClientConnection();
         m_ContextThread = std::thread([this]() { m_IoContext.run(); });
-        m_UserThread = std::thread([this]() { this->Update(); }); 
     }
     catch (std::exception& e)
     {
@@ -59,12 +58,17 @@ void TcpServer::OnAccept(std::shared_ptr<User> user, const boost::system::error_
 
 void TcpServer::Update()
 {
-    //User 벡터 순회하면서 메시지 처리
-    while (true)
+    while (1)
     {
+        if (m_Users.empty())
+        {
+            continue;
+        }
+
+        //User 벡터 순회하면서 메시지 처리
         for (auto u : m_Users)
         {
-            if (!u->IsConnected())
+            if (u == nullptr || !u->IsConnected())
             {
                 continue;
             }
@@ -79,26 +83,20 @@ void TcpServer::Update()
 
                 OnMessage(u, msg);
             }
-        }
-
-        // 짧은 지연을 두어 CPU 사용량을 줄임
-        std::this_thread::sleep_for(std::chrono::milliseconds(10)); 
+        } 
     }
 }
 
 void TcpServer::OnMessage(std::shared_ptr<User> user, std::shared_ptr<myChatMessage::ChatMessage> msg)
 {
-
     switch (msg->messagetype())
     {
     case myChatMessage::ChatMessageType::SERVER_PING:
     {
-        //std::cout << "[SERVER] Server Ping\n";
         auto sentTimeMs = std::stoll(msg->content());
         auto sentTime = std::chrono::milliseconds(sentTimeMs);
         auto currentTime = std::chrono::system_clock::now().time_since_epoch();
         auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - sentTime);
-        //std::cout << "Response time: " << elapsedTime.count() << "ms" << std::endl;
     }
     break;
     case myChatMessage::ChatMessageType::ALL_MESSAGE:

@@ -12,7 +12,6 @@ class TcpServer
 private:
     boost::asio::io_context& m_IoContext;
     std::thread m_ContextThread;
-    std::thread m_UserThread;
     boost::asio::ip::tcp::acceptor m_Acceptor;
 
     ThreadSafeQueue<OwnedMessage> m_QMessagesInServer;
