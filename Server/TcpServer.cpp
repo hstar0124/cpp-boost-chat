@@ -41,11 +41,12 @@ void TcpServer::WaitForClientConnection()
 void TcpServer::OnAccept(std::shared_ptr<User> user, const boost::system::error_code& err)
 {
     if (!err)
-    {
-        // TODO : 클라이언트 유효성 체크        
-        m_Users.push_back(std::move(user));
-        m_Users.back()->Start(m_IdCounter++);
-        std::cout << "[SERVER] " << m_Users.back()->GetID() << " Connection Approved\n";
+    {   
+        std::lock_guard<std::mutex> lock(m_NewUsersMutex);
+        m_NewUsers.push(std::move(user));
+        //m_Users.push_back(std::move(user));
+        //m_Users.back()->Start(m_IdCounter++);
+        //std::cout << "[SERVER] " << m_Users.back()->GetID() << " Connection Approved\n";
     }
     else
     {
@@ -60,6 +61,21 @@ void TcpServer::Update()
 {
     while (1)
     {
+        {
+            std::lock_guard<std::mutex> lock(m_NewUsersMutex);
+            while (!m_NewUsers.empty()) 
+            {
+                auto user = m_NewUsers.front();
+                m_NewUsers.pop();
+                {
+                    std::lock_guard<std::mutex> users_lock(m_UsersMutex);
+                    m_Users.push_back(user);
+                    user->Start(m_IdCounter++);
+                }
+                std::cout << "[SERVER] " << user->GetID() << " Connection Approved\n";
+            }
+        }
+
         if (m_Users.empty())
         {
             continue;

@@ -1,6 +1,5 @@
 #pragma once
 #include "Common.h"
-#include "TcpSession.h"
 
 class Party : public std::enable_shared_from_this<Party>
 {

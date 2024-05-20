@@ -1,22 +1,23 @@
 #pragma once
 #include "Common.h"
 #include "Party.h"
-#include "TcpSession.h"
 #include "ThreadSafeQueue.h"
 #include "ThreadSafeVector.h""
 #include "PartyManager.h"
 #include "User.h"
 
-class TcpServer
+class TcpServer 
 {
 private:
     boost::asio::io_context& m_IoContext;
     std::thread m_ContextThread;
     boost::asio::ip::tcp::acceptor m_Acceptor;
 
-    ThreadSafeQueue<OwnedMessage> m_QMessagesInServer;
-
     std::vector<std::shared_ptr<User>> m_Users;
+    std::queue<std::shared_ptr<User>> m_NewUsers;
+    std::mutex m_UsersMutex;
+    std::mutex m_NewUsersMutex;
+
     uint32_t m_IdCounter = 10'000;
 
 public:

@@ -10,9 +10,6 @@
     <ClCompile Include="App.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="TcpSession.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="TcpServer.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
@@ -30,9 +27,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="TcpSession.h">
-      <Filter>소스 파일</Filter>
-    </ClInclude>
     <ClInclude Include="TcpServer.h">
       <Filter>소스 파일</Filter>
     </ClInclude>
