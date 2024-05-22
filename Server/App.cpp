@@ -12,10 +12,7 @@ int main()
 		std::cerr << "[SERVER] Server Error!!" << "\n";
 	}
 
-	while (1)
-	{
-		tcpServer.Update(-1, true);
-	}
+	tcpServer.Update();
 
 	return 0;
 }

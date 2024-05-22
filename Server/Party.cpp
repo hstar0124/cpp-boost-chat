@@ -6,24 +6,24 @@ m_PartyId(partyId)
 , m_PartyName(partyName)
 {}
 
-bool Party::AddMember(uint32_t sessionId)
+bool Party::AddMember(uint32_t userId)
 {
-    m_Members.push_back(sessionId);
-    std::cout << "[SERVER] Add Member in Party {" << m_PartyName << ", " << sessionId << "}" << std::endl;
+    m_Members.push_back(userId);
+    std::cout << "[SERVER] Add Member in Party {" << m_PartyName << ", " << userId << "}" << std::endl;
     PrintMembers();
     return true;
 }
 
-bool Party::RemoveMember(uint32_t sessionId)
+bool Party::RemoveMember(uint32_t userId)
 {
     m_Members.erase(std::remove_if(m_Members.begin(), m_Members.end(),
         [&](uint32_t sid)
         {
-            return sid == sessionId;
+            return sid == userId;
         }),
         m_Members.end());
     
-    std::cout << "[SERVER] Remove Member in Party {" << m_PartyName << ", " << sessionId << "}" << std::endl;
+    std::cout << "[SERVER] Remove Member in Party {" << m_PartyName << ", " << userId << "}" << std::endl;
     PrintMembers();
     return true;
 }

@@ -1,6 +1,5 @@
 #pragma once
 #include "Common.h"
-#include "TcpSession.h"
 
 class Party : public std::enable_shared_from_this<Party>
 {
@@ -19,9 +18,9 @@ public:
     bool SetPartyName(const std::string& partyName) { m_PartyName = partyName; }
 
     const std::vector<uint32_t>& GetMembers() const;
-    bool AddMember(uint32_t sessionId);
-    bool HasMember(uint32_t sessionId) const;
-    bool RemoveMember(uint32_t sessionId);    
+    bool AddMember(uint32_t userId);
+    bool HasMember(uint32_t userId) const;
+    bool RemoveMember(uint32_t userId);
     
     void PrintMembers() const;
 };
