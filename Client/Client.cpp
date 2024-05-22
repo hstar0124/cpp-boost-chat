@@ -196,8 +196,8 @@ private:
 			return false;
 		}
 
-		std::cout << "MSG : " << chatMessage->messagetype() << "\n";
-		std::cout << "Content : " << chatMessage->content() << "\n";
+		//std::cout << "MSG : " << chatMessage->messagetype() << "\n";
+		//std::cout << "Content : " << chatMessage->content() << "\n";
 		return true;
 	}
 

@@ -29,6 +29,7 @@ public:
 
 private:
     void WaitForClientConnection();
+    void UpdateUsers();
 
     void OnAccept(std::shared_ptr<User> user, const boost::system::error_code& err);
     void OnMessage(std::shared_ptr<User> user, std::shared_ptr<myChatMessage::ChatMessage> msg);

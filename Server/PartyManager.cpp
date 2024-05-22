@@ -9,8 +9,8 @@ bool PartyManager::CreateParty(std::shared_ptr<User> user, const std::string& pa
         return false;
     }
 
-    auto party = std::make_shared<Party>(m_PartyIdCounter++, user->GetID(), partyName);  // 파티 생성
-    party->AddMember(user->GetID());                                                   // 파티 생성자를 파티 멤버로 추가
+    auto party = std::make_shared<Party>(m_PartyIdCounter++, user->GetID(), partyName); // 파티 생성
+    party->AddMember(user->GetID());                                                    // 파티 생성자를 파티 멤버로 추가
     m_VecParties.PushBack(party);                                                       // 파티를 파티 리스트에 추가
 
     std::cout << "Party Count : " << m_VecParties.Count() << "\n";

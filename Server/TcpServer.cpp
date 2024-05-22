@@ -38,15 +38,14 @@ void TcpServer::WaitForClientConnection()
         });
 }
 
+
+
 void TcpServer::OnAccept(std::shared_ptr<User> user, const boost::system::error_code& err)
 {
     if (!err)
     {   
         std::lock_guard<std::mutex> lock(m_NewUsersMutex);
         m_NewUsers.push(std::move(user));
-        //m_Users.push_back(std::move(user));
-        //m_Users.back()->Start(m_IdCounter++);
-        //std::cout << "[SERVER] " << m_Users.back()->GetID() << " Connection Approved\n";
     }
     else
     {
@@ -57,24 +56,28 @@ void TcpServer::OnAccept(std::shared_ptr<User> user, const boost::system::error_
 }
 
 
+void TcpServer::UpdateUsers()
+{
+    std::lock_guard<std::mutex> lock(m_NewUsersMutex);
+    while (!m_NewUsers.empty())
+    {
+        auto user = m_NewUsers.front();
+        m_NewUsers.pop();
+        {
+            std::lock_guard<std::mutex> users_lock(m_UsersMutex);
+            m_Users.push_back(user);
+            user->Start(m_IdCounter++);
+        }
+        std::cout << "[SERVER] " << user->GetID() << " Connection Approved\n";
+    }
+}
+
 void TcpServer::Update()
 {
     while (1)
     {
-        {
-            std::lock_guard<std::mutex> lock(m_NewUsersMutex);
-            while (!m_NewUsers.empty()) 
-            {
-                auto user = m_NewUsers.front();
-                m_NewUsers.pop();
-                {
-                    std::lock_guard<std::mutex> users_lock(m_UsersMutex);
-                    m_Users.push_back(user);
-                    user->Start(m_IdCounter++);
-                }
-                std::cout << "[SERVER] " << user->GetID() << " Connection Approved\n";
-            }
-        }
+        // 새로 접속한 유저를 유저 vector에 추가
+        UpdateUsers();
 
         if (m_Users.empty())
         {
