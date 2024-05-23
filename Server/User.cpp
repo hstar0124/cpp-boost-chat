@@ -24,12 +24,11 @@ void User::Start(uint32_t uid = 0)
 void User::Close()
 {
 	m_IsActive = false;
-	m_Socket.close();
 }
 
 bool User::IsConnected()
 {
-	return m_Socket.is_open();
+	return m_IsActive;
 }
 
 uint32_t User::GetID() const
@@ -86,8 +85,7 @@ void User::StartPingTimer()
 		}
 		else
 		{
-			std::cout << "[SERVER] DisConnected Client.\n";
-			Close();
+			HandleError("[SERVER] DisConnected Client");
 		}
 	});
 }
@@ -126,7 +124,7 @@ void User::AsyncWrite(std::shared_ptr<myChatMessage::ChatMessage> msg)
 		{
 			if (err)
 			{
-				HandleError("[SERVER] DisConnected Client");
+				HandleError("[SERVER] Write Error!!");
 			}
 		});
 }
@@ -153,7 +151,7 @@ void User::ReadHeader()
 			}
 			else
 			{
-				HandleError("[SERVER] DisConnected Client.");
+				HandleError("[SERVER] Read Header Error!!");
 			}
 		});
 }
@@ -181,7 +179,7 @@ void User::ReadBody(size_t bodySize)
 			}
 			else
 			{
-				HandleError("[SERVER] DisConnected Client.");
+				HandleError("[SERVER] Read Body Error!!");
 			}
 		});
 }

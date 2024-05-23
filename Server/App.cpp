@@ -7,7 +7,7 @@ int main()
 	boost::asio::io_context io_context;
 
 	TcpServer tcpServer(io_context, 4242);
-	if (!tcpServer.Start())
+	if (!tcpServer.Start(2))
 	{
 		std::cerr << "[SERVER] Server Error!!" << "\n";
 	}

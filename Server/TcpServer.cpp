@@ -7,10 +7,11 @@ TcpServer::TcpServer(boost::asio::io_context& io_context, int port)
 }
 
 
-bool TcpServer::Start()
+bool TcpServer::Start(uint32_t maxUser = 2)
 {
     try
     {
+        m_MaxUser = maxUser;
         // 클라이언트 연결 대기 및 연결
         WaitForClientConnection();
         m_ContextThread = std::thread([this]() { m_IoContext.run(); });
@@ -44,8 +45,9 @@ void TcpServer::OnAccept(std::shared_ptr<User> user, const boost::system::error_
 {
     if (!err)
     {   
-        std::lock_guard<std::mutex> lock(m_NewUsersMutex);
+        std::scoped_lock lock(m_NewUsersMutex);
         m_NewUsers.push(std::move(user));
+        m_NewUsers.back()->Start(m_IdCounter++);
     }
     else
     {
@@ -58,17 +60,29 @@ void TcpServer::OnAccept(std::shared_ptr<User> user, const boost::system::error_
 
 void TcpServer::UpdateUsers()
 {
-    std::lock_guard<std::mutex> lock(m_NewUsersMutex);
-    while (!m_NewUsers.empty())
     {
-        auto user = m_NewUsers.front();
-        m_NewUsers.pop();
+        std::scoped_lock lock(m_UsersMutex);
+        m_Users.erase(std::remove_if(m_Users.begin(), m_Users.end(), [](auto& user)
+            {
+            if (!user->IsConnected()) 
+            {
+                user->Close();
+                return true;
+            }
+            return false;
+            }), m_Users.end());
+    }
+
+    {
+        std::scoped_lock lock(m_NewUsersMutex);
+
+        while (!m_NewUsers.empty() && m_Users.size() < m_MaxUser) 
         {
-            std::lock_guard<std::mutex> users_lock(m_UsersMutex);
-            m_Users.push_back(user);
-            user->Start(m_IdCounter++);
+            auto user = std::move(m_NewUsers.front());
+            m_NewUsers.pop();
+            m_Users.push_back(std::move(user));
+            SendServerMessage(m_Users.back(), "Connection successful");
         }
-        std::cout << "[SERVER] " << user->GetID() << " Connection Approved\n";
     }
 }
 
