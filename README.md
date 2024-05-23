@@ -29,20 +29,22 @@ Protobuf를 통해 메시지 직렬화/역직렬화를 진행하였습니다.
 - 파티채팅 기능
 
 ## 구조도
-![구조도](https://github.com/hstar0124/cpp-boost-chat/assets/57317290/82acf6d5-ea63-4643-94e2-216b1fcbc2dc)
+
+![구조도](https://github.com/hstar0124/cpp-boost-chat/assets/57317290/b44e8007-abdb-4813-83af-1efc1982ba02)
 
 
 ## 흐름도
 
 [연결 및 일반 메시지 발송]
 
-![Connect_Normal_Message](https://github.com/hstar0124/cpp-boost-chat/assets/57317290/884b00d0-e91c-4ff2-824a-bff60d173b5c)
+![연결 및 일반 메시지 발송](https://github.com/hstar0124/cpp-boost-chat/assets/57317290/d92238d0-b330-4cc6-a77a-b2511d2ac2aa)
+
 
 
 
 [파티 생성 및 파티 메시지 발송]
 
-![Party_Message](https://github.com/hstar0124/cpp-boost-chat/assets/57317290/6724f28f-a5b8-495f-ac95-a55327842e3d)
+![파티 생성 및 파티 메시지 발송](https://github.com/hstar0124/cpp-boost-chat/assets/57317290/4daf5315-d7b2-4974-b262-a25b9f603e4c)
 
 
 
