@@ -19,10 +19,11 @@ private:
     std::mutex m_NewUsersMutex;
 
     uint32_t m_IdCounter = 10'000;
+    uint32_t m_MaxUser = 0;
 
 public:
     TcpServer(boost::asio::io_context& io_context, int port);
-    bool Start();
+    bool Start(uint32_t maxUser);
     void Update();
     
     std::shared_ptr<User> GetUserById(uint32_t sessionId);

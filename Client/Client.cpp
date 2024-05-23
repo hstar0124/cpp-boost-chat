@@ -25,6 +25,8 @@ public:
 		boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::make_address(host), port);
 		m_Endpoint = endpoint;
 
+		std::cout << "[CLIENT] Try Connect!! Waiting......" << std::endl;
+
 		m_Socket.async_connect(endpoint, [this](const boost::system::error_code& err)
 			{
 				this->OnConnect(err);
@@ -62,7 +64,6 @@ public:
 private:
 	void OnConnect(const boost::system::error_code& err)
 	{
-		std::cout << "[CLIENT] Connected!!" << std::endl;
 		if (!err)
 		{
 			ReadHeader();
@@ -101,11 +102,11 @@ private:
 
 	bool IsPartyMessage(const std::string& userInput)
 	{
-		return userInput.substr(0, 2) == "/p";
+		return userInput.substr(0, 3) == "/p ";
 	}
 
 	std::pair<std::string, std::string> ExtractOptionAndPartyName(const std::string& userInput) {
-		
+
 		if (userInput.size() < 3)
 		{
 			return std::make_pair("Error", "");
@@ -120,14 +121,14 @@ private:
 		std::string option;
 		std::string partyName;
 
-		if (userInput.substr(0, 3) == "/p ") 
+		if (userInput.substr(0, 3) == "/p ")
 		{
 			// 3번째 위치부터 검색
-			size_t optionPos = userInput.find('-', 3); 
-			if (optionPos != std::string::npos) 
+			size_t optionPos = userInput.find('-', 3);
+			if (optionPos != std::string::npos)
 			{
 				size_t optionEndPos = userInput.find(' ', optionPos + 1);
-				if (optionEndPos != std::string::npos) 
+				if (optionEndPos != std::string::npos)
 				{
 					option = userInput.substr(optionPos, optionEndPos - optionPos);
 					partyName = userInput.substr(optionEndPos + 1);
@@ -138,7 +139,7 @@ private:
 				}
 			}
 		}
-		else 
+		else
 		{
 			partyName = userInput.substr(spacePos + 1);
 		}
@@ -154,7 +155,7 @@ private:
 		//std::cout << "option : " << option << "\n";
 		//std::cout << "partyName : " << partyName << "\n";
 
-		if (option.empty()) 
+		if (option.empty())
 		{
 			// 파티 메시지의 경우
 			chatMessage->set_messagetype(myChatMessage::ChatMessageType::PARTY_MESSAGE);
@@ -190,7 +191,7 @@ private:
 
 			chatMessage->set_content(partyName);
 		}
-		else 
+		else
 		{
 			std::cout << "[CLIENT] Invalid message format. Format: /p [-create | -delete | -join | -leave] [party name]\n";
 			return false;
