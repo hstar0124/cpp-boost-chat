@@ -11,6 +11,7 @@ private:
 
 public:
     Party(uint32_t partyId, uint32_t creator, const std::string& partyName);
+    ~Party();
 
     uint32_t GetId() const { return m_PartyId; }
     uint32_t GetPartyCreator() const { return m_PartyCreator; }

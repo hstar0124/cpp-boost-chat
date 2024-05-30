@@ -25,6 +25,7 @@ private:
 
 public:
 	User(boost::asio::io_context& io_context);
+	~User();
 
 	void Start(uint32_t uid);
 	void Close();
