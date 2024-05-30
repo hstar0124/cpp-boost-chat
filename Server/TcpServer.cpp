@@ -6,6 +6,50 @@ TcpServer::TcpServer(boost::asio::io_context& io_context, int port)
 {    
 }
 
+TcpServer::~TcpServer()
+{
+    try
+    {
+        m_Acceptor.close();
+
+        m_IoContext.stop();
+
+        if (m_ContextThread.joinable())
+        {
+            m_ContextThread.join();
+        }
+
+        {
+            std::scoped_lock lock(m_UsersMutex);
+
+            for (auto& user : m_Users)
+            {
+                if (user && user->IsConnected())
+                {
+                    user->Close();
+                }
+            }
+
+            m_Users.clear();
+        }
+
+        {
+            std::scoped_lock lock(m_NewUsersMutex);
+
+            while (!m_NewUsers.empty())
+            {
+                m_NewUsers.pop();
+            }
+        }
+    }
+    catch (const std::exception& e)
+    {
+        std::cerr << "[SERVER] Exception in destructor: " << e.what() << "\n";
+    }
+
+    std::cout << "[SERVER] Shutdown complete.\n";
+}
+
 
 bool TcpServer::Start(uint32_t maxUser = 2)
 {
@@ -15,6 +59,7 @@ bool TcpServer::Start(uint32_t maxUser = 2)
         // 클라이언트 연결 대기 및 연결
         WaitForClientConnection();
         m_ContextThread = std::thread([this]() { m_IoContext.run(); });
+
     }
     catch (std::exception& e)
     {

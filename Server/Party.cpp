@@ -6,6 +6,13 @@ m_PartyId(partyId)
 , m_PartyName(partyName)
 {}
 
+
+Party::~Party()
+{
+    std::cout << "[SERVER] Party {" << m_PartyName << "} is being destroyed. Cleaning up members." << std::endl;
+    m_Members.clear();
+}
+
 bool Party::AddMember(uint32_t userId)
 {
     m_Members.push_back(userId);

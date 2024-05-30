@@ -13,6 +13,15 @@ User::User(boost::asio::io_context& io_context)
 	m_OutputQueue = m_MessageQueue2;
 }
 
+User::~User()
+{
+	Close();
+	m_PingTimer.cancel();
+	
+	std::cout << "[SERVER] User {" << m_Id << "} is being destroyed. Cleaning up resources." << std::endl;
+	m_Socket.close();
+}
+
 
 void User::Start(uint32_t uid = 0)
 {

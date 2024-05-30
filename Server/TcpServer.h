@@ -1,8 +1,6 @@
 #pragma once
 #include "Common.h"
 #include "Party.h"
-#include "ThreadSafeQueue.h"
-#include "ThreadSafeVector.h""
 #include "PartyManager.h"
 #include "User.h"
 
@@ -23,6 +21,7 @@ private:
 
 public:
     TcpServer(boost::asio::io_context& io_context, int port);
+    ~TcpServer();
     bool Start(uint32_t maxUser);
     void Update();
     
