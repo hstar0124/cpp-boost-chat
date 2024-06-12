@@ -1,0 +1,1 @@
+protoc.exe -I=./ -I=C:\workspace\portfolio\Libraries\include\protobuf_3_14_0 --cpp_out=./ ./UserMessage.proto

@@ -1,7 +1,7 @@
 #include "Party.h"
 
 Party::Party(uint32_t partyId, uint32_t creator, const std::string& partyName) :
-m_PartyId(partyId)
+  m_PartyId(partyId)
 , m_PartyCreator(creator)
 , m_PartyName(partyName)
 {}

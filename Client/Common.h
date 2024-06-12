@@ -20,4 +20,9 @@
 
 #include <boost/asio.hpp>
 
+#include <boost/beast.hpp>
+#include <boost/beast/version.hpp>
+#include <google/protobuf/util/json_util.h>
+
+
 const int HEADER_SIZE = 4;
