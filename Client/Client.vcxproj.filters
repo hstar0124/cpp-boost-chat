@@ -7,10 +7,22 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Client.cpp">
+    <ClCompile Include="App.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="MyMessage.pb.cc">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="UserMessage.pb.cc">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="HttpClient.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Client.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="ChatClient.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
@@ -24,9 +36,24 @@
     <ClInclude Include="MyMessage.pb.h">
       <Filter>소스 파일</Filter>
     </ClInclude>
+    <ClInclude Include="UserMessage.pb.h">
+      <Filter>소스 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="HttpClient.h">
+      <Filter>소스 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Client.h">
+      <Filter>소스 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="ChatClient.h">
+      <Filter>소스 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="MyMessage.proto">
+      <Filter>소스 파일</Filter>
+    </None>
+    <None Include="UserMessage.proto">
       <Filter>소스 파일</Filter>
     </None>
   </ItemGroup>

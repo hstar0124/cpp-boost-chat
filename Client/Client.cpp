@@ -1,375 +1,190 @@
-﻿#include "Common.h"
-#include "ThreadSafeQueue.h"
-#include "MyMessage.pb.h"
+#include "Client.h"
+#include "ChatClient.h"
 
-class User
+
+Client::Client() 
 {
-private:
+    Init();
+}
 
-	boost::asio::ip::tcp::endpoint m_Endpoint;
-	boost::asio::io_context& m_IoContext;
-	boost::asio::ip::tcp::socket m_Socket;
-	std::string m_Meaasge;
-
-	std::vector<uint8_t> m_Readbuf;
-
-public:
-
-	User(boost::asio::io_context& io_context)
-		: m_IoContext(io_context), m_Socket(io_context)
-	{
-	}
-
-	void Connect(std::string host, int port)
-	{
-		boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::make_address(host), port);
-		m_Endpoint = endpoint;
-
-		std::cout << "[CLIENT] Try Connect!! Waiting......" << std::endl;
-
-		m_Socket.async_connect(endpoint, [this](const boost::system::error_code& err)
-			{
-				this->OnConnect(err);
-			});
-
-	}
-
-	void Send(const std::string& userInput)
-	{
-		std::shared_ptr<myChatMessage::ChatMessage> chatMessage = std::make_shared<myChatMessage::ChatMessage>();
-
-		// 메시지 성공 플래그 값
-		bool isSuccess = false;
-
-		if (IsWhisperMessage(userInput))
-		{
-			isSuccess = CreateWhisperMessage(chatMessage, userInput);
-		}
-		else if (IsPartyMessage(userInput))
-		{
-			isSuccess = CreatePartyMessage(chatMessage, userInput);
-		}
-		else
-		{
-			isSuccess = CreateNormalMessage(chatMessage, userInput);
-		}
-
-		if (isSuccess)
-		{
-			AsyncWrite(chatMessage);
-		}
-	}
-
-
-private:
-	void OnConnect(const boost::system::error_code& err)
-	{
-		if (!err)
-		{
-			ReadHeader();
-		}
-		else
-		{
-			std::cout << "[CLIENT] ERROR : " << err.message() << "\n";
-		}
-	}
-
-	bool IsWhisperMessage(const std::string& userInput)
-	{
-		return userInput.substr(0, 2) == "/w";
-	}
-
-	bool CreateWhisperMessage(std::shared_ptr<myChatMessage::ChatMessage>& chatMessage, const std::string& userInput)
-	{
-		size_t spacePos = userInput.find(' ');
-		size_t receiverEndPos = userInput.find(' ', spacePos + 1);
-
-		if (spacePos == std::string::npos || userInput.size() <= spacePos + 1 || receiverEndPos == std::string::npos) 
-		{
-			std::cout << "[CLIENT] Invalid message format. Format: /w [recipient] [message]\n";
-			return false;
-		}
-
-		std::string receiver = userInput.substr(spacePos + 1, receiverEndPos - spacePos - 1);
-		std::string message = userInput.substr(receiverEndPos + 1);
-
-		chatMessage->set_messagetype(myChatMessage::ChatMessageType::WHISPER_MESSAGE);
-		chatMessage->set_receiver(receiver);
-		chatMessage->set_content(message);
-
-		return true;
-	}
-
-	bool IsPartyMessage(const std::string& userInput)
-	{
-		return userInput.substr(0, 3) == "/p ";
-	}
-
-	std::pair<std::string, std::string> ExtractOptionAndPartyName(const std::string& userInput) {
-
-		if (userInput.size() < 3)
-		{
-			return std::make_pair("Error", "");
-		}
-
-		size_t spacePos = userInput.find(' ');
-		if (spacePos == std::string::npos)
-		{
-			return std::make_pair("", "");
-		}
-
-		std::string option;
-		std::string partyName;
-
-		if (userInput.substr(0, 3) == "/p ")
-		{
-			// 3번째 위치부터 검색
-			size_t optionPos = userInput.find('-', 3);
-			if (optionPos != std::string::npos)
-			{
-				size_t optionEndPos = userInput.find(' ', optionPos + 1);
-				if (optionEndPos != std::string::npos)
-				{
-					option = userInput.substr(optionPos, optionEndPos - optionPos);
-					partyName = userInput.substr(optionEndPos + 1);
-				}
-				else
-				{
-					return std::make_pair("Error", "");
-				}
-			}
-		}
-		else
-		{
-			partyName = userInput.substr(spacePos + 1);
-		}
-
-		return std::make_pair(option, partyName);
-	}
-
-	bool CreatePartyMessage(std::shared_ptr<myChatMessage::ChatMessage>& chatMessage, const std::string& userInput) {
-		std::pair<std::string, std::string> optionAndPartyName = ExtractOptionAndPartyName(userInput);
-		std::string& option = optionAndPartyName.first;
-		std::string& partyName = optionAndPartyName.second;
-
-		//std::cout << "option : " << option << "\n";
-		//std::cout << "partyName : " << partyName << "\n";
-
-		if (option.empty())
-		{
-			// 파티 메시지의 경우
-			chatMessage->set_messagetype(myChatMessage::ChatMessageType::PARTY_MESSAGE);
-			chatMessage->set_content(userInput.substr(3)); // Remove "/p "
-			return true;
-		}
-
-
-		if (option == "-create" || option == "-delete" || option == "-join" || option == "-leave")
-		{
-			if (partyName.empty() || partyName == "")
-			{
-				std::cout << "[CLIENT] Invalid message format. Format: /p -create [party name]\n";
-				return false;
-			}
-
-			if (option == "-create")
-			{
-				chatMessage->set_messagetype(myChatMessage::ChatMessageType::PARTY_CREATE);
-			}
-			else if (option == "-delete")
-			{
-				chatMessage->set_messagetype(myChatMessage::ChatMessageType::PARTY_DELETE);
-			}
-			else if (option == "-join")
-			{
-				chatMessage->set_messagetype(myChatMessage::ChatMessageType::PARTY_JOIN);
-			}
-			else if (option == "-leave")
-			{
-				chatMessage->set_messagetype(myChatMessage::ChatMessageType::PARTY_LEAVE);
-			}
-
-			chatMessage->set_content(partyName);
-		}
-		else
-		{
-			std::cout << "[CLIENT] Invalid message format. Format: /p [-create | -delete | -join | -leave] [party name]\n";
-			return false;
-		}
-
-		//std::cout << "MSG : " << chatMessage->messagetype() << "\n";
-		//std::cout << "Content : " << chatMessage->content() << "\n";
-		return true;
-	}
-
-	bool CreateNormalMessage(std::shared_ptr<myChatMessage::ChatMessage>& chatMessage, const std::string& userInput)
-	{
-
-		chatMessage->set_messagetype(myChatMessage::ChatMessageType::ALL_MESSAGE);
-		chatMessage->set_content(userInput);
-
-		return true;
-	}
-
-	void SendPong()
-	{
-		auto now = std::chrono::system_clock::now();
-		auto now_ms = std::chrono::time_point_cast<std::chrono::milliseconds>(now);
-		auto value = now_ms.time_since_epoch().count();
-
-		std::shared_ptr<myChatMessage::ChatMessage> message = std::make_shared<myChatMessage::ChatMessage>();
-		message->set_messagetype(myChatMessage::ChatMessageType::SERVER_PING);
-		message->set_content(std::to_string(value));
-
-		AsyncWrite(message);
-	}
-
-	void AsyncWrite(std::shared_ptr<myChatMessage::ChatMessage> message)
-	{
-		int size = static_cast<int>(message->ByteSizeLong());
-
-		std::vector<uint8_t> buffer;
-		buffer.resize(HEADER_SIZE + size);
-
-		message->SerializePartialToArray(buffer.data() + HEADER_SIZE, size);
-
-		int bodySize = static_cast<int>(buffer.size()) - HEADER_SIZE;
-		buffer[0] = static_cast<uint8_t>((bodySize >> 24) & 0xFF);
-		buffer[1] = static_cast<uint8_t>((bodySize >> 16) & 0xFF);
-		buffer[2] = static_cast<uint8_t>((bodySize >> 8) & 0xFF);
-		buffer[3] = static_cast<uint8_t>(bodySize & 0xFF);
-
-		boost::asio::async_write(m_Socket, boost::asio::buffer(buffer.data(), buffer.size()),
-			[this](const boost::system::error_code& err, const size_t size)
-			{
-				this->OnWrite(err, size);
-			});
-	}
-
-	void OnWrite(const boost::system::error_code& err, const size_t size)
-	{
-	}
-
-	void ReadHeader()
-	{
-		m_Readbuf.clear();
-		m_Readbuf.resize(HEADER_SIZE);
-
-		boost::asio::async_read(m_Socket, boost::asio::buffer(m_Readbuf, HEADER_SIZE),
-			[this](std::error_code ec, std::size_t length)
-			{
-				if (!ec)
-				{
-					size_t bodySize = 0;
-					for (int j = 0; j < m_Readbuf.size(); j++) 
-					{
-						bodySize = static_cast<size_t>(m_Readbuf[j]);
-					}
-					if (bodySize > 0)
-					{
-						ReadBody(bodySize);
-					}
-				}
-				else
-				{
-					// 소켓으로부터 읽어오는 것을 실패한다면
-					// 소켓을 닫는다.
-					std::cout << "[CLIENT] Read Header Fail.\n";
-					m_Socket.close();
-				}
-			});
-	}
-
-	void ReadBody(size_t bodySize)
-	{
-		m_Readbuf.clear();
-		m_Readbuf.resize(bodySize);
-
-		boost::asio::async_read(m_Socket, boost::asio::buffer(m_Readbuf),
-			[this](std::error_code ec, std::size_t size)
-			{
-				if (!ec)
-				{
-					// 메시지 객체를 만듬
-					std::shared_ptr<myChatMessage::ChatMessage> chatMessage = std::make_shared<myChatMessage::ChatMessage>();
-
-					// 메시지 버퍼로 디시리얼라이즈
-					if (chatMessage->ParseFromArray(m_Readbuf.data(), size))
-					{
-						MessageRecvHandler(chatMessage);
-						ReadHeader();
-					}
-					else
-					{
-						// 디시리얼라이즈 실패
-						std::cerr << "[CLIENT] Failed to parse message" << std::endl;
-					}
-
-				}
-				else
-				{
-					std::cout << "[CLIENT] Read Body Fail.\n";
-					m_Socket.close();
-				}
-			});
-	}
-
-	void MessageRecvHandler(std::shared_ptr<myChatMessage::ChatMessage>& message)
-	{
-		//std::cout << "Payload Type: " << payload->payloadtype() << std::endl;
-		if (message->messagetype() == myChatMessage::ChatMessageType::ALL_MESSAGE)
-		{
-			std::cout << "[" << message->sender() << "] " << message->content() << std::endl;
-			return;
-		}
-		else if (message->messagetype() == myChatMessage::ChatMessageType::SERVER_PING)
-		{
-			auto sentTimeMs = std::stoll(message->content());
-			auto sentTime = std::chrono::milliseconds(sentTimeMs);
-			auto currentTime = std::chrono::system_clock::now().time_since_epoch();
-			auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - sentTime);
-			//std::cout << "Response time: " << elapsedTime.count() << "ms" << std::endl;
-			SendPong();
-
-			return;
-		}
-		else if (message->messagetype() == myChatMessage::ChatMessageType::SERVER_MESSAGE)
-		{
-			std::cout << "[SERVER] " << message->content() << std::endl;
-			return;
-		}
-		else if (message->messagetype() == myChatMessage::ChatMessageType::WHISPER_MESSAGE)
-		{
-			std::cout << "<<" << message->sender() << ">> " << message->content() << std::endl;
-			return;
-		}
-		else if (message->messagetype() == myChatMessage::ChatMessageType::PARTY_MESSAGE)
-		{
-			std::cout << "##" << message->sender() << "## " << message->content() << std::endl;
-			return;
-		}
-		else if (message->messagetype() == myChatMessage::ChatMessageType::ERROR_MESSAGE)
-		{
-			std::cout << message->content() << std::endl;
-			return;
-		}
-	}
-
-
-};
-
-int main()
+Client::~Client() 
 {
-	boost::asio::io_context io_context;
-	User user(io_context);
-	user.Connect(std::string("127.0.0.1"), 4242);
+    m_IoContext.stop();
+    if (m_Thread.joinable()) 
+    {
+        m_Thread.join();
+    }
+}
 
-	std::thread thread([&io_context]() { io_context.run(); });
+void Client::Init() 
+{
+    m_HttpClient = std::make_unique<HttpClient>(m_IoContext, m_Host, m_Port);
+    m_ChatClient = std::make_unique<ChatClient>(m_IoContext);
+}
 
-	std::string userInput;
-	while (getline(std::cin, userInput))
-	{
-		user.Send(userInput);
-	}
+void Client::Start()
+{
+    while (true)
+    {
+        DisplayCommand();
 
+        int choice;
+        std::cin >> choice;
+
+        if (std::cin.fail())
+        {
+            std::cin.clear(); // 스트림 상태 플래그 초기화
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // 잘못된 입력 무시
+            std::cout << "Invalid input. Please enter a number between 1 and 5." << std::endl;
+            continue;
+        }
+
+        if (choice == 5) break;
+
+        HandleMenuChoice(choice);
+    }
+}
+
+void Client::DisplayCommand() 
+{
+    std::cout << "====================================" << std::endl;
+    std::cout << "Select Menu" << std::endl;
+    std::cout << "====================================" << std::endl;
+    std::cout << "1. Login" << std::endl;
+    std::cout << "2. Get User Info By userId" << std::endl;
+    std::cout << "3. Create User" << std::endl;
+    std::cout << "4. Update User" << std::endl;
+    std::cout << "5. Delete User" << std::endl;
+    std::cout << "6. Exit" << std::endl;
+    std::cout << "Select an option: ";
+}
+
+void Client::HandleMenuChoice(int choice) 
+{
+    switch (choice) 
+    {
+    case 1:
+        if (ProcessLoginUser()) 
+        {
+            StartChatClient();
+        }
+        break;
+    case 2:
+        ProcessGetUser();
+        break;
+    case 3:
+        ProcessCreateUser();
+        break;
+    case 4:
+        ProcessUpdateUser();
+        break;
+    case 5:
+        ProcessDeleteUser();
+        break;
+    default:
+        std::cout << "Invalid choice. Please try again." << std::endl;
+        break;
+    }
+}
+
+void Client::StartChatClient() 
+{
+    m_ChatClient->Connect("127.0.0.1", 4242);
+    m_Thread = std::thread([this]() { m_IoContext.run(); });
+
+    std::string userInput;
+    while (getline(std::cin, userInput)) 
+    {
+        m_ChatClient->Send(userInput);
+    }
+
+    m_Thread.join();
+}
+
+bool Client::ProcessLoginUser() 
+{
+    LoginRequest loginRequest;
+    GetUserInput("Enter User ID: ", loginRequest.mutable_userid());
+    GetUserInput("Enter Password: ", loginRequest.mutable_password());
+    return ProcessUserPostRequest("/User/Login", loginRequest);
+}
+
+bool Client::ProcessGetUser()
+{
+    GetUserRequest getUserRequest;
+    GetUserInput("Enter User ID: ", getUserRequest.mutable_userid());
+
+    const std::string endpoint = "/User/GetUser?userId=" + getUserRequest.userid();
+
+    return ProcessUserGetRequest(endpoint);
+}
+
+bool Client::ProcessCreateUser() 
+{
+    CreateUserRequest createUserRequest;
+    GetUserInput("Enter User ID: ", createUserRequest.mutable_userid());
+    GetUserInput("Enter Password: ", createUserRequest.mutable_password());
+    GetUserInput("Enter Username: ", createUserRequest.mutable_username());
+    GetUserInput("Enter Email: ", createUserRequest.mutable_email());
+    return ProcessUserPostRequest("/User/Create", createUserRequest);
+}
+
+bool Client::ProcessUpdateUser() 
+{
+    UpdateUserRequest updateUserRequest;
+    GetUserInput("Enter User ID: ", updateUserRequest.mutable_userid());
+    GetUserInput("Enter Current Password: ", updateUserRequest.mutable_password());
+    GetUserInput("Enter New Password: ", updateUserRequest.mutable_tobepassword());
+    GetUserInput("Enter New Username: ", updateUserRequest.mutable_tobeusername());
+    GetUserInput("Enter New Email: ", updateUserRequest.mutable_tobeemail());
+    return ProcessUserPostRequest("/User/Update", updateUserRequest);
+}
+
+bool Client::ProcessDeleteUser() 
+{
+    DeleteUserRequest deleteUserRequest;
+    GetUserInput("Enter User ID: ", deleteUserRequest.mutable_userid());
+    GetUserInput("Enter Password: ", deleteUserRequest.mutable_password());
+    return ProcessUserPostRequest("/User/Delete", deleteUserRequest);
+}
+
+template <typename RequestType>
+bool Client::ProcessUserPostRequest(const std::string& endpoint, const RequestType& request) 
+{
+    UserResponse response = m_HttpClient->Post(endpoint, request);
+    std::cout << "Response Status: " << response.status() << std::endl;
+    std::cout << "Response Message: " << response.message() << std::endl;
+    return response.status() == UserStatusCode::Success;
+}
+
+bool Client::ProcessUserGetRequest(const std::string& endpoint)
+{
+    UserResponse response = m_HttpClient->Get(endpoint);
+
+    std::cout << "Response Status: " << response.status() << std::endl;
+    std::cout << "Response Message: " << response.message() << std::endl;
+
+    if (response.has_content()) 
+    {
+        GetUserResponse getUserResponse;
+        if (response.content().UnpackTo(&getUserResponse)) 
+        {
+            std::cout << "User ID: " << getUserResponse.userid() << std::endl;
+            std::cout << "Username: " << getUserResponse.username() << std::endl;
+            std::cout << "Email: " << getUserResponse.email() << std::endl;
+        }
+        else 
+        {
+            std::cout << "Failed to unpack content." << std::endl;
+        }
+    }
+
+    return response.status() == UserStatusCode::Success;
+}
+
+
+void Client::GetUserInput(const std::string& prompt, std::string* input) 
+{
+    std::cout << prompt;
+    std::cin >> *input;
 }
