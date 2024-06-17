@@ -56,5 +56,8 @@
     <None Include="UserMessage.proto">
       <Filter>소스 파일</Filter>
     </None>
+    <None Include="ApiUrl.txt">
+      <Filter>소스 파일</Filter>
+    </None>
   </ItemGroup>
 </Project>

@@ -73,6 +73,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ExternalIncludePath>$(ExternalIncludePath)</ExternalIncludePath>
     <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
+    <PublicIncludeDirectories>C:\workspace\portfolio\Libraries\include\boost_1_84_0;$(PublicIncludeDirectories)</PublicIncludeDirectories>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ExternalIncludePath>..\lib\boost_1_84_0;$(ExternalIncludePath)</ExternalIncludePath>
@@ -81,6 +82,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ExternalIncludePath>$(ExternalIncludePath)</ExternalIncludePath>
     <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
+    <PublicIncludeDirectories>C:\workspace\portfolio\Libraries\include\boost_1_84_0;$(PublicIncludeDirectories)</PublicIncludeDirectories>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ExternalIncludePath>..\lib\boost_1_84_0;$(ExternalIncludePath)</ExternalIncludePath>
@@ -93,14 +95,14 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)Libraries\include\protobuf_3_14_0;$(SolutionDir)Libraries\include\boost_1_84_0;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Libraries\include\boost_1_84_0;$(SolutionDir)Libraries\include\protobuf_3_14_0;$(SolutionDir)Libraries\include\openssl_3_3_1;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)Libraries\libs;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>libprotobufd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>libprotobufd.lib;libcrypto.lib;libssl.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -127,14 +129,14 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)Libraries\include\protobuf_3_14_0;$(SolutionDir)Libraries\include\boost_1_84_0;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Libraries\include\boost_1_84_0;$(SolutionDir)Libraries\include\protobuf_3_14_0;$(SolutionDir)Libraries\include\openssl_3_3_1;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)Libraries\libs;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>libprotobufd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>libprotobufd.lib;libcrypto.lib;libssl.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -172,6 +174,7 @@
     <ClInclude Include="UserMessage.pb.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="ApiUrl.txt" />
     <None Include="MyMessage.proto" />
     <None Include="UserMessage.proto" />
   </ItemGroup>

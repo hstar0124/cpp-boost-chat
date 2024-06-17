@@ -7,12 +7,12 @@ class ChatClient
 {
 private:
 
-	boost::asio::ip::tcp::endpoint m_Endpoint;
-	boost::asio::io_context& m_IoContext;
-	boost::asio::ip::tcp::socket m_Socket;
-	std::string m_Message;
+	boost::asio::ip::tcp::endpoint	m_Endpoint;
+	boost::asio::io_context&		m_IoContext;
+	boost::asio::ip::tcp::socket	m_Socket;
+	std::string						m_Message;
 
-	std::vector<uint8_t> m_Readbuf;
+	std::vector<uint8_t>			m_Readbuf;
 
 public:
 

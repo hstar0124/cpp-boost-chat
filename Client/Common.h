@@ -13,6 +13,9 @@
 #include <iostream>
 #include <string>
 #include <algorithm>
+#include <fstream>
+#include <unordered_map>
+#include <sstream>
 
 #ifdef _WIN32
 #define _WIN32_WINNT 0x0601

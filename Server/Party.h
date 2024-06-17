@@ -4,10 +4,10 @@
 class Party : public std::enable_shared_from_this<Party>
 {
 private:
-    uint32_t m_PartyId;
-    std::string m_PartyName;
-    uint32_t m_PartyCreator;
-    std::vector<uint32_t> m_Members;
+    uint32_t                m_PartyId;
+    std::string             m_PartyName;
+    uint32_t                m_PartyCreator;
+    std::vector<uint32_t>   m_Members;
 
 public:
     Party(uint32_t partyId, uint32_t creator, const std::string& partyName);
