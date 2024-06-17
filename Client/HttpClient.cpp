@@ -6,7 +6,6 @@
 HttpClient::HttpClient(boost::asio::io_context& ioc, const std::string& host, const std::string& port)
     : m_Host(host), m_Port(port), io_context(ioc), m_Resolver(ioc), m_Socket(ioc) 
 {
-    Connect();
 }
 
 HttpClient::~HttpClient() 
@@ -14,10 +13,18 @@ HttpClient::~HttpClient()
     Shutdown();
 }
 
-void HttpClient::Connect() 
+void HttpClient::Connect()
 {
-    auto const results = m_Resolver.resolve(m_Host, m_Port);
-    boost::asio::connect(m_Socket, results.begin(), results.end());
+    try
+    {
+        auto const results = m_Resolver.resolve(m_Host, m_Port);
+        boost::asio::connect(m_Socket, results.begin(), results.end());
+    }
+    catch (const std::exception& ex)
+    {
+        std::cerr << "Connection failed: " << ex.what() << std::endl;
+        exit(1);
+    }
 }
 
 void HttpClient::Shutdown() 
@@ -28,6 +35,10 @@ void HttpClient::Shutdown()
 
 UserResponse HttpClient::Post(const std::string& target, const google::protobuf::Message& message) 
 {
+
+    Connect();
+
+    std::cout << "target : " << target << "\n";
     std::string body;
     if (!message.SerializeToString(&body)) 
     {
@@ -55,6 +66,9 @@ UserResponse HttpClient::Post(const std::string& target, const google::protobuf:
 
 UserResponse HttpClient::Get(const std::string& target) 
 {
+    Connect();
+
+    std::cout << "target : " << target << "\n";
     boost::beast::http::request<boost::beast::http::empty_body> req{ boost::beast::http::verb::get, target, 11 };
     req.set(boost::beast::http::field::host, m_Host);
     req.set(boost::beast::http::field::user_agent, BOOST_BEAST_VERSION_STRING);

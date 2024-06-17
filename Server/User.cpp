@@ -45,6 +45,16 @@ uint32_t User::GetID() const
 	return m_Id;
 }
 
+uint32_t User::GetPartyId() const
+{
+	return m_PartyId;
+}
+
+void User::SetPartyId(uint32_t partyId)
+{
+	m_PartyId = partyId;
+}
+
 std::shared_ptr<myChatMessage::ChatMessage> User::GetMessageInUserQueue()
 {
 	if (m_OutputQueue->empty() && !SwapQueues())

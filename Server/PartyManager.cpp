@@ -1,91 +1,117 @@
 #include "PartyManager.h"
 
 
-bool PartyManager::CreateParty(std::shared_ptr<User> user, const std::string& partyName)
+PartyManager::PartyManager()
+{
+}
+
+PartyManager::~PartyManager()
+{
+    m_MapParties.clear(); // 모든 파티 제거
+}
+
+std::shared_ptr<Party> PartyManager::CreateParty(std::shared_ptr<User> user, const std::string& partyName)
 {
     if (user == nullptr || partyName == "")
     {
         std::cout << "[SERVER] Invalid Party Name" << std::endl;
-        return false;
+        return nullptr;
     }
+
 
     auto party = std::make_shared<Party>(m_PartyIdCounter++, user->GetID(), partyName); // 파티 생성
     party->AddMember(user->GetID());                                                    // 파티 생성자를 파티 멤버로 추가
-    m_VecParties.PushBack(party);                                                       // 파티를 파티 리스트에 추가
+    m_MapParties[party->GetId()] = party;                                               // 파티를 해시 맵에 추가
 
-    std::cout << "Party Count : " << m_VecParties.Count() << "\n";
-    return true;
+    std::cout << "Party Count : " << m_MapParties.size() << "\n";
+    return party;
 }
 
 bool PartyManager::DeleteParty(std::shared_ptr<User> user, const std::string& partyName)
 {
     // 파티 이름에 해당하는 파티를 찾음|
-    auto it = FindPartyByName(partyName);
-    if (it == nullptr)
+    auto party = FindPartyByName(partyName);
+    if (!party)
     {
         std::cout << "[SERVER] Not found party: " << partyName << std::endl;
         return false;
     }
 
     // 파티가 존재하고 파티 창설자인 경우
-    if (it != nullptr && it->GetPartyCreator() == user->GetID())
+    if (party->GetPartyCreator() == user->GetID())
     {
-        // 파티를 파티 컨테이너에서 삭제
-        m_VecParties.Erase(it);
+        m_MapParties.erase(party->GetId()); // 파티를 해시 맵에서 삭제
         std::cout << "[SERVER] Deleted party: " << partyName << std::endl;
     }
     else
     {
-        // 해당 이름을 가진 파티가 없거나 창시자가 아닌 경우
         std::cout << "[SERVER] Fail Deleted Party : " << partyName << std::endl;
         return false;
-        //SendErrorMessage(session, "Failed to delete the party.");
     }
 
-    std::cout << "Party Count : " << m_VecParties.Count() << "\n";
+    std::cout << "Party Count : " << m_MapParties.size() << "\n";
     return true;
 }
 
-bool PartyManager::HasParty(const std::string& partyName)
+bool PartyManager::LeaveParty(std::shared_ptr<User> user, const std::string& partyName)
 {
-    // 파티 이름에 해당하는 파티를 찾음
-    auto it = std::find_if(m_VecParties.Begin(), m_VecParties.End(),
-        [&partyName](std::shared_ptr<Party>& party)
-        {
-            return party->GetName() == partyName;
-        });
+    auto party = FindPartyByName(partyName);
+    if (!party)
+    {
+        std::cout << "[SERVER] Not found party: " << partyName << std::endl;
+        return false;
+    }
 
-    return it != m_VecParties.End();
+
+    if (party->GetPartyCreator() == user->GetID())
+    {
+        std::cout << "[SERVER] Sorry, as the party leader, you cannot leave the party. Deletion is the only option." << std::endl;        
+        return false;
+    }
+
+    return true;
 }
 
+bool PartyManager::HasParty(uint32_t partyId)
+{
+    return m_MapParties.find(partyId) != m_MapParties.end();
+}
+
+
+std::shared_ptr<Party> PartyManager::FindPartyById(uint32_t partyId)
+{
+    auto it = m_MapParties.find(partyId);
+    if (it != m_MapParties.end())
+    {
+        return it->second;
+    }
+    else
+    {
+        return nullptr;
+    }
+}
 
 std::shared_ptr<Party> PartyManager::FindPartyByName(const std::string& partyName)
 {
-    // 파티 이름에 해당하는 파티를 찾음
-    auto it = std::find_if(m_VecParties.Begin(), m_VecParties.End(),
-        [&partyName](std::shared_ptr<Party>& party)
+    for (const auto& entry : m_MapParties)
+    {
+        if (entry.second->GetName() == partyName)
         {
-            return party->GetName() == partyName;
-        });
-
-    // 파티가 존재하는 경우 해당 파티를 반환
-    if (it != m_VecParties.End())
-        return *it;
-    else
-        return nullptr;
+            return entry.second;
+        }
+    }
+    return nullptr;
 }
 
-std::shared_ptr<Party> PartyManager::FindPartyBySessionId(uint32_t creatorId)
-{
-    auto it = std::find_if(m_VecParties.Begin(), m_VecParties.End(),
-        [&creatorId](std::shared_ptr<Party>& party)
-        {
-            return party->HasMember(creatorId);
-        });
 
-    // 파티가 존재하는 경우 해당 파티를 반환
-    if (it != m_VecParties.End())
-        return *it;
-    else
-        return nullptr;
+bool PartyManager::IsPartyNameTaken(const std::string& partyName)
+{
+    for (const auto& pair : m_MapParties)
+    {
+        if (pair.second->GetName() == partyName)
+        {
+            return true;
+        }
+    }
+    return false;
 }

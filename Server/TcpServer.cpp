@@ -3,7 +3,9 @@
 TcpServer::TcpServer(boost::asio::io_context& io_context, int port)
     : m_Acceptor(io_context, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), port))
     , m_IoContext(io_context)
+    , m_PartyManager()
 {    
+
 }
 
 TcpServer::~TcpServer()
@@ -170,147 +172,188 @@ void TcpServer::OnMessage(std::shared_ptr<User> user, std::shared_ptr<myChatMess
     switch (msg->messagetype())
     {
     case myChatMessage::ChatMessageType::SERVER_PING:
-    {
-        auto sentTimeMs = std::stoll(msg->content());
-        auto sentTime = std::chrono::milliseconds(sentTimeMs);
-        auto currentTime = std::chrono::system_clock::now().time_since_epoch();
-        auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - sentTime);
-    }
-    break;
+        HandleServerPing(user, msg);
+        break;
     case myChatMessage::ChatMessageType::ALL_MESSAGE:
-    {
-        std::cout << "[SERVER] Send message to all clients\n";
-        msg->set_messagetype(myChatMessage::ChatMessageType::ALL_MESSAGE);
-        SendAllUsers(msg);
-    }
-    break;
+        HandleAllMessage(user, msg);
+        break;
     case myChatMessage::ChatMessageType::PARTY_CREATE:
-    {
-        if (msg->content().empty())
-        {
-            SendErrorMessage(user, "The party name is empty.");
-            return;
-        }
-
-        std::cout << "[SERVER] Create party\n";
-
-        if (PartyManager::getInstance().HasParty(msg->content()))
-        {
-            SendErrorMessage(user, "The party name already exists.");
-            return;
-        }
-
-        if (PartyManager::getInstance().CreateParty(user, msg->content()))
-        {
-            SendServerMessage(user, "Party creation successful");
-            return;
-        }
-
-    }
-    break;
+        HandlePartyCreate(user, msg);
+        break;
     case myChatMessage::ChatMessageType::PARTY_DELETE:
-    {
-        if (msg->content().empty())
-        {
-            SendErrorMessage(user, "The party name is empty.");
-            return;
-        }
-        std::cout << "[SERVER] Delete party\n";
-
-        if (PartyManager::getInstance().DeleteParty(user, msg->content()))
-        {
-            SendServerMessage(user, "Party Delete successful");
-            return;
-        }
-    }
-    break;
+        HandlePartyDelete(user, msg);
+        break;
     case myChatMessage::ChatMessageType::PARTY_JOIN:
-    {
-        if (msg->content().empty())
-        {
-            SendErrorMessage(user, "The party name is empty.");
-            return;
-        }
-
-
-        if (!PartyManager::getInstance().HasParty(msg->content()))
-        {
-            SendErrorMessage(user, "The party does not exist.");
-            return;
-        }
-
-        auto party = PartyManager::getInstance().FindPartyByName(msg->content());
-        if (party->HasMember(user->GetID()))
-        {
-            SendErrorMessage(user, "Already joined.");
-            return;
-        }
-
-        party->AddMember(user->GetID());
-    }
-    break;
+        HandlePartyJoin(user, msg);
+        break;
     case myChatMessage::ChatMessageType::PARTY_LEAVE:
-    {
-        if (msg->content().empty())
-        {
-            SendErrorMessage(user, "The party name is empty.");
-            return;
-        }
-
-        if (!PartyManager::getInstance().HasParty(msg->content()))
-        {
-            SendErrorMessage(user, "The party does not exist.");
-            return;
-        }
-
-        auto party = PartyManager::getInstance().FindPartyByName(msg->content());
-        if (!party->HasMember(user->GetID()))
-        {
-            SendErrorMessage(user, "It's a party not joined.");
-            return;
-        }
-
-        if (party->GetPartyCreator() == user->GetID())
-        {
-            SendErrorMessage(user, "Sorry, as the party leader, you cannot leave the party. Deletion is the only option.");
-            return;
-        }
-
-        party->RemoveMember(user->GetID());
-    }
-    break;
+        HandlePartyLeave(user, msg);
+        break;
     case myChatMessage::ChatMessageType::PARTY_MESSAGE:
-    {
-        if (msg->content().empty())
-        {
-            SendErrorMessage(user, "The content of the party message is empty.");
-            return;
-        }
-
-        auto party = PartyManager::getInstance().FindPartyBySessionId(user->GetID());
-        if (!party)
-        {
-            SendErrorMessage(user, "It's a party not joined.");
-            return;
-        }
-
-        SendPartyMessage(party, msg);
-    }
-    break;
+        HandlePartyMessage(user, msg);
+        break;
     case myChatMessage::ChatMessageType::WHISPER_MESSAGE:
-    {
-        if (msg->receiver().empty() || msg->content().empty())
-        {
-            SendErrorMessage(user, "Recipient or content is empty.");
-            return;
-        }
-        SendWhisperMessage(user, msg->receiver(), msg);
-    }
-    break;
+        HandleWhisperMessage(user, msg);
+        break;
     default:
         SendErrorMessage(user, "Unknown message type received.");
         break;
     }
+}
+
+void TcpServer::HandleServerPing(std::shared_ptr<User> user, std::shared_ptr<myChatMessage::ChatMessage> msg)
+{
+    auto sentTimeMs = std::stoll(msg->content());
+    auto sentTime = std::chrono::milliseconds(sentTimeMs);
+    auto currentTime = std::chrono::system_clock::now().time_since_epoch();
+    auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - sentTime);
+    // Further handling
+}
+
+void TcpServer::HandleAllMessage(std::shared_ptr<User> user, std::shared_ptr<myChatMessage::ChatMessage> msg)
+{
+    std::cout << "[SERVER] Send message to all clients\n";
+    msg->set_messagetype(myChatMessage::ChatMessageType::ALL_MESSAGE);
+    SendAllUsers(msg);
+}
+
+void TcpServer::HandlePartyCreate(std::shared_ptr<User> user, std::shared_ptr<myChatMessage::ChatMessage> msg)
+{
+    if (msg->content().empty())
+    {
+        SendErrorMessage(user, "The party name is empty.");
+        return;
+    }
+
+    if (user->GetPartyId() != 0)
+    {
+        SendErrorMessage(user, "Already in a party.");
+        return;
+    }
+
+    std::cout << "[SERVER] Create party\n";
+
+    if (m_PartyManager.IsPartyNameTaken(msg->content()))
+    {
+        SendErrorMessage(user, "The party name already exists.");
+        return;
+    }
+
+    auto createdParty = m_PartyManager.CreateParty(user, msg->content());
+    if (!createdParty)
+    {
+        SendErrorMessage(user, "The party creation failed!");
+        return;
+    }
+    user->SetPartyId(createdParty->GetId());
+    SendServerMessage(user, "Party creation successful");
+}
+
+void TcpServer::HandlePartyJoin(std::shared_ptr<User> user, std::shared_ptr<myChatMessage::ChatMessage> msg)
+{
+    if (msg->content().empty())
+    {
+        SendErrorMessage(user, "The party name is empty.");
+        return;
+    }
+
+    if (user->GetPartyId() != 0)
+    {
+        SendErrorMessage(user, "Already in a party.");
+        return;
+    }
+
+    uint32_t partyId = StringToUint32(msg->content());
+    if (!m_PartyManager.HasParty(partyId))
+    {
+        SendErrorMessage(user, "The party does not exist.");
+        return;
+    }
+
+    auto party = m_PartyManager.FindPartyById(partyId);
+    if (party->HasMember(user->GetID()))
+    {
+        SendErrorMessage(user, "Already joined.");
+        return;
+    }
+
+    party->AddMember(user->GetID());
+    user->SetPartyId(partyId);
+}
+
+
+void TcpServer::HandlePartyDelete(std::shared_ptr<User> user, std::shared_ptr<myChatMessage::ChatMessage> msg)
+{
+    if (msg->content().empty())
+    {
+        SendErrorMessage(user, "The party name is empty.");
+        return;
+    }
+    std::cout << "[SERVER] Delete party\n";
+
+    if (!m_PartyManager.DeleteParty(user, msg->content()))
+    {
+        SendErrorMessage(user, "Party delete Failed");
+        return;
+    }
+    
+    user->SetPartyId(0);
+    SendServerMessage(user, "Party delete successful");
+}
+
+
+void TcpServer::HandlePartyLeave(std::shared_ptr<User> user, std::shared_ptr<myChatMessage::ChatMessage> msg)
+{
+    if (msg->content().empty())
+    {
+        SendErrorMessage(user, "The party name is empty.");
+        return;
+    }
+
+    if (user->GetPartyId() == 0)
+    {
+        SendErrorMessage(user, "Not in a party.");
+        return;
+    }
+
+    std::cout << "[SERVER] Leave party\n";
+
+    if (!m_PartyManager.LeaveParty(user, msg->content()))
+    {
+        SendErrorMessage(user, "Sorry, as the party leader, you cannot leave the party. Deletion is the only option.");
+        return;
+    }
+
+    user->SetPartyId(0);
+    SendServerMessage(user, "Party leave successful");
+}
+
+void TcpServer::HandlePartyMessage(std::shared_ptr<User> user, std::shared_ptr<myChatMessage::ChatMessage> msg)
+{
+    if (msg->content().empty())
+    {
+        SendErrorMessage(user, "The content of the party message is empty.");
+        return;
+    }
+
+    auto party = m_PartyManager.FindPartyById(user->GetPartyId());
+    if (!party)
+    {
+        SendErrorMessage(user, "It's a party not joined.");
+        return;
+    }
+
+    SendPartyMessage(party, msg);
+}
+
+void TcpServer::HandleWhisperMessage(std::shared_ptr<User> user, std::shared_ptr<myChatMessage::ChatMessage> msg)
+{
+    if (msg->receiver().empty() || msg->content().empty())
+    {
+        SendErrorMessage(user, "Recipient or content is empty.");
+        return;
+    }
+    SendWhisperMessage(user, msg->receiver(), msg);
 }
 
 
@@ -403,6 +446,29 @@ void TcpServer::SendServerMessage(std::shared_ptr<User>& user, const std::string
 
     // 해당 세션에게 에러 메시지 전송
     user->Send(serverMsg);
+}
+
+uint32_t TcpServer::StringToUint32(const std::string& str)
+{
+    try
+    {
+        unsigned long result = std::stoul(str);
+        if (result > std::numeric_limits<uint32_t>::max())
+        {
+            throw std::out_of_range("Converted number is out of range for uint32_t");
+        }
+        return static_cast<uint32_t>(result);
+    }
+    catch (const std::invalid_argument& e)
+    {
+        std::cerr << "Invalid argument: " << e.what() << std::endl;
+        throw;
+    }
+    catch (const std::out_of_range& e)
+    {
+        std::cerr << "Out of range: " << e.what() << std::endl;
+        throw;
+    }
 }
 
 std::shared_ptr<User> TcpServer::GetUserById(uint32_t userId)
