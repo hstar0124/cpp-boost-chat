@@ -162,6 +162,7 @@
     <ClCompile Include="Client.cpp" />
     <ClCompile Include="HttpClient.cpp" />
     <ClCompile Include="MyMessage.pb.cc" />
+    <ClCompile Include="RedisManager.cpp" />
     <ClCompile Include="UserMessage.pb.cc" />
   </ItemGroup>
   <ItemGroup>
@@ -170,6 +171,7 @@
     <ClInclude Include="Common.h" />
     <ClInclude Include="HttpClient.h" />
     <ClInclude Include="MyMessage.pb.h" />
+    <ClInclude Include="RedisManager.h" />
     <ClInclude Include="ThreadSafeQueue.h" />
     <ClInclude Include="UserMessage.pb.h" />
   </ItemGroup>

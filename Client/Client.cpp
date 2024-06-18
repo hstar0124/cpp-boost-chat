@@ -80,14 +80,12 @@ void Client::HandleMenuChoice(int choice)
     case 1:
         if (ProcessLoginUser()) 
         {
-            // 로그인 성공시 Redis 에서 세션 정리
-
             StartChatClient();
         }
         break;
     case 2:
         ProcessGetUser();
-        break;
+        break;  
     case 3:
         ProcessCreateUser();
         break;
