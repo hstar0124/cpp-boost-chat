@@ -53,7 +53,7 @@ TcpServer::~TcpServer()
 }
 
 
-bool TcpServer::Start(uint32_t maxUser = 2)
+bool TcpServer::Start(uint32_t maxUser = 3)
 {
     try
     {
@@ -263,22 +263,15 @@ void TcpServer::HandlePartyJoin(std::shared_ptr<User> user, std::shared_ptr<myCh
         return;
     }
 
-    uint32_t partyId = StringToUint32(msg->content());
-    if (!m_PartyManager.HasParty(partyId))
+    auto joinedParty = m_PartyManager.JoinParty(user, msg->content());
+    if (!joinedParty)
     {
-        SendErrorMessage(user, "The party does not exist.");
+        SendErrorMessage(user, "Party join Failed");
         return;
     }
 
-    auto party = m_PartyManager.FindPartyById(partyId);
-    if (party->HasMember(user->GetID()))
-    {
-        SendErrorMessage(user, "Already joined.");
-        return;
-    }
-
-    party->AddMember(user->GetID());
-    user->SetPartyId(partyId);
+    user->SetPartyId(joinedParty->GetId());
+    SendServerMessage(user, "Party delete successful");
 }
 
 

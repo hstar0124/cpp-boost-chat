@@ -340,7 +340,7 @@ void ChatClient::OnMessage(std::shared_ptr<myChatMessage::ChatMessage>& message)
 	}
 	else if (message->messagetype() == myChatMessage::ChatMessageType::ERROR_MESSAGE)
 	{
-		std::cout << message->content() << std::endl;
+		std::cout << "[SERVER] " << message->content() << std::endl;
 		return;
 	}
 }
