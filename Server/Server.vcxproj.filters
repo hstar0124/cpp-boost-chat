@@ -16,13 +16,13 @@
     <ClCompile Include="Party.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="MyMessage.pb.cc">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="PartyManager.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="User.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="MyMessage.pb.cc">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
@@ -48,13 +48,13 @@
     <ClInclude Include="ThreadSafeVector.h">
       <Filter>소스 파일</Filter>
     </ClInclude>
-    <ClInclude Include="MyMessage.pb.h">
-      <Filter>소스 파일</Filter>
-    </ClInclude>
     <ClInclude Include="PartyManager.h">
       <Filter>소스 파일</Filter>
     </ClInclude>
     <ClInclude Include="User.h">
+      <Filter>소스 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="MyMessage.pb.h">
       <Filter>소스 파일</Filter>
     </ClInclude>
   </ItemGroup>

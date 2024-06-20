@@ -271,7 +271,7 @@ void TcpServer::HandlePartyJoin(std::shared_ptr<User> user, std::shared_ptr<myCh
     }
 
     user->SetPartyId(joinedParty->GetId());
-    SendServerMessage(user, "Party delete successful");
+    SendServerMessage(user, "Party join successful");
 }
 
 
@@ -284,13 +284,21 @@ void TcpServer::HandlePartyDelete(std::shared_ptr<User> user, std::shared_ptr<my
     }
     std::cout << "[SERVER] Delete party\n";
 
-    if (!m_PartyManager.DeleteParty(user, msg->content()))
+    auto partyId = m_PartyManager.DeleteParty(user, msg->content());
+    if (!partyId)
     {
         SendErrorMessage(user, "Party delete Failed");
         return;
     }
     
-    user->SetPartyId(0);
+    for (auto& user : m_Users)
+    {
+        if (user->GetPartyId() == partyId)
+        {
+            user->SetPartyId(0);
+        }
+    }
+    
     SendServerMessage(user, "Party delete successful");
 }
 

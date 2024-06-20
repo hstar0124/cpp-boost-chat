@@ -17,8 +17,8 @@ public:
     uint32_t GetPartyCreator() const { return m_PartyCreator; }
     std::string GetName() const { return m_PartyName; }
     bool SetPartyName(const std::string& partyName) { m_PartyName = partyName; }
-
     const std::vector<uint32_t>& GetMembers() const;
+
     bool AddMember(uint32_t userId);
     bool HasMember(uint32_t userId) const;
     bool RemoveMember(uint32_t userId);

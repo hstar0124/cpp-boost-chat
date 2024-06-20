@@ -34,7 +34,6 @@ void Client::Init()
 
 void Client::Start()
 {
-
     std::cout << "Initializing Success!!!" << std::endl;
     while (true)
     {
@@ -78,11 +77,28 @@ void Client::HandleMenuChoice(int choice)
     switch (choice) 
     {
     case 1:
-        if (ProcessLoginUser()) 
+    {
+        auto response = ProcessLoginUser();
+        if (response.status() != UserStatusCode::Success) 
         {
-            StartChatClient();
+            std::cout << "Login Failed!!" << std::endl;
+            break;
         }
+
+        if (response.has_content())
+        {
+            LoginResponse loginResponse;
+            if (response.content().UnpackTo(&loginResponse))
+            {
+                StartChatClient(
+                      loginResponse.serverip()
+                    , loginResponse.serverport()
+                    , loginResponse.sessionid());
+            }            
+        }
+        
         break;
+    }
     case 2:
         ProcessGetUser();
         break;  
@@ -101,9 +117,13 @@ void Client::HandleMenuChoice(int choice)
     }
 }
 
-void Client::StartChatClient() 
+void Client::StartChatClient(const std::string& ip, const std::string& port, const std::string& sessionId)
 {
-    m_ChatClient->Connect("127.0.0.1", 4242);
+    std::cout << "IP : " << ip << std::endl;
+    std::cout << "PORT : " << port << std::endl;
+    std::cout << "SessionID : " << sessionId << std::endl;
+
+    m_ChatClient->Connect(ip, std::stoi(port));
     m_Thread = std::thread([this]() { m_IoContext.run(); });
 
     std::string userInput;
@@ -115,7 +135,7 @@ void Client::StartChatClient()
     m_Thread.join();
 }
 
-bool Client::ProcessLoginUser() 
+UserResponse Client::ProcessLoginUser()
 {
     LoginRequest loginRequest;
     GetUserInput("Enter User ID: ", loginRequest.mutable_userid());
@@ -124,7 +144,7 @@ bool Client::ProcessLoginUser()
     return ProcessUserPostRequest("login", loginRequest);
 }
 
-bool Client::ProcessGetUser()
+UserResponse Client::ProcessGetUser()
 {
     GetUserRequest getUserRequest;
     GetUserInput("Enter User ID: ", getUserRequest.mutable_userid());
@@ -136,7 +156,7 @@ bool Client::ProcessGetUser()
     return ProcessUserGetRequest(endpoint);
 }
 
-bool Client::ProcessCreateUser() 
+UserResponse Client::ProcessCreateUser()
 {
     CreateUserRequest createUserRequest;
     GetUserInput("Enter User ID: ", createUserRequest.mutable_userid());
@@ -146,7 +166,7 @@ bool Client::ProcessCreateUser()
     return ProcessUserPostRequest("create_user", createUserRequest);
 }
 
-bool Client::ProcessUpdateUser() 
+UserResponse Client::ProcessUpdateUser()
 {
     UpdateUserRequest updateUserRequest;
     GetUserInput("Enter User ID: ", updateUserRequest.mutable_userid());
@@ -157,7 +177,7 @@ bool Client::ProcessUpdateUser()
     return ProcessUserPostRequest("update_user", updateUserRequest);
 }
 
-bool Client::ProcessDeleteUser() 
+UserResponse Client::ProcessDeleteUser()
 {
     DeleteUserRequest deleteUserRequest;
     GetUserInput("Enter User ID: ", deleteUserRequest.mutable_userid());
@@ -166,37 +186,23 @@ bool Client::ProcessDeleteUser()
 }
 
 template <typename RequestType>
-bool Client::ProcessUserPostRequest(const std::string& endpoint, const RequestType& request) 
+UserResponse Client::ProcessUserPostRequest(const std::string& endpoint, const RequestType& request) 
 {
     UserResponse response = m_HttpClient->Post(m_ApiUrls[endpoint], request);
     std::cout << "Response Status: " << response.status() << std::endl;
     std::cout << "Response Message: " << response.message() << std::endl;
-    return response.status() == UserStatusCode::Success;
+
+    return response;
 }
 
-bool Client::ProcessUserGetRequest(const std::string& endpoint)
+UserResponse Client::ProcessUserGetRequest(const std::string& endpoint)
 {
     UserResponse response = m_HttpClient->Get(endpoint);
 
     std::cout << "Response Status: " << response.status() << std::endl;
     std::cout << "Response Message: " << response.message() << std::endl;
 
-    if (response.has_content()) 
-    {
-        GetUserResponse getUserResponse;
-        if (response.content().UnpackTo(&getUserResponse)) 
-        {
-            std::cout << "User ID: " << getUserResponse.userid() << std::endl;
-            std::cout << "Username: " << getUserResponse.username() << std::endl;
-            std::cout << "Email: " << getUserResponse.email() << std::endl;
-        }
-        else 
-        {
-            std::cout << "Failed to unpack content." << std::endl;
-        }
-    }
-
-    return response.status() == UserStatusCode::Success;
+    return response;
 }
 
 std::unordered_map<std::string, std::string> Client::LoadConfig(const std::string& filename)
