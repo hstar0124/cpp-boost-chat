@@ -15,7 +15,7 @@ public:
 
     std::shared_ptr<Party> CreateParty(std::shared_ptr<User> user, const std::string& partyName);
     std::shared_ptr<Party> JoinParty(std::shared_ptr<User> user, const std::string& partyName);
-    bool DeleteParty(std::shared_ptr<User> user, const std::string& partyName);
+    uint32_t DeleteParty(std::shared_ptr<User> user, const std::string& partyName);
     bool LeaveParty(std::shared_ptr<User> user, const std::string& partyName);
     bool HasParty(uint32_t partyId);
     std::shared_ptr<Party> FindPartyById(uint32_t partyId);

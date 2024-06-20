@@ -48,7 +48,7 @@ struct TableStruct_UserMessage_2eproto {
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
   static const ::PROTOBUF_NAMESPACE_ID::internal::AuxiliaryParseTableField aux[]
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
-  static const ::PROTOBUF_NAMESPACE_ID::internal::ParseTable schema[9]
+  static const ::PROTOBUF_NAMESPACE_ID::internal::ParseTable schema[10]
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
   static const ::PROTOBUF_NAMESPACE_ID::internal::FieldMetadata field_metadata[];
   static const ::PROTOBUF_NAMESPACE_ID::internal::SerializationTable serialization_table[];
@@ -70,6 +70,9 @@ extern GetUserResponseDefaultTypeInternal _GetUserResponse_default_instance_;
 class LoginRequest;
 class LoginRequestDefaultTypeInternal;
 extern LoginRequestDefaultTypeInternal _LoginRequest_default_instance_;
+class LoginResponse;
+class LoginResponseDefaultTypeInternal;
+extern LoginResponseDefaultTypeInternal _LoginResponse_default_instance_;
 class StringValue;
 class StringValueDefaultTypeInternal;
 extern StringValueDefaultTypeInternal _StringValue_default_instance_;
@@ -88,6 +91,7 @@ template<> ::DeleteUserRequest* Arena::CreateMaybeMessage<::DeleteUserRequest>(A
 template<> ::GetUserRequest* Arena::CreateMaybeMessage<::GetUserRequest>(Arena*);
 template<> ::GetUserResponse* Arena::CreateMaybeMessage<::GetUserResponse>(Arena*);
 template<> ::LoginRequest* Arena::CreateMaybeMessage<::LoginRequest>(Arena*);
+template<> ::LoginResponse* Arena::CreateMaybeMessage<::LoginResponse>(Arena*);
 template<> ::StringValue* Arena::CreateMaybeMessage<::StringValue>(Arena*);
 template<> ::UpdateUserRequest* Arena::CreateMaybeMessage<::UpdateUserRequest>(Arena*);
 template<> ::UserErrorResponse* Arena::CreateMaybeMessage<::UserErrorResponse>(Arena*);
@@ -448,6 +452,185 @@ class GetUserResponse PROTOBUF_FINAL :
 };
 // -------------------------------------------------------------------
 
+class LoginResponse PROTOBUF_FINAL :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:LoginResponse) */ {
+ public:
+  inline LoginResponse() : LoginResponse(nullptr) {}
+  virtual ~LoginResponse();
+
+  LoginResponse(const LoginResponse& from);
+  LoginResponse(LoginResponse&& from) noexcept
+    : LoginResponse() {
+    *this = ::std::move(from);
+  }
+
+  inline LoginResponse& operator=(const LoginResponse& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline LoginResponse& operator=(LoginResponse&& from) noexcept {
+    if (GetArena() == from.GetArena()) {
+      if (this != &from) InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return GetMetadataStatic().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return GetMetadataStatic().reflection;
+  }
+  static const LoginResponse& default_instance();
+
+  static inline const LoginResponse* internal_default_instance() {
+    return reinterpret_cast<const LoginResponse*>(
+               &_LoginResponse_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    2;
+
+  friend void swap(LoginResponse& a, LoginResponse& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(LoginResponse* other) {
+    if (other == this) return;
+    if (GetArena() == other->GetArena()) {
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(LoginResponse* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetArena() == other->GetArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  inline LoginResponse* New() const final {
+    return CreateMaybeMessage<LoginResponse>(nullptr);
+  }
+
+  LoginResponse* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
+    return CreateMaybeMessage<LoginResponse>(arena);
+  }
+  void CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
+  void MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
+  void CopyFrom(const LoginResponse& from);
+  void MergeFrom(const LoginResponse& from);
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
+      ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _cached_size_.Get(); }
+
+  private:
+  inline void SharedCtor();
+  inline void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(LoginResponse* other);
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "LoginResponse";
+  }
+  protected:
+  explicit LoginResponse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
+  private:
+  static void ArenaDtor(void* object);
+  inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
+  public:
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+  private:
+  static ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadataStatic() {
+    ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&::descriptor_table_UserMessage_2eproto);
+    return ::descriptor_table_UserMessage_2eproto.file_level_metadata[kIndexInFileMessages];
+  }
+
+  public:
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kServerIpFieldNumber = 1,
+    kServerPortFieldNumber = 2,
+    kSessionIdFieldNumber = 3,
+  };
+  // string serverIp = 1;
+  void clear_serverip();
+  const std::string& serverip() const;
+  void set_serverip(const std::string& value);
+  void set_serverip(std::string&& value);
+  void set_serverip(const char* value);
+  void set_serverip(const char* value, size_t size);
+  std::string* mutable_serverip();
+  std::string* release_serverip();
+  void set_allocated_serverip(std::string* serverip);
+  private:
+  const std::string& _internal_serverip() const;
+  void _internal_set_serverip(const std::string& value);
+  std::string* _internal_mutable_serverip();
+  public:
+
+  // string serverPort = 2;
+  void clear_serverport();
+  const std::string& serverport() const;
+  void set_serverport(const std::string& value);
+  void set_serverport(std::string&& value);
+  void set_serverport(const char* value);
+  void set_serverport(const char* value, size_t size);
+  std::string* mutable_serverport();
+  std::string* release_serverport();
+  void set_allocated_serverport(std::string* serverport);
+  private:
+  const std::string& _internal_serverport() const;
+  void _internal_set_serverport(const std::string& value);
+  std::string* _internal_mutable_serverport();
+  public:
+
+  // string sessionId = 3;
+  void clear_sessionid();
+  const std::string& sessionid() const;
+  void set_sessionid(const std::string& value);
+  void set_sessionid(std::string&& value);
+  void set_sessionid(const char* value);
+  void set_sessionid(const char* value, size_t size);
+  std::string* mutable_sessionid();
+  std::string* release_sessionid();
+  void set_allocated_sessionid(std::string* sessionid);
+  private:
+  const std::string& _internal_sessionid() const;
+  void _internal_set_sessionid(const std::string& value);
+  std::string* _internal_mutable_sessionid();
+  public:
+
+  // @@protoc_insertion_point(class_scope:LoginResponse)
+ private:
+  class _Internal;
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr serverip_;
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr serverport_;
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr sessionid_;
+  mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  friend struct ::TableStruct_UserMessage_2eproto;
+};
+// -------------------------------------------------------------------
+
 class UserResponse PROTOBUF_FINAL :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:UserResponse) */ {
  public:
@@ -489,7 +672,7 @@ class UserResponse PROTOBUF_FINAL :
                &_UserResponse_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    2;
+    3;
 
   friend void swap(UserResponse& a, UserResponse& b) {
     a.Swap(&b);
@@ -663,7 +846,7 @@ class UserErrorResponse PROTOBUF_FINAL :
                &_UserErrorResponse_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    3;
+    4;
 
   friend void swap(UserErrorResponse& a, UserErrorResponse& b) {
     a.Swap(&b);
@@ -806,7 +989,7 @@ class GetUserRequest PROTOBUF_FINAL :
                &_GetUserRequest_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    4;
+    5;
 
   friend void swap(GetUserRequest& a, GetUserRequest& b) {
     a.Swap(&b);
@@ -985,7 +1168,7 @@ class CreateUserRequest PROTOBUF_FINAL :
                &_CreateUserRequest_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    5;
+    6;
 
   friend void swap(CreateUserRequest& a, CreateUserRequest& b) {
     a.Swap(&b);
@@ -1182,7 +1365,7 @@ class UpdateUserRequest PROTOBUF_FINAL :
                &_UpdateUserRequest_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    6;
+    7;
 
   friend void swap(UpdateUserRequest& a, UpdateUserRequest& b) {
     a.Swap(&b);
@@ -1397,7 +1580,7 @@ class DeleteUserRequest PROTOBUF_FINAL :
                &_DeleteUserRequest_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    7;
+    8;
 
   friend void swap(DeleteUserRequest& a, DeleteUserRequest& b) {
     a.Swap(&b);
@@ -1558,7 +1741,7 @@ class LoginRequest PROTOBUF_FINAL :
                &_LoginRequest_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    8;
+    9;
 
   friend void swap(LoginRequest& a, LoginRequest& b) {
     a.Swap(&b);
@@ -1933,6 +2116,193 @@ inline void GetUserResponse::set_allocated_email(std::string* email) {
   email_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), email,
       GetArena());
   // @@protoc_insertion_point(field_set_allocated:GetUserResponse.email)
+}
+
+// -------------------------------------------------------------------
+
+// LoginResponse
+
+// string serverIp = 1;
+inline void LoginResponse::clear_serverip() {
+  serverip_.ClearToEmpty();
+}
+inline const std::string& LoginResponse::serverip() const {
+  // @@protoc_insertion_point(field_get:LoginResponse.serverIp)
+  return _internal_serverip();
+}
+inline void LoginResponse::set_serverip(const std::string& value) {
+  _internal_set_serverip(value);
+  // @@protoc_insertion_point(field_set:LoginResponse.serverIp)
+}
+inline std::string* LoginResponse::mutable_serverip() {
+  // @@protoc_insertion_point(field_mutable:LoginResponse.serverIp)
+  return _internal_mutable_serverip();
+}
+inline const std::string& LoginResponse::_internal_serverip() const {
+  return serverip_.Get();
+}
+inline void LoginResponse::_internal_set_serverip(const std::string& value) {
+  
+  serverip_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArena());
+}
+inline void LoginResponse::set_serverip(std::string&& value) {
+  
+  serverip_.Set(
+    ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::move(value), GetArena());
+  // @@protoc_insertion_point(field_set_rvalue:LoginResponse.serverIp)
+}
+inline void LoginResponse::set_serverip(const char* value) {
+  GOOGLE_DCHECK(value != nullptr);
+  
+  serverip_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(value), GetArena());
+  // @@protoc_insertion_point(field_set_char:LoginResponse.serverIp)
+}
+inline void LoginResponse::set_serverip(const char* value,
+    size_t size) {
+  
+  serverip_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(
+      reinterpret_cast<const char*>(value), size), GetArena());
+  // @@protoc_insertion_point(field_set_pointer:LoginResponse.serverIp)
+}
+inline std::string* LoginResponse::_internal_mutable_serverip() {
+  
+  return serverip_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArena());
+}
+inline std::string* LoginResponse::release_serverip() {
+  // @@protoc_insertion_point(field_release:LoginResponse.serverIp)
+  return serverip_.Release(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+}
+inline void LoginResponse::set_allocated_serverip(std::string* serverip) {
+  if (serverip != nullptr) {
+    
+  } else {
+    
+  }
+  serverip_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), serverip,
+      GetArena());
+  // @@protoc_insertion_point(field_set_allocated:LoginResponse.serverIp)
+}
+
+// string serverPort = 2;
+inline void LoginResponse::clear_serverport() {
+  serverport_.ClearToEmpty();
+}
+inline const std::string& LoginResponse::serverport() const {
+  // @@protoc_insertion_point(field_get:LoginResponse.serverPort)
+  return _internal_serverport();
+}
+inline void LoginResponse::set_serverport(const std::string& value) {
+  _internal_set_serverport(value);
+  // @@protoc_insertion_point(field_set:LoginResponse.serverPort)
+}
+inline std::string* LoginResponse::mutable_serverport() {
+  // @@protoc_insertion_point(field_mutable:LoginResponse.serverPort)
+  return _internal_mutable_serverport();
+}
+inline const std::string& LoginResponse::_internal_serverport() const {
+  return serverport_.Get();
+}
+inline void LoginResponse::_internal_set_serverport(const std::string& value) {
+  
+  serverport_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArena());
+}
+inline void LoginResponse::set_serverport(std::string&& value) {
+  
+  serverport_.Set(
+    ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::move(value), GetArena());
+  // @@protoc_insertion_point(field_set_rvalue:LoginResponse.serverPort)
+}
+inline void LoginResponse::set_serverport(const char* value) {
+  GOOGLE_DCHECK(value != nullptr);
+  
+  serverport_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(value), GetArena());
+  // @@protoc_insertion_point(field_set_char:LoginResponse.serverPort)
+}
+inline void LoginResponse::set_serverport(const char* value,
+    size_t size) {
+  
+  serverport_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(
+      reinterpret_cast<const char*>(value), size), GetArena());
+  // @@protoc_insertion_point(field_set_pointer:LoginResponse.serverPort)
+}
+inline std::string* LoginResponse::_internal_mutable_serverport() {
+  
+  return serverport_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArena());
+}
+inline std::string* LoginResponse::release_serverport() {
+  // @@protoc_insertion_point(field_release:LoginResponse.serverPort)
+  return serverport_.Release(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+}
+inline void LoginResponse::set_allocated_serverport(std::string* serverport) {
+  if (serverport != nullptr) {
+    
+  } else {
+    
+  }
+  serverport_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), serverport,
+      GetArena());
+  // @@protoc_insertion_point(field_set_allocated:LoginResponse.serverPort)
+}
+
+// string sessionId = 3;
+inline void LoginResponse::clear_sessionid() {
+  sessionid_.ClearToEmpty();
+}
+inline const std::string& LoginResponse::sessionid() const {
+  // @@protoc_insertion_point(field_get:LoginResponse.sessionId)
+  return _internal_sessionid();
+}
+inline void LoginResponse::set_sessionid(const std::string& value) {
+  _internal_set_sessionid(value);
+  // @@protoc_insertion_point(field_set:LoginResponse.sessionId)
+}
+inline std::string* LoginResponse::mutable_sessionid() {
+  // @@protoc_insertion_point(field_mutable:LoginResponse.sessionId)
+  return _internal_mutable_sessionid();
+}
+inline const std::string& LoginResponse::_internal_sessionid() const {
+  return sessionid_.Get();
+}
+inline void LoginResponse::_internal_set_sessionid(const std::string& value) {
+  
+  sessionid_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArena());
+}
+inline void LoginResponse::set_sessionid(std::string&& value) {
+  
+  sessionid_.Set(
+    ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::move(value), GetArena());
+  // @@protoc_insertion_point(field_set_rvalue:LoginResponse.sessionId)
+}
+inline void LoginResponse::set_sessionid(const char* value) {
+  GOOGLE_DCHECK(value != nullptr);
+  
+  sessionid_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(value), GetArena());
+  // @@protoc_insertion_point(field_set_char:LoginResponse.sessionId)
+}
+inline void LoginResponse::set_sessionid(const char* value,
+    size_t size) {
+  
+  sessionid_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(
+      reinterpret_cast<const char*>(value), size), GetArena());
+  // @@protoc_insertion_point(field_set_pointer:LoginResponse.sessionId)
+}
+inline std::string* LoginResponse::_internal_mutable_sessionid() {
+  
+  return sessionid_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArena());
+}
+inline std::string* LoginResponse::release_sessionid() {
+  // @@protoc_insertion_point(field_release:LoginResponse.sessionId)
+  return sessionid_.Release(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+}
+inline void LoginResponse::set_allocated_sessionid(std::string* sessionid) {
+  if (sessionid != nullptr) {
+    
+  } else {
+    
+  }
+  sessionid_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), sessionid,
+      GetArena());
+  // @@protoc_insertion_point(field_set_allocated:LoginResponse.sessionId)
 }
 
 // -------------------------------------------------------------------
@@ -3161,6 +3531,8 @@ inline void LoginRequest::set_allocated_password(std::string* password) {
 #ifdef __GNUC__
   #pragma GCC diagnostic pop
 #endif  // __GNUC__
+// -------------------------------------------------------------------
+
 // -------------------------------------------------------------------
 
 // -------------------------------------------------------------------

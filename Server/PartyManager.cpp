@@ -40,28 +40,30 @@ std::shared_ptr<Party> PartyManager::JoinParty(std::shared_ptr<User> user, const
     return party;
 }
 
-bool PartyManager::DeleteParty(std::shared_ptr<User> user, const std::string& partyName)
+uint32_t PartyManager::DeleteParty(std::shared_ptr<User> user, const std::string& partyName)
 {
     // 파티 이름에 해당하는 파티를 찾음
     auto party = FindPartyByName(partyName);
     if (!party)
     {
         std::cout << "[SERVER] Not found party: " << partyName << std::endl;
-        return false;
+        return 0;
     }
+
+    auto partyId = party->GetId();
 
     // 파티가 존재하고 파티 창설자인 경우
     if (party->GetPartyCreator() == user->GetID())
-    {
-        auto partyId = party->GetId();
+    {        
         std::cout << "Attempting to delete party with ID: " << partyId << std::endl;
+                
         size_t erasedCount = m_MapParties.erase(partyId);
         std::cout << "Number of parties erased: " << erasedCount << std::endl;
 
         if (erasedCount == 0)
         {
             std::cout << "[SERVER] Failed to delete party with ID: " << partyId << ". ID not found in m_MapParties." << std::endl;
-            return false;
+            return 0;
         }
 
         std::cout << "[SERVER] Deleted party: " << partyName << std::endl;
@@ -69,11 +71,11 @@ bool PartyManager::DeleteParty(std::shared_ptr<User> user, const std::string& pa
     else
     {
         std::cout << "[SERVER] Fail Deleted Party : " << partyName << std::endl;
-        return false;
+        return 0;
     }
 
     std::cout << "Party Count : " << m_MapParties.size() << "\n";
-    return true;
+    return partyId;
 }
 
 

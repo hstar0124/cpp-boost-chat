@@ -4,4 +4,4 @@ login=/User/Login
 get_user_by_user_id=/User/GetUser?userId=
 create_user=/User/Create
 update_user=/User/Login
-delete_user=/Udlfdlfgl ser/Delete
+delete_user=/User/Delete
