@@ -12,7 +12,11 @@ private:
 	std::unique_ptr<ChatClient>		m_ChatClient;
 	boost::asio::io_context			m_IoContext;
 
+
+	bool							m_IsVerified{ false };
 	std::thread						m_Thread;
+	std::condition_variable			m_Condition;
+	std::mutex						m_Mutex;
 
 	std::unordered_map<std::string, std::string> m_ApiUrls;
 
@@ -29,6 +33,8 @@ private:
 	void StartChatClient(const std::string& ip, const std::string& port, const std::string& sessionId);
 	void HandleMenuChoice(int choice);
 	void GetUserInput(const std::string& prompt, std::string* input);
+
+	void ChatLoop();
 	
 	UserResponse ProcessLoginUser();
 	UserResponse ProcessGetUser();

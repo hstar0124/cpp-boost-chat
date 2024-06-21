@@ -26,7 +26,7 @@ User::~User()
 void User::Start(uint32_t uid = 0)
 {
 	m_Id = uid;
-	StartPingTimer();
+	m_IsActive = true;
 	ReadHeader();
 }
 
@@ -50,9 +50,19 @@ uint32_t User::GetPartyId() const
 	return m_PartyId;
 }
 
+bool User::GetVerified()
+{
+	return m_Verified;
+}
+
 void User::SetPartyId(uint32_t partyId)
 {
 	m_PartyId = partyId;
+}
+
+void User::SetVerified(bool isVerified)
+{
+	m_Verified = isVerified;
 }
 
 std::shared_ptr<myChatMessage::ChatMessage> User::GetMessageInUserQueue()

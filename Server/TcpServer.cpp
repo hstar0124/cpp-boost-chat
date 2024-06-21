@@ -3,9 +3,14 @@
 TcpServer::TcpServer(boost::asio::io_context& io_context, int port)
     : m_Acceptor(io_context, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), port))
     , m_IoContext(io_context)
-    , m_PartyManager()
+    , m_PartyManager(std::make_unique<PartyManager>())
+    , m_RedisClient(std::make_unique<CRedisClient>())
 {    
-
+    if (!m_RedisClient->Initialize("127.0.0.1", 6379, 2, 10))
+    {
+        std::cout << "connect to redis failed" << std::endl;        
+    }
+    std::cout << "connect to redis Success!" << std::endl;
 }
 
 TcpServer::~TcpServer()
@@ -108,36 +113,76 @@ void TcpServer::OnAccept(std::shared_ptr<User> user, const boost::system::error_
 void TcpServer::UpdateUsers()
 {
     {
+        // 연결이 종료된 User 정리
         std::scoped_lock lock(m_UsersMutex);
         m_Users.erase(std::remove_if(m_Users.begin(), m_Users.end(), [](auto& user)
             {
-            if (!user->IsConnected()) 
-            {
-                user->Close();
-                return true;
-            }
+                if (!user->IsConnected()) 
+                {
+                    user->Close();
+                    return true;
+                }
             return false;
             }), m_Users.end());
     }
 
+
     {
+        // 접속한 유저 Session 키 값으로 인증 진행 및 대기열에 있는 유저 User Vector로 이동
         std::scoped_lock lock(m_NewUsersMutex);
 
-        while (!m_NewUsers.empty() && m_Users.size() < m_MaxUser) 
+        std::queue<std::shared_ptr<User>> tempQueue;
+
+        while (!m_NewUsers.empty()) 
         {
-            auto user = std::move(m_NewUsers.front());
+            auto user = m_NewUsers.front();
             m_NewUsers.pop();
-            m_Users.push_back(std::move(user));
-            SendServerMessage(m_Users.back(), "Connection successful");
+
+            auto msg = user->GetMessageInUserQueue();
+            if (msg && VerifyUser(user, msg->content())) 
+            {
+                user->SetVerified(true);
+            }
+
+            if (user->GetVerified() && m_Users.size() < m_MaxUser) 
+            {
+                m_Users.push_back(std::move(user));
+                SendLoginMessage(m_Users.back());                
+            }
+            else 
+            {
+                tempQueue.push(std::move(user));
+            }
+        }
+
+        // 임시 큐의 유저를 다시 원래 큐로 이동
+        while (!tempQueue.empty()) 
+        {
+            m_NewUsers.push(std::move(tempQueue.front()));
+            tempQueue.pop();
         }
     }
+}
+
+bool TcpServer::VerifyUser(std::shared_ptr<User>& user, const std::string& sessionId)
+{
+    std::string sessionKey = "Session:" + sessionId;
+    std::string sessionValue;
+    if (m_RedisClient->Get(sessionKey, &sessionValue) == RC_SUCCESS)
+    {
+        std::cout << sessionKey << " : " << sessionValue << std::endl;
+        return true;
+    }
+
+    std::cout << "Not Found Session ID!!" << std::endl;
+    return false;
 }
 
 void TcpServer::Update()
 {
     while (1)
     {
-        // 새로 접속한 유저를 유저 vector에 추가
+        // 유저들 상태 업데이트
         UpdateUsers();
 
         if (m_Users.empty())
@@ -171,6 +216,9 @@ void TcpServer::OnMessage(std::shared_ptr<User> user, std::shared_ptr<myChatMess
 {
     switch (msg->messagetype())
     {
+    case myChatMessage::ChatMessageType::LOGIN_MESSAGE:
+        HandleLogin(user, msg);
+        break;
     case myChatMessage::ChatMessageType::SERVER_PING:
         HandleServerPing(user, msg);
         break;
@@ -199,6 +247,11 @@ void TcpServer::OnMessage(std::shared_ptr<User> user, std::shared_ptr<myChatMess
         SendErrorMessage(user, "Unknown message type received.");
         break;
     }
+}
+
+void TcpServer::HandleLogin(std::shared_ptr<User> user, std::shared_ptr<myChatMessage::ChatMessage> msg)
+{
+    std::cout << "[SERVER] Session ID : " << msg->content() << "\n";
 }
 
 void TcpServer::HandleServerPing(std::shared_ptr<User> user, std::shared_ptr<myChatMessage::ChatMessage> msg)
@@ -233,13 +286,13 @@ void TcpServer::HandlePartyCreate(std::shared_ptr<User> user, std::shared_ptr<my
 
     std::cout << "[SERVER] Create party\n";
 
-    if (m_PartyManager.IsPartyNameTaken(msg->content()))
+    if (m_PartyManager->IsPartyNameTaken(msg->content()))
     {
         SendErrorMessage(user, "The party name already exists.");
         return;
     }
 
-    auto createdParty = m_PartyManager.CreateParty(user, msg->content());
+    auto createdParty = m_PartyManager->CreateParty(user, msg->content());
     if (!createdParty)
     {
         SendErrorMessage(user, "The party creation failed!");
@@ -263,7 +316,7 @@ void TcpServer::HandlePartyJoin(std::shared_ptr<User> user, std::shared_ptr<myCh
         return;
     }
 
-    auto joinedParty = m_PartyManager.JoinParty(user, msg->content());
+    auto joinedParty = m_PartyManager->JoinParty(user, msg->content());
     if (!joinedParty)
     {
         SendErrorMessage(user, "Party join Failed");
@@ -284,7 +337,7 @@ void TcpServer::HandlePartyDelete(std::shared_ptr<User> user, std::shared_ptr<my
     }
     std::cout << "[SERVER] Delete party\n";
 
-    auto partyId = m_PartyManager.DeleteParty(user, msg->content());
+    auto partyId = m_PartyManager->DeleteParty(user, msg->content());
     if (!partyId)
     {
         SendErrorMessage(user, "Party delete Failed");
@@ -319,7 +372,7 @@ void TcpServer::HandlePartyLeave(std::shared_ptr<User> user, std::shared_ptr<myC
 
     std::cout << "[SERVER] Leave party\n";
 
-    if (!m_PartyManager.LeaveParty(user, msg->content()))
+    if (!m_PartyManager->LeaveParty(user, msg->content()))
     {
         SendErrorMessage(user, "Sorry, as the party leader, you cannot leave the party. Deletion is the only option.");
         return;
@@ -337,7 +390,7 @@ void TcpServer::HandlePartyMessage(std::shared_ptr<User> user, std::shared_ptr<m
         return;
     }
 
-    auto party = m_PartyManager.FindPartyById(user->GetPartyId());
+    auto party = m_PartyManager->FindPartyById(user->GetPartyId());
     if (!party)
     {
         SendErrorMessage(user, "It's a party not joined.");
@@ -440,10 +493,20 @@ void TcpServer::SendErrorMessage(std::shared_ptr<User>& user, const std::string&
 void TcpServer::SendServerMessage(std::shared_ptr<User>& user, const std::string& serverMessage)
 {
     std::cout << "[SERVER] " << user->GetID() << " : " << serverMessage << "\n";
-    // 에러 메시지 생성
+    
     auto serverMsg = std::make_shared<myChatMessage::ChatMessage>();
     serverMsg->set_messagetype(myChatMessage::ChatMessageType::SERVER_MESSAGE);
     serverMsg->set_content(serverMessage);
+        
+    user->Send(serverMsg);
+}
+
+void TcpServer::SendLoginMessage(std::shared_ptr<User>& user)
+{
+    std::cout << "[SERVER] " << user->GetID() << " : Login Success!!" << "\n";
+    auto serverMsg = std::make_shared<myChatMessage::ChatMessage>();
+    serverMsg->set_messagetype(myChatMessage::ChatMessageType::LOGIN_MESSAGE);
+    serverMsg->set_content("Login Success!!");
 
     // 해당 세션에게 에러 메시지 전송
     user->Send(serverMsg);

@@ -1,7 +1,7 @@
 #include "ChatClient.h"
 
 ChatClient::ChatClient(boost::asio::io_context& io_context)
-    : m_IoContext(io_context), m_Socket(io_context) 
+    : m_IoContext(io_context), m_Socket(io_context)
 {}
 
 ChatClient::~ChatClient() 
@@ -29,6 +29,18 @@ void ChatClient::Send(const std::string& userInput)
     {
         AsyncWrite(chatMessage);
     }
+}
+
+bool ChatClient::SendSessionId(const std::string& sessionId)
+{
+    auto sessionMessage = std::make_shared<myChatMessage::ChatMessage>();
+
+    sessionMessage->set_messagetype(myChatMessage::ChatMessageType::LOGIN_MESSAGE);
+    sessionMessage->set_content(sessionId);
+    
+    AsyncWrite(sessionMessage);
+    
+    return true;
 }
 
 std::function<bool(std::shared_ptr<myChatMessage::ChatMessage>&, const std::string&)> ChatClient::GetCreateMessageStrategy(const std::string& userInput) 
@@ -197,6 +209,25 @@ void ChatClient::SendPong()
     AsyncWrite(message);
 }
 
+bool ChatClient::GetVerified()
+{
+    return m_IsVerified.load();
+}
+
+void ChatClient::SetVerified(bool isVerified)
+{
+    m_IsVerified.store(isVerified);
+    if (isVerified && m_VerificationCallback)
+    {
+        m_VerificationCallback();
+    }
+}
+
+void ChatClient::SetVerificationCallback(const std::function<void()>& callback) 
+{
+    m_VerificationCallback = callback;
+}
+
 void ChatClient::AsyncWrite(std::shared_ptr<myChatMessage::ChatMessage> message) 
 {
     int size = static_cast<int>(message->ByteSizeLong());
@@ -285,6 +316,10 @@ void ChatClient::OnMessage(std::shared_ptr<myChatMessage::ChatMessage>& message)
     {
     case MsgType::ALL_MESSAGE:
         std::cout << "[" << message->sender() << "] " << message->content() << std::endl;
+        break;
+    case MsgType::LOGIN_MESSAGE:
+        std::cout << "[SERVER] " << message->content() << std::endl;
+        SetVerified(true);
         break;
     case MsgType::SERVER_PING:
         HandleServerPing(message);
