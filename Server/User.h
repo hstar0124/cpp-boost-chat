@@ -8,8 +8,12 @@ class User : public std::enable_shared_from_this<User>
 private:
 	boost::asio::ip::tcp::socket												m_Socket;
 	boost::asio::io_context&													m_IoContext;
+
 	uint32_t																	m_Id = 0;
-	bool																		m_IsActive;
+	uint32_t																	m_PartyId = 0;
+
+	bool																		m_IsActive = false;
+	bool																		m_Verified = false;
 
 	std::vector<uint8_t>														m_Writebuf;
 	std::vector<uint8_t>														m_Readbuf;
@@ -23,7 +27,6 @@ private:
 
 	boost::asio::steady_timer													m_PingTimer;
 
-	uint32_t																	m_PartyId = 0;
 
 public:
 	User(boost::asio::io_context& io_context);
@@ -35,7 +38,10 @@ public:
 
 	uint32_t GetID() const;
 	uint32_t GetPartyId() const;
+	bool GetVerified();
+
 	void SetPartyId(uint32_t partyId);
+	void SetVerified(bool isVerified);
 
 
 	std::shared_ptr<myChatMessage::ChatMessage> GetMessageInUserQueue();

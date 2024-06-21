@@ -25,6 +25,9 @@
     <ClCompile Include="MyMessage.pb.cc">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="RedisClient.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="TcpServer.h">
@@ -55,6 +58,9 @@
       <Filter>소스 파일</Filter>
     </ClInclude>
     <ClInclude Include="MyMessage.pb.h">
+      <Filter>소스 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="RedisClient.hpp">
       <Filter>소스 파일</Filter>
     </ClInclude>
   </ItemGroup>

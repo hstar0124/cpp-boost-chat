@@ -124,13 +124,30 @@ void Client::StartChatClient(const std::string& ip, const std::string& port, con
     std::cout << "SessionID : " << sessionId << std::endl;
 
     m_ChatClient->Connect(ip, std::stoi(port));
-    m_Thread = std::thread([this]() { m_IoContext.run(); });
+    m_ChatClient->SendSessionId(sessionId);
 
-    std::string userInput;
-    while (getline(std::cin, userInput)) 
+    m_Thread = std::thread([this]() 
+        { 
+            m_IoContext.run(); 
+        });
+
+    m_ChatClient->SetVerificationCallback([this]() 
+        {
+            std::unique_lock<std::mutex> lock(m_Mutex);
+            m_IsVerified = true;
+            m_Condition.notify_one();
+        });
+
     {
-        m_ChatClient->Send(userInput);
+        std::unique_lock<std::mutex> lock(m_Mutex);
+        m_Condition.wait(lock, [this] 
+            {
+                return m_IsVerified; 
+            });
     }
+
+    // 인증이 완료된 후 채팅 시작
+    ChatLoop();
 
     m_Thread.join();
 }
@@ -226,4 +243,19 @@ void Client::GetUserInput(const std::string& prompt, std::string* input)
 {
     std::cout << prompt;
     std::cin >> *input;
+}
+
+void Client::ChatLoop() 
+{
+    std::string userInput;
+    while (getline(std::cin, userInput)) 
+    {
+        // 인증이 완료된 후에만 입력을 처리한다
+        if (m_IsVerified) {
+            m_ChatClient->Send(userInput);
+        }
+        else {
+            std::cout << "Waiting for verification. Please wait..." << std::endl;
+        }
+    }
 }

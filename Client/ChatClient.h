@@ -11,6 +11,9 @@ private:
     boost::asio::ip::tcp::socket	m_Socket;
     std::string						m_Message;
 
+    std::atomic<bool>               m_IsVerified{ false };
+    std::function<void()>           m_VerificationCallback;
+
     std::vector<uint8_t>			m_Readbuf;
     std::vector<uint8_t>			m_Writebuf;
 
@@ -20,6 +23,11 @@ public:
 
     void Connect(const std::string& host, int port);
     void Send(const std::string& userInput);
+    
+    bool GetVerified(); 
+    void SetVerificationCallback(const std::function<void()>& callback);
+
+    bool SendSessionId(const std::string& sessionId);
 
 private:
     void OnConnect(const boost::system::error_code& err);
@@ -30,6 +38,9 @@ private:
     void ReadHeader();
     void ReadBody(size_t bodySize);
     void SendPong();
+
+    void SetVerified(bool isVerified);
+    
 
     bool IsWhisperMessage(const std::string& userInput);
     bool IsPartyMessage(const std::string& userInput);
