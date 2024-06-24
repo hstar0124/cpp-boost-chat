@@ -13,23 +13,22 @@ namespace LoginApiServer.Controllers
         private readonly ILogger<UserController> _logger;
         // CQRS 패턴 적용
         // 명령을 처리하는 책임과 조회를 처리하는 책임을 분리
-        private readonly IUserWriteService _accountWriteService;
-        private readonly IUserReadService _accountReadService;
+        private readonly IUserWriteService _userWriteService;
+        private readonly IUserReadService _userReadService;
 
-        public UserController(ILogger<UserController> logger, IUserWriteService accountWriteService, IUserReadService accountReadService)
+        public UserController(ILogger<UserController> logger, IUserWriteService userWriteService, IUserReadService userReadService)
         {
             _logger = logger;
-            _accountWriteService = accountWriteService;
-            _accountReadService = accountReadService;
+            _userWriteService = userWriteService;
+            _userReadService = userReadService;
         }
 
         [HttpGet]
         public UserResponse GetUser([FromQuery]string userId)
-        {
-           
+        {           
             try
             {
-                var response = _accountReadService.GetUserFromUserid(userId);
+                var response = _userReadService.GetUserFromUserid(userId);
                 return response;
             }
             catch (Exception ex)
@@ -44,7 +43,7 @@ namespace LoginApiServer.Controllers
         {
             try
             {
-                var response = _accountWriteService.CreateUser(request);
+                var response = _userWriteService.CreateUser(request);
 
                 return response;
             }
@@ -60,7 +59,7 @@ namespace LoginApiServer.Controllers
         {
             try
             {
-                var response = _accountWriteService.LoginUser(request);
+                var response = _userWriteService.LoginUser(request);
 
                 return response;
             }
@@ -76,7 +75,7 @@ namespace LoginApiServer.Controllers
         {
             try
             {
-                var response = _accountWriteService.UpdateUser(request);
+                var response = _userWriteService.UpdateUser(request);
 
                 return response;
 
@@ -94,7 +93,7 @@ namespace LoginApiServer.Controllers
         {
             try
             {
-                var response = _accountWriteService.DeleteUser(request);
+                var response = _userWriteService.DeleteUser(request);
 
                 return response;
             }

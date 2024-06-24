@@ -1,4 +1,5 @@
-﻿using Google.Protobuf.WellKnownTypes;
+﻿using ApiServer.Model.Entity;
+using Google.Protobuf.WellKnownTypes;
 using Grpc.Core;
 using LoginApiServer.Model;
 using LoginApiServer.Repository.Interface;
@@ -19,9 +20,11 @@ namespace LoginApiServer.Service
 
         public UserResponse GetUserFromUserid(string id)
         {
-            var user = _userRepository.GetUserFromUserid(id);
+            var status = UserStatusCode.Success;
+
+            (status, UserEntity storedUser) = _userRepository.GetUserFromUserid(id);
             
-            if (user == null)
+            if (status != UserStatusCode.Success)
             {
                 _logger.LogError("An error occurred while getting the User for UserId {UserId}.", id);
                 return new UserResponse
@@ -30,22 +33,22 @@ namespace LoginApiServer.Service
                     Message = "An error occurred while getting the User"
                 };
             }
-            else
-            {
-                var userResponse = new GetUserResponse
-                {
-                    UserId = user.UserId,
-                    Username = user.Username,
-                    Email = user.Email
-                };
 
-                return new UserResponse
-                {
-                    Status = UserStatusCode.Success,
-                    Message = "User retrieved successfully",
-                    Content = Any.Pack(userResponse)
-                };
-            }
+            // DB에서 가져온 값을 그대로 유저에게 넘겨주지 않도록 주의
+            var userResponse = new GetUserResponse
+            {
+                UserId = storedUser.UserId,
+                Username = storedUser.Username,
+                Email = storedUser.Email
+            };
+
+            return new UserResponse
+            {
+                Status = status,
+                Message = "User retrieved successfully",
+                Content = Any.Pack(userResponse)
+            };
+            
         }
 
     }

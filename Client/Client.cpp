@@ -50,7 +50,7 @@ void Client::Start()
             continue;
         }
 
-        if (choice == 5) break;
+        if (choice == 6) break;
 
         HandleMenuChoice(choice);
     }
