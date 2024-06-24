@@ -1,5 +1,6 @@
-# Chat 
-Boost.Asio 와 Protobuf를 활용한 채팅 서버
+# HStar Project 
+Asp.net Core 와 Protobuf를 활용한 API Server
+Boost.Asio 와 Protobuf를 활용한 Socket Server
 
 ## 프로젝트 소개
 게임 서버에서 중요한 것은 빠른 반응 속도와 다양한 환경과 연결이라고 생각합니다.
