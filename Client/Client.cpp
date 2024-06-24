@@ -131,6 +131,7 @@ void Client::StartChatClient(const std::string& ip, const std::string& port, con
             m_IoContext.run(); 
         });
 
+    // Client가 로그인 성공 이후 Verify 되기 전까지 대기
     m_ChatClient->SetVerificationCallback([this]() 
         {
             std::unique_lock<std::mutex> lock(m_Mutex);
