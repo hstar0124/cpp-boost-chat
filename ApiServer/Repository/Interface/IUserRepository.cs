@@ -1,14 +1,15 @@
 ﻿
+using ApiServer.Model.Entity;
 using LoginApiServer.Model;
 
 namespace LoginApiServer.Repository.Interface
 {
     public interface IUserRepository
     {
-        UserStatusCode CreateUser(User account);
-        UserStatusCode DeleteUser(User user);
-        User? GetUserFromUserid(string id);
-        UserStatusCode LoginUser(User request);
-        UserStatusCode UpdateUser(User user);
+        UserStatusCode CreateUser(UserEntity userEntity);
+        UserStatusCode UpdateUser(UserEntity userEntity);
+        UserStatusCode DeleteUser(UserEntity userEntity);
+        (UserStatusCode, UserEntity) GetUserFromUserid(string id);
+        (UserStatusCode, UserEntity) ValidateUserCredentials(UserEntity userEntity);
     }
 }

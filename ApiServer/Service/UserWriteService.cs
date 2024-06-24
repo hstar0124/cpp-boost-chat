@@ -1,7 +1,9 @@
-﻿using Google.Protobuf.WellKnownTypes;
+﻿using ApiServer.Model.Entity;
+using Google.Protobuf.WellKnownTypes;
 using LoginApiServer.Model;
 using LoginApiServer.Repository.Interface;
 using LoginApiServer.Service.Interface;
+using LoginApiServer.Utils;
 using System.Transactions;
 
 namespace LoginApiServer.Service
@@ -21,8 +23,9 @@ namespace LoginApiServer.Service
 
         public UserResponse LoginUser(LoginRequest request)
         {
-            var status = UserStatusCode.Success;
-            var user = new User
+            var status = UserStatusCode.Success;            
+
+            UserEntity user = new UserEntity
             {
                 UserId = request.UserId,
                 Password = request.Password
@@ -30,7 +33,9 @@ namespace LoginApiServer.Service
 
             try
             {
-                status = _userRepository.LoginUser(user);
+                (status, UserEntity storedUser) = _userRepository.ValidateUserCredentials(user);
+
+                // 로그인 실패시 Fast Return
                 if (status != UserStatusCode.Success)
                 {
                     return new UserResponse
@@ -42,13 +47,9 @@ namespace LoginApiServer.Service
 
                 // 세션ID 생성
                 string sessionId = Guid.NewGuid().ToString().Replace("-", "");
-                //var sessionIdToResponse = new StringValue
-                //{
-                //    Value = sessionId
-                //};
 
                 // Redis에 세션 ID 저장
-                status = _cacheRepository.CreateSession(sessionId, user.Id);
+                status = _cacheRepository.CreateSession(sessionId, storedUser.Id);
                 if (status != UserStatusCode.Success)
                 {
                     _logger.LogError("An error occurred while login the User for UserId {UserId}.", request.UserId);
@@ -59,7 +60,7 @@ namespace LoginApiServer.Service
                     };
                 }
 
-                // Chat Sever IP:Port, SessionID
+                // Chat Sever IP, Port, SessionID 를 담아서 리턴
                 var loginSuccessResponse = new LoginResponse
                 {
                     ServerIp = "127.0.0.1",
@@ -89,13 +90,14 @@ namespace LoginApiServer.Service
         public UserResponse CreateUser(CreateUserRequest request)
         {
             var status = UserStatusCode.Success;
-            var user = new User
+
+            UserEntity user = new UserEntity
             {
                 UserId = request.UserId,
-                Password = request.Password,
+                Password = PasswordHelper.HashPassword(request.Password),
                 Username = request.Username,
                 Email = request.Email,
-                IsAlive = true
+                IsAlive = "Y"
             };
 
 
@@ -125,7 +127,7 @@ namespace LoginApiServer.Service
         {
             var status = UserStatusCode.Success;
 
-            var user = new User
+            UserEntity user = new UserEntity
             {
                 UserId = request.UserId,
                 Password = request.Password
@@ -135,8 +137,9 @@ namespace LoginApiServer.Service
             {
                 try
                 {
-                    status = _userRepository.LoginUser(user);
-
+                    (status, UserEntity storedUser) = _userRepository.ValidateUserCredentials(user);
+                    
+                    // 유저가 존재하지 않거나, 비밀번호가 틀린경우
                     if (status != UserStatusCode.Success)
                     {
                         _logger.LogError("An error occurred while updating the User for UserId {UserId}.", request.UserId);
@@ -150,19 +153,19 @@ namespace LoginApiServer.Service
                     // 업데이트할 필드만 업데이트
                     if (!string.IsNullOrEmpty(request.ToBePassword))
                     {
-                        user.Password = request.ToBePassword;
+                        storedUser.Password = PasswordHelper.HashPassword(request.ToBePassword);                        
                     }
                     if (!string.IsNullOrEmpty(request.ToBeUsername))
                     {
-                        user.Username = request.ToBeUsername;
+                        storedUser.Username = request.ToBeUsername;
                     }
                     if (!string.IsNullOrEmpty(request.ToBeEmail))
                     {
-                        user.Email = request.ToBeEmail;
+                        storedUser.Email = request.ToBeEmail;
                     }
 
                     // 사용자 정보를 업데이트
-                    status = _userRepository.UpdateUser(user);
+                    status = _userRepository.UpdateUser(storedUser);
                     if (status != UserStatusCode.Success)
                     {
                         _logger.LogError("An error occurred while updating the User for UserId {UserId}.", request.UserId);
@@ -200,7 +203,7 @@ namespace LoginApiServer.Service
         {
             var status = UserStatusCode.Success;
 
-            var user = new User
+            UserEntity user = new UserEntity
             {
                 UserId = request.UserId,
                 Password = request.Password
@@ -210,7 +213,7 @@ namespace LoginApiServer.Service
             {
                 try
                 {
-                    status = _userRepository.LoginUser(user);
+                    (status, UserEntity storedUser) = _userRepository.ValidateUserCredentials(user);
 
                     if (status != UserStatusCode.Success)
                     {
@@ -222,7 +225,10 @@ namespace LoginApiServer.Service
                         };
                     }
 
-                    status = _userRepository.DeleteUser(user);
+                    // 소프트 삭제
+                    storedUser.IsAlive = "N";
+
+                    status = _userRepository.DeleteUser(storedUser);
                     if (status != UserStatusCode.Success)
                     {
                         _logger.LogError("An error occurred while deleting the User for UserId {UserId}.", request.UserId);
@@ -233,7 +239,6 @@ namespace LoginApiServer.Service
                         };
                     }
 
-                    // TODO : Redis 세션 삭제
 
                     // 트랜잭션 범위 완료
                     scope.Complete();

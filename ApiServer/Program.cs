@@ -1,3 +1,5 @@
+using ApiServer.Repository;
+using ApiServer.Repository.Context;
 using LoginApiServer.Formatter;
 using LoginApiServer.Repository;
 using LoginApiServer.Repository.Interface;
@@ -15,8 +17,9 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddSingleton<IUserWriteService, UserWriteService>();
 builder.Services.AddSingleton<IUserReadService, UserReadService>();
-builder.Services.AddSingleton<IUserRepository, UserRepositoryFromMemory>();
+builder.Services.AddSingleton<IUserRepository, UserRepositoryFromMysql>();
 builder.Services.AddSingleton<ICacheRepository, CacheRepositoryFromRedis>();
+builder.Services.AddSingleton<HStarContext, HStarContext>();
 
 var app = builder.Build();
 
