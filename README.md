@@ -30,6 +30,8 @@ Protobuf를 통해 메시지 직렬화/역직렬화를 진행하였습니다.
 
 ## 구조도
 
+![image](https://github.com/hstar0124/hstar-project/assets/57317290/cdd2701d-590f-49ac-83a5-f8d310cf3005)
+
 ![구조도](https://github.com/hstar0124/cpp-boost-chat/assets/57317290/b44e8007-abdb-4813-83af-1efc1982ba02)
 
 
