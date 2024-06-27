@@ -257,6 +257,7 @@ void TcpServer::OnMessage(std::shared_ptr<UserSession> user, std::shared_ptr<myC
 }
 
 
+
 void TcpServer::HandleServerPing(std::shared_ptr<UserSession> user, std::shared_ptr<myChatMessage::ChatMessage> msg)
 {
     auto sentTimeMs = std::stoll(msg->content());
@@ -421,19 +422,25 @@ void TcpServer::HandleFriendRequestMessage(std::shared_ptr<UserSession> user, st
         return;
     }
 
-    // TODO : Mysql Process
-    bool isSuccess = m_MySQLConnector->CreateFriendRequest(std::to_string(user->GetID()), msg->content());
-
-    auto receiveUser = GetUserById(StringToUint32(msg->content()));
-
+    // 현재는 접속한 유저만 친구 추가 가능
+    auto receiveUser = GetUserByUserId(msg->content());
     if (!receiveUser)
     {
         SendErrorMessage(user, "The user with the provided ID does not exist.");
         return;
     }
 
+    bool isSuccess = m_MySQLConnector->CreateFriendRequest(std::to_string(user->GetID()), std::to_string(receiveUser->GetID()));
+    if (!isSuccess)
+    {
+        SendErrorMessage(user, "Failed to create friend request.");
+        return;
+    }
+    
+
     std::string inviteMessage = "Friend Request Received From [" + user->GetUserEntity()->GetUserId() + "]. "
         "To accept, /fa " + user->GetUserEntity()->GetUserId();
+
     SendServerMessage(receiveUser, inviteMessage);
 }
 
@@ -588,6 +595,19 @@ std::shared_ptr<UserSession> TcpServer::GetUserById(uint32_t userId)
     for (auto user : m_Users)
     {
         if (user->GetID() == userId)
+        {
+            return user;
+        }
+    }
+
+    return nullptr;
+}
+
+std::shared_ptr<UserSession> TcpServer::GetUserByUserId(const std::string& userId)
+{
+    for (auto user : m_Users)
+    {
+        if (user->GetUserEntity()->GetUserId() == userId)
         {
             return user;
         }

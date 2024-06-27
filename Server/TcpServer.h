@@ -32,14 +32,17 @@ public:
     void Update();
     
     std::shared_ptr<UserSession> GetUserById(uint32_t userId);
+    std::shared_ptr<UserSession> GetUserByUserId(const std::string& userId);
 
 private:
+
     void WaitForClientConnection();
     void UpdateUsers();
     bool VerifyUser(std::shared_ptr<UserSession>& user, const std::string& sessionId);
 
     void OnAccept(std::shared_ptr<UserSession> user, const boost::system::error_code& err);
     void OnMessage(std::shared_ptr<UserSession> user, std::shared_ptr<myChatMessage::ChatMessage> msg);
+
 
     void SendAllUsers(std::shared_ptr<myChatMessage::ChatMessage> msg);
     void SendWhisperMessage(std::shared_ptr<UserSession>& sender, const std::string& receiver, std::shared_ptr<myChatMessage::ChatMessage> msg);
