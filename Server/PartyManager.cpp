@@ -10,7 +10,7 @@ PartyManager::~PartyManager()
     m_MapParties.clear(); // 모든 파티 제거
 }
 
-std::shared_ptr<Party> PartyManager::CreateParty(std::shared_ptr<User> user, const std::string& partyName)
+std::shared_ptr<Party> PartyManager::CreateParty(std::shared_ptr<UserSession> user, const std::string& partyName)
 {
     if (user == nullptr || partyName == "")
     {
@@ -27,7 +27,7 @@ std::shared_ptr<Party> PartyManager::CreateParty(std::shared_ptr<User> user, con
     return party;
 }
 
-std::shared_ptr<Party> PartyManager::JoinParty(std::shared_ptr<User> user, const std::string& partyName)
+std::shared_ptr<Party> PartyManager::JoinParty(std::shared_ptr<UserSession> user, const std::string& partyName)
 {
     auto party = FindPartyByName(partyName);
     if (!party)
@@ -40,7 +40,7 @@ std::shared_ptr<Party> PartyManager::JoinParty(std::shared_ptr<User> user, const
     return party;
 }
 
-uint32_t PartyManager::DeleteParty(std::shared_ptr<User> user, const std::string& partyName)
+uint32_t PartyManager::DeleteParty(std::shared_ptr<UserSession> user, const std::string& partyName)
 {
     // 파티 이름에 해당하는 파티를 찾음
     auto party = FindPartyByName(partyName);
@@ -80,7 +80,7 @@ uint32_t PartyManager::DeleteParty(std::shared_ptr<User> user, const std::string
 
 
 
-bool PartyManager::LeaveParty(std::shared_ptr<User> user, const std::string& partyName)
+bool PartyManager::LeaveParty(std::shared_ptr<UserSession> user, const std::string& partyName)
 {
     auto party = FindPartyByName(partyName);
     if (!party)

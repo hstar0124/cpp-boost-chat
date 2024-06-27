@@ -13,9 +13,11 @@
 #include <iostream>
 #include <string>
 #include <algorithm>
+#include <stdlib.h>
 
 #ifdef _WIN32
 #define _WIN32_WINNT 0x0601
+#define WIN32_LEAN_AND_MEAN
 #endif
 
 #include <boost/asio.hpp>

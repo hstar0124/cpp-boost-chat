@@ -5,6 +5,7 @@ TcpServer::TcpServer(boost::asio::io_context& io_context, int port)
     , m_IoContext(io_context)
     , m_PartyManager(std::make_unique<PartyManager>())
     , m_RedisClient(std::make_unique<CRedisClient>())
+    , m_MySQLConnector(std::make_unique<MySQLConnector>("127.0.0.1", "root", "root", "hstar"))
 {    
     if (!m_RedisClient->Initialize("127.0.0.1", 6379, 2, 10))
     {
@@ -83,7 +84,7 @@ bool TcpServer::Start(uint32_t maxUser = 3)
 void TcpServer::WaitForClientConnection()
 {
     // 클라이언트 연결 정보 shared_ptr로 관리
-    auto user = std::make_shared<User>(m_IoContext);
+    auto user = std::make_shared<UserSession>(m_IoContext);
     m_Acceptor.async_accept(user->GetSocket(),
         [this, user](const boost::system::error_code& err)
         {
@@ -93,13 +94,13 @@ void TcpServer::WaitForClientConnection()
 
 
 
-void TcpServer::OnAccept(std::shared_ptr<User> user, const boost::system::error_code& err)
+void TcpServer::OnAccept(std::shared_ptr<UserSession> user, const boost::system::error_code& err)
 {
     if (!err)
     {   
         std::scoped_lock lock(m_NewUsersMutex);
         m_NewUsers.push(std::move(user));
-        m_NewUsers.back()->Start(m_IdCounter++);
+        m_NewUsers.back()->Start();
     }
     else
     {
@@ -112,70 +113,73 @@ void TcpServer::OnAccept(std::shared_ptr<User> user, const boost::system::error_
 
 void TcpServer::UpdateUsers()
 {
-    {
-        // 연결이 종료된 User 정리
-        std::scoped_lock lock(m_UsersMutex);
-        m_Users.erase(std::remove_if(m_Users.begin(), m_Users.end(), [](auto& user)
-            {
-                if (!user->IsConnected()) 
-                {
-                    user->Close();
-                    return true;
-                }
-            return false;
-            }), m_Users.end());
-    }
+    std::scoped_lock lock(m_UsersMutex, m_NewUsersMutex);
 
-
-    {
-        // 접속한 유저 Session 키 값으로 인증 진행 및 대기열에 있는 유저 User Vector로 이동
-        std::scoped_lock lock(m_NewUsersMutex);
-
-        std::queue<std::shared_ptr<User>> tempQueue;
-
-        while (!m_NewUsers.empty()) 
+    // 연결이 종료된 User 정리
+    m_Users.erase(std::remove_if(m_Users.begin(), m_Users.end(), [](auto& user) 
         {
-            auto user = m_NewUsers.front();
-            m_NewUsers.pop();
-
-            auto msg = user->GetMessageInUserQueue();
-            if (msg && VerifyUser(user, msg->content())) 
-            {
-                user->SetVerified(true);
-            }
-
-            if (user->GetVerified() && m_Users.size() < m_MaxUser) 
-            {
-                m_Users.push_back(std::move(user));
-                SendLoginMessage(m_Users.back());                
-            }
-            else 
-            {
-                tempQueue.push(std::move(user));
-            }
+        if (!user->IsConnected())
+        {
+            user->Close();
+            return true;
         }
+        return false;
+        }), m_Users.end());
 
-        // 임시 큐의 유저를 다시 원래 큐로 이동
-        while (!tempQueue.empty()) 
+    // 접속한 유저 Session 키 값으로 인증 진행 및 대기열에 있는 유저 User Vector로 이동
+    while (!m_NewUsers.empty() && m_Users.size() < m_MaxUser)
+    {
+        auto user = m_NewUsers.front();
+        m_NewUsers.pop();
+
+        auto msg = user->GetMessageInUserQueue();
+
+        if (msg && VerifyUser(user, msg->content()))
         {
-            m_NewUsers.push(std::move(tempQueue.front()));
-            tempQueue.pop();
+            auto userID = user->GetID();
+            // 이미 접속 중인 유저가 있는지 확인하고 기존 유저를 해제
+            auto it = std::find_if(m_Users.begin(), m_Users.end(), [&](const auto& existingUser) 
+                {
+                    return existingUser->GetID() == userID;
+                });
+
+            if (it != m_Users.end())
+            {
+                SendServerMessage(*it, "Logged out due to duplicate login.");
+                (*it)->Close();
+                m_Users.erase(it);
+            }
+
+
+            m_Users.push_back(std::move(user));
+            SendLoginMessage(m_Users.back());
+        }
+        else
+        {
+            m_NewUsers.push(std::move(user)); // 인증에 실패한 경우 다시 큐에 넣기
         }
     }
 }
 
-bool TcpServer::VerifyUser(std::shared_ptr<User>& user, const std::string& sessionId)
+bool TcpServer::VerifyUser(std::shared_ptr<UserSession>& user, const std::string& sessionId)
 {
     std::string sessionKey = "Session:" + sessionId;
     std::string sessionValue;
-    if (m_RedisClient->Get(sessionKey, &sessionValue) == RC_SUCCESS)
+
+    if (m_RedisClient->Get(sessionKey, &sessionValue) != RC_SUCCESS)
     {
-        std::cout << sessionKey << " : " << sessionValue << std::endl;
-        return true;
+        std::cout << "Not Found Session ID!!" << std::endl;
+        return false;
     }
 
-    std::cout << "Not Found Session ID!!" << std::endl;
-    return false;
+    std::cout << sessionKey << " : " << sessionValue << std::endl;
+    user->SetID(StringToUint32(sessionValue));
+    user->SetVerified(true);
+
+    std::shared_ptr<UserEntity> userEntity = m_MySQLConnector->GetUserById(sessionValue);
+    user->SetUserEntity(userEntity);
+
+    return true;
 }
 
 void TcpServer::Update()
@@ -212,13 +216,10 @@ void TcpServer::Update()
     }
 }
 
-void TcpServer::OnMessage(std::shared_ptr<User> user, std::shared_ptr<myChatMessage::ChatMessage> msg)
+void TcpServer::OnMessage(std::shared_ptr<UserSession> user, std::shared_ptr<myChatMessage::ChatMessage> msg)
 {
     switch (msg->messagetype())
     {
-    case myChatMessage::ChatMessageType::LOGIN_MESSAGE:
-        HandleLogin(user, msg);
-        break;
     case myChatMessage::ChatMessageType::SERVER_PING:
         HandleServerPing(user, msg);
         break;
@@ -243,34 +244,36 @@ void TcpServer::OnMessage(std::shared_ptr<User> user, std::shared_ptr<myChatMess
     case myChatMessage::ChatMessageType::WHISPER_MESSAGE:
         HandleWhisperMessage(user, msg);
         break;
+    case myChatMessage::ChatMessageType::FRIEND_REQUEST:
+        HandleFriendRequestMessage(user, msg);
+        break;
+    case myChatMessage::ChatMessageType::FRIEND_ACCEPT:
+        HandleFriendAcceptMessage(user, msg);
+        break;
     default:
         SendErrorMessage(user, "Unknown message type received.");
         break;
     }
 }
 
-void TcpServer::HandleLogin(std::shared_ptr<User> user, std::shared_ptr<myChatMessage::ChatMessage> msg)
-{
-    std::cout << "[SERVER] Session ID : " << msg->content() << "\n";
-}
 
-void TcpServer::HandleServerPing(std::shared_ptr<User> user, std::shared_ptr<myChatMessage::ChatMessage> msg)
+void TcpServer::HandleServerPing(std::shared_ptr<UserSession> user, std::shared_ptr<myChatMessage::ChatMessage> msg)
 {
     auto sentTimeMs = std::stoll(msg->content());
     auto sentTime = std::chrono::milliseconds(sentTimeMs);
     auto currentTime = std::chrono::system_clock::now().time_since_epoch();
     auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - sentTime);
-    // Further handling
+
 }
 
-void TcpServer::HandleAllMessage(std::shared_ptr<User> user, std::shared_ptr<myChatMessage::ChatMessage> msg)
+void TcpServer::HandleAllMessage(std::shared_ptr<UserSession> user, std::shared_ptr<myChatMessage::ChatMessage> msg)
 {
     std::cout << "[SERVER] Send message to all clients\n";
     msg->set_messagetype(myChatMessage::ChatMessageType::ALL_MESSAGE);
     SendAllUsers(msg);
 }
 
-void TcpServer::HandlePartyCreate(std::shared_ptr<User> user, std::shared_ptr<myChatMessage::ChatMessage> msg)
+void TcpServer::HandlePartyCreate(std::shared_ptr<UserSession> user, std::shared_ptr<myChatMessage::ChatMessage> msg)
 {
     if (msg->content().empty())
     {
@@ -302,7 +305,7 @@ void TcpServer::HandlePartyCreate(std::shared_ptr<User> user, std::shared_ptr<my
     SendServerMessage(user, "Party creation successful");
 }
 
-void TcpServer::HandlePartyJoin(std::shared_ptr<User> user, std::shared_ptr<myChatMessage::ChatMessage> msg)
+void TcpServer::HandlePartyJoin(std::shared_ptr<UserSession> user, std::shared_ptr<myChatMessage::ChatMessage> msg)
 {
     if (msg->content().empty())
     {
@@ -328,7 +331,7 @@ void TcpServer::HandlePartyJoin(std::shared_ptr<User> user, std::shared_ptr<myCh
 }
 
 
-void TcpServer::HandlePartyDelete(std::shared_ptr<User> user, std::shared_ptr<myChatMessage::ChatMessage> msg)
+void TcpServer::HandlePartyDelete(std::shared_ptr<UserSession> user, std::shared_ptr<myChatMessage::ChatMessage> msg)
 {
     if (msg->content().empty())
     {
@@ -356,7 +359,7 @@ void TcpServer::HandlePartyDelete(std::shared_ptr<User> user, std::shared_ptr<my
 }
 
 
-void TcpServer::HandlePartyLeave(std::shared_ptr<User> user, std::shared_ptr<myChatMessage::ChatMessage> msg)
+void TcpServer::HandlePartyLeave(std::shared_ptr<UserSession> user, std::shared_ptr<myChatMessage::ChatMessage> msg)
 {
     if (msg->content().empty())
     {
@@ -382,7 +385,7 @@ void TcpServer::HandlePartyLeave(std::shared_ptr<User> user, std::shared_ptr<myC
     SendServerMessage(user, "Party leave successful");
 }
 
-void TcpServer::HandlePartyMessage(std::shared_ptr<User> user, std::shared_ptr<myChatMessage::ChatMessage> msg)
+void TcpServer::HandlePartyMessage(std::shared_ptr<UserSession> user, std::shared_ptr<myChatMessage::ChatMessage> msg)
 {
     if (msg->content().empty())
     {
@@ -400,7 +403,7 @@ void TcpServer::HandlePartyMessage(std::shared_ptr<User> user, std::shared_ptr<m
     SendPartyMessage(party, msg);
 }
 
-void TcpServer::HandleWhisperMessage(std::shared_ptr<User> user, std::shared_ptr<myChatMessage::ChatMessage> msg)
+void TcpServer::HandleWhisperMessage(std::shared_ptr<UserSession> user, std::shared_ptr<myChatMessage::ChatMessage> msg)
 {
     if (msg->receiver().empty() || msg->content().empty())
     {
@@ -408,6 +411,52 @@ void TcpServer::HandleWhisperMessage(std::shared_ptr<User> user, std::shared_ptr
         return;
     }
     SendWhisperMessage(user, msg->receiver(), msg);
+}
+
+void TcpServer::HandleFriendRequestMessage(std::shared_ptr<UserSession> user, std::shared_ptr<myChatMessage::ChatMessage> msg)
+{
+    if (msg->content().empty())
+    {
+        SendErrorMessage(user, "The content of the friend id is empty.");
+        return;
+    }
+
+    // TODO : Mysql Process
+    bool isSuccess = m_MySQLConnector->CreateFriendRequest(std::to_string(user->GetID()), msg->content());
+
+    auto receiveUser = GetUserById(StringToUint32(msg->content()));
+
+    if (!receiveUser)
+    {
+        SendErrorMessage(user, "The user with the provided ID does not exist.");
+        return;
+    }
+
+    std::string inviteMessage = "Friend Request Received From [" + user->GetUserEntity()->GetUserId() + "]. "
+        "To accept, /fa " + user->GetUserEntity()->GetUserId();
+    SendServerMessage(receiveUser, inviteMessage);
+}
+
+void TcpServer::HandleFriendAcceptMessage(std::shared_ptr<UserSession> user, std::shared_ptr<myChatMessage::ChatMessage> msg)
+{
+    if (msg->content().empty())
+    {
+        SendErrorMessage(user, "The content of the friend id is empty.");
+        return;
+    }
+
+    // TODO : Mysql Process
+
+    auto sender = GetUserById(StringToUint32(msg->content()));
+    if (!sender)
+    {
+        SendErrorMessage(user, "Sender not found!");
+        return;
+    }
+
+    SendServerMessage(sender, "Your friend request to [" + user->GetUserEntity()->GetUserId() + "] has been accepted.");
+    SendServerMessage(user, "You have accepted the friend request from [" + sender->GetUserEntity()->GetUserId() + "].");
+
 }
 
 
@@ -432,7 +481,7 @@ void TcpServer::SendAllUsers(std::shared_ptr<myChatMessage::ChatMessage> msg)
     if (hasDisconnectedClient)
     {
         m_Users.erase(std::remove_if(m_Users.begin(), m_Users.end(),
-        [](const std::shared_ptr<User>& u) 
+        [](const std::shared_ptr<UserSession>& u) 
         {
             return !u || !u->IsConnected();
         }), m_Users.end());
@@ -440,9 +489,9 @@ void TcpServer::SendAllUsers(std::shared_ptr<myChatMessage::ChatMessage> msg)
 }
 
 
-void TcpServer::SendWhisperMessage(std::shared_ptr<User>& sender, const std::string& receiver, std::shared_ptr<myChatMessage::ChatMessage> msg)
+void TcpServer::SendWhisperMessage(std::shared_ptr<UserSession>& sender, const std::string& receiver, std::shared_ptr<myChatMessage::ChatMessage> msg)
 {
-    if (std::to_string(sender->GetID()) == receiver)
+    if (sender->GetUserEntity()->GetUserId() == receiver)
     {
         SendErrorMessage(sender, "You cannot whisper to yourself.");
         return;
@@ -450,7 +499,7 @@ void TcpServer::SendWhisperMessage(std::shared_ptr<User>& sender, const std::str
 
     for (auto& user : m_Users) 
     {
-        if (std::to_string(user->GetID()) == receiver && user->IsConnected()) 
+        if (user->GetUserEntity()->GetUserId() == receiver && user->IsConnected())
         {
             msg->set_receiver(receiver);
             user->Send(msg);
@@ -478,9 +527,9 @@ void TcpServer::SendPartyMessage(std::shared_ptr<Party>& party, std::shared_ptr<
 }
 
 
-void TcpServer::SendErrorMessage(std::shared_ptr<User>& user, const std::string& errorMessage)
+void TcpServer::SendErrorMessage(std::shared_ptr<UserSession>& user, const std::string& errorMessage)
 {
-    std::cout << "[SERVER] " << user->GetID() << " : " << errorMessage << "\n";
+    std::cout << "[SERVER] " << user->GetUserEntity()->GetUserId() << " : " << errorMessage << "\n";
     // 에러 메시지 생성
     auto errMsg = std::make_shared<myChatMessage::ChatMessage>();
     errMsg->set_messagetype(myChatMessage::ChatMessageType::ERROR_MESSAGE);
@@ -490,9 +539,9 @@ void TcpServer::SendErrorMessage(std::shared_ptr<User>& user, const std::string&
     user->Send(errMsg);
 }
 
-void TcpServer::SendServerMessage(std::shared_ptr<User>& user, const std::string& serverMessage)
+void TcpServer::SendServerMessage(std::shared_ptr<UserSession>& user, const std::string& serverMessage)
 {
-    std::cout << "[SERVER] " << user->GetID() << " : " << serverMessage << "\n";
+    std::cout << "[SERVER] " << user->GetUserEntity()->GetUserId() << " : " << serverMessage << "\n";
     
     auto serverMsg = std::make_shared<myChatMessage::ChatMessage>();
     serverMsg->set_messagetype(myChatMessage::ChatMessageType::SERVER_MESSAGE);
@@ -501,14 +550,13 @@ void TcpServer::SendServerMessage(std::shared_ptr<User>& user, const std::string
     user->Send(serverMsg);
 }
 
-void TcpServer::SendLoginMessage(std::shared_ptr<User>& user)
+void TcpServer::SendLoginMessage(std::shared_ptr<UserSession>& user)
 {
-    std::cout << "[SERVER] " << user->GetID() << " : Login Success!!" << "\n";
+    std::cout << "[SERVER] " << user->GetUserEntity()->GetUserId() << " : Login Success!!" << "\n";
     auto serverMsg = std::make_shared<myChatMessage::ChatMessage>();
     serverMsg->set_messagetype(myChatMessage::ChatMessageType::LOGIN_MESSAGE);
     serverMsg->set_content("Login Success!!");
 
-    // 해당 세션에게 에러 메시지 전송
     user->Send(serverMsg);
 }
 
@@ -535,17 +583,15 @@ uint32_t TcpServer::StringToUint32(const std::string& str)
     }
 }
 
-std::shared_ptr<User> TcpServer::GetUserById(uint32_t userId)
+std::shared_ptr<UserSession> TcpServer::GetUserById(uint32_t userId)
 {
     for (auto user : m_Users)
     {
         if (user->GetID() == userId)
         {
-            // 해당 세션 ID를 가진 세션을 찾았을 때
             return user;
         }
     }
 
-    // 해당 세션 ID를 가진 세션이 없을 때
     return nullptr;
 }
