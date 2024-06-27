@@ -32,7 +32,7 @@ Protobuf를 통해 메시지 직렬화/역직렬화를 진행하여 JSON 대비 
 ## 주요 특장점
 [API 서버]
 - 로그인/유저 CRUD 기능 제공
-- Protobuf 를 활용한 Http Body **직렬화/역직렬화** 하여 JSON 대비 패킷 2/3 절감
+- **Protobuf** 를 활용한 Http Body 직렬화/역직렬화 하여 **JSON 대비 패킷 2/3** 절감
 - Password 를 **Hash + Salt** 하여 개인정보 보호
 - Service를 **Read / Write 부분을 분리**하여 구현함으로 **복잡성 관리**
 - MVC 패턴을 적용하여 **유지보수성, 확장성, 유연성 확보**
@@ -79,6 +79,8 @@ Protobuf를 통해 메시지 직렬화/역직렬화를 진행하여 JSON 대비 
 - C++ 17
 - Boost 1.84.0
 - Protobuf 3.14.0
+- Redis
+- Mysql
 - Visual Studio 2022
 - Windows 10
 - Github
