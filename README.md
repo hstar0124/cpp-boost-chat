@@ -50,7 +50,7 @@ Protobuf를 통해 메시지 직렬화/역직렬화를 진행하여 JSON 대비 
 
 ## 프로젝트 아키텍처
 
-<img src="https://github.com/hstar0124/hstar-project/assets/57317290/cdd2701d-590f-49ac-83a5-f8d310cf3005" width="600" height="560"/>
+<img src="https://github.com/hstar0124/hstar-project/assets/57317290/cdd2701d-590f-49ac-83a5-f8d310cf3005" width="750" height="560"/>
 
 
 
