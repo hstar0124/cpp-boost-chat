@@ -56,7 +56,7 @@ Protobuf를 통해 메시지 직렬화/역직렬화를 진행하여 JSON 대비 
 
 ## Socket 서버 구조도
 
-<img src="https://github.com/hstar0124/hstar-project/assets/57317290/c03f0afa-70bd-442b-b30b-4064e79a87be" width="750" height="560"/>
+<img src="https://github.com/hstar0124/hstar-project/assets/57317290/c03f0afa-70bd-442b-b30b-4064e79a87be" width="750" height="400"/>
 
 
 
