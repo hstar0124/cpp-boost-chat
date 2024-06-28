@@ -60,14 +60,14 @@ const char descriptor_table_protodef_MyMessage_2eproto[] PROTOBUF_SECTION_VARIAB
   "\n\017MyMessage.proto\022\rmyChatMessage\"u\n\013Chat"
   "Message\0223\n\013messageType\030\001 \001(\0162\036.myChatMes"
   "sage.ChatMessageType\022\016\n\006sender\030\002 \001(\t\022\020\n\010"
-  "receiver\030\003 \001(\t\022\017\n\007content\030\004 \001(\t*\201\002\n\017Chat"
+  "receiver\030\003 \001(\t\022\017\n\007content\030\004 \001(\t*\224\002\n\017Chat"
   "MessageType\022\017\n\013SERVER_PING\020\000\022\022\n\016SERVER_M"
   "ESSAGE\020\001\022\017\n\013ALL_MESSAGE\020\002\022\023\n\017WHISPER_MES"
   "SAGE\020\003\022\021\n\rPARTY_MESSAGE\020\004\022\020\n\014PARTY_CREAT"
   "E\020)\022\020\n\014PARTY_DELETE\020*\022\016\n\nPARTY_JOIN\020+\022\017\n"
   "\013PARTY_LEAVE\020,\022\022\n\016FRIEND_REQUEST\0202\022\021\n\rFR"
-  "IEND_ACCEPT\0203\022\021\n\rLOGIN_MESSAGE\020F\022\021\n\rERRO"
-  "R_MESSAGE\020cb\006proto3"
+  "IEND_ACCEPT\0203\022\021\n\rFRIEND_REJECT\0204\022\021\n\rLOGI"
+  "N_MESSAGE\020F\022\021\n\rERROR_MESSAGE\020cb\006proto3"
   ;
 static const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable*const descriptor_table_MyMessage_2eproto_deps[1] = {
 };
@@ -76,7 +76,7 @@ static ::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase*const descriptor_table_MyM
 };
 static ::PROTOBUF_NAMESPACE_ID::internal::once_flag descriptor_table_MyMessage_2eproto_once;
 const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_MyMessage_2eproto = {
-  false, false, descriptor_table_protodef_MyMessage_2eproto, "MyMessage.proto", 419,
+  false, false, descriptor_table_protodef_MyMessage_2eproto, "MyMessage.proto", 438,
   &descriptor_table_MyMessage_2eproto_once, descriptor_table_MyMessage_2eproto_sccs, descriptor_table_MyMessage_2eproto_deps, 1, 0,
   schemas, file_default_instances, TableStruct_MyMessage_2eproto::offsets,
   file_level_metadata_MyMessage_2eproto, 1, file_level_enum_descriptors_MyMessage_2eproto, file_level_service_descriptors_MyMessage_2eproto,
@@ -102,6 +102,7 @@ bool ChatMessageType_IsValid(int value) {
     case 44:
     case 50:
     case 51:
+    case 52:
     case 70:
     case 99:
       return true;

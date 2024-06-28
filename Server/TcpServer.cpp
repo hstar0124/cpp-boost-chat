@@ -136,11 +136,11 @@ void TcpServer::UpdateUsers()
 
 		if (msg && VerifyUser(user, msg->content()))
 		{
-			auto userID = user->GetID();
+			auto userID = user->GetId();
 			// 이미 접속 중인 유저가 있는지 확인하고 기존 유저를 해제
 			auto it = std::find_if(m_Users.begin(), m_Users.end(), [&](const auto& existingUser)
 				{
-					return existingUser->GetID() == userID;
+					return existingUser->GetId() == userID;
 				});
 
 			if (it != m_Users.end())
@@ -422,22 +422,22 @@ void TcpServer::HandleFriendRequestMessage(std::shared_ptr<UserSession> user, st
 		SendErrorMessage(user, "The content of the friend id is empty.");
 		return;
 	}
-		
-	auto receiveUser = GetUserByUserId(msg->content());
-	if (!receiveUser)
-	{
-		SendErrorMessage(user, "The user with the provided ID does not exist.");
-		return;
-	}
 
-	if (user->GetID() == receiveUser->GetID())
+	if (user->GetUserEntity()->GetUserId() == msg->content())
 	{
 		SendErrorMessage(user, "You cannot send a friend request to yourself.");
 		return;
 	}
 
-	auto requestId = std::to_string(user->GetID());
-	auto receiveId = std::to_string(receiveUser->GetID());
+	std::vector<MySQLConnector::Condition> conditions = 
+	{
+		{"user_id", msg->content()}
+	};
+
+	auto receiveUser = m_MySQLConnector->GetUserByConditions(conditions);
+
+	auto requestId = std::to_string(user->GetId());
+	auto receiveId = std::to_string(receiveUser->GetId());
 
 	if (m_MySQLConnector->HasFriendRequest(requestId, receiveId))
 	{
@@ -452,7 +452,7 @@ void TcpServer::HandleFriendRequestMessage(std::shared_ptr<UserSession> user, st
 	}
 
 
-	bool isSuccess = m_MySQLConnector->AddFriendRequest(std::to_string(user->GetID()), std::to_string(receiveUser->GetID()));
+	bool isSuccess = m_MySQLConnector->AddFriendRequest(std::to_string(user->GetId()), std::to_string(receiveUser->GetId()));
 	if (!isSuccess)
 	{
 		SendErrorMessage(user, "Failed to create friend request.");
@@ -463,7 +463,13 @@ void TcpServer::HandleFriendRequestMessage(std::shared_ptr<UserSession> user, st
 	std::string inviteMessage = "Friend Request Received From [" + requestUserId + "]. "
 		"To accept, /fa " + requestUserId;
 
-	SendServerMessage(receiveUser, inviteMessage);
+	auto receiveUserSession = GetUserByUserId(msg->content());
+	if (receiveUserSession)
+	{
+		SendServerMessage(receiveUserSession, inviteMessage);
+	}
+
+	SendServerMessage(user, "Success friend request message!");
 }
 
 void TcpServer::HandleFriendAcceptMessage(std::shared_ptr<UserSession> user, std::shared_ptr<myChatMessage::ChatMessage> msg)
@@ -480,18 +486,18 @@ void TcpServer::HandleFriendAcceptMessage(std::shared_ptr<UserSession> user, std
 		return;
 	}
 
-	auto sender = GetUserByUserId(msg->content());
-	if (!sender)
+	std::vector<MySQLConnector::Condition> conditions =
 	{
-		SendErrorMessage(user, "Sender not found!");
-		return;
-	}
+			{"user_id", msg->content()}
+	};
 
+	auto sender = m_MySQLConnector->GetUserByConditions(conditions);
+	
 	try
 	{
 		m_MySQLConnector->BeginTransaction();
-		m_MySQLConnector->UpdateFriendAccept(std::to_string(sender->GetID()), std::to_string(user->GetID()));
-		m_MySQLConnector->AddFriendship(std::to_string(sender->GetID()), std::to_string(user->GetID()));
+		m_MySQLConnector->UpdateFriendAccept(std::to_string(sender->GetId()), std::to_string(user->GetId()));
+		m_MySQLConnector->AddFriendship(std::to_string(sender->GetId()), std::to_string(user->GetId()));
 		m_MySQLConnector->CommitTransaction();
 	}
 	catch (const std::exception& e)
@@ -502,10 +508,13 @@ void TcpServer::HandleFriendAcceptMessage(std::shared_ptr<UserSession> user, std
 		return;
 	}
 
-
-	SendServerMessage(sender, "Your friend request to [" + user->GetUserEntity()->GetUserId() + "] has been accepted.");
-	SendServerMessage(user, "You have accepted the friend request from [" + sender->GetUserEntity()->GetUserId() + "].");
-
+	auto senderUserSession = GetUserByUserId(msg->content());
+	if (senderUserSession)
+	{
+		SendServerMessage(senderUserSession, "Your friend request to [" + user->GetUserEntity()->GetUserId() + "] has been accepted.");
+	}	
+	
+	SendServerMessage(user, "You have accepted the friend request from [" + sender->GetUserId() + "].");
 }
 
 
@@ -636,7 +645,7 @@ std::shared_ptr<UserSession> TcpServer::GetUserById(uint32_t userId)
 {
 	for (auto user : m_Users)
 	{
-		if (user->GetID() == userId)
+		if (user->GetId() == userId)
 		{
 			return user;
 		}

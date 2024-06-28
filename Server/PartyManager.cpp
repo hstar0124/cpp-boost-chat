@@ -19,8 +19,8 @@ std::shared_ptr<Party> PartyManager::CreateParty(std::shared_ptr<UserSession> us
     }
 
 
-    auto party = std::make_shared<Party>(m_PartyIdCounter++, user->GetID(), partyName); // 파티 생성
-    party->AddMember(user->GetID());                                                    // 파티 생성자를 파티 멤버로 추가
+    auto party = std::make_shared<Party>(m_PartyIdCounter++, user->GetId(), partyName); // 파티 생성
+    party->AddMember(user->GetId());                                                    // 파티 생성자를 파티 멤버로 추가
     m_MapParties[party->GetId()] = party;                                               // 파티를 해시 맵에 추가
 
     std::cout << "Party Count : " << m_MapParties.size() << "\n";
@@ -36,7 +36,7 @@ std::shared_ptr<Party> PartyManager::JoinParty(std::shared_ptr<UserSession> user
         return nullptr;
     }
 
-    party->AddMember(user->GetID());
+    party->AddMember(user->GetId());
     return party;
 }
 
@@ -53,7 +53,7 @@ uint32_t PartyManager::DeleteParty(std::shared_ptr<UserSession> user, const std:
     auto partyId = party->GetId();
 
     // 파티가 존재하고 파티 창설자인 경우
-    if (party->GetPartyCreator() == user->GetID())
+    if (party->GetPartyCreator() == user->GetId())
     {        
         std::cout << "Attempting to delete party with ID: " << partyId << std::endl;
                 
@@ -90,13 +90,13 @@ bool PartyManager::LeaveParty(std::shared_ptr<UserSession> user, const std::stri
     }
 
 
-    if (party->GetPartyCreator() == user->GetID())
+    if (party->GetPartyCreator() == user->GetId())
     {
         std::cout << "[SERVER] Sorry, as the party leader, you cannot leave the party. Deletion is the only option." << std::endl;        
         return false;
     }
 
-    party->RemoveMember(user->GetID());
+    party->RemoveMember(user->GetId());
     return true;
 }
 

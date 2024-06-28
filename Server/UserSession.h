@@ -39,7 +39,7 @@ public:
 	void Close();
 	bool IsConnected();
 
-	uint32_t GetID() const;
+	uint32_t GetId() const;
 	uint32_t GetPartyId() const;
 	std::shared_ptr<UserEntity> GetUserEntity() const;
 	bool GetVerified();
