@@ -72,7 +72,7 @@ void MySQLConnector::executePreparedStatement(const std::string& query, std::vec
 
     int numRowsAffected = mysql_stmt_affected_rows(stmt.get());
 
-    if (numRowsAffected == -1)
+    if (numRowsAffected < 1)
     {
         throw std::runtime_error("Failed to get number of rows affected");
     }
@@ -80,19 +80,36 @@ void MySQLConnector::executePreparedStatement(const std::string& query, std::vec
     std::cout << "Number of rows affected: " << numRowsAffected << std::endl;
 }
 
-void MySQLConnector::UpdateFriendAccept(const std::string& senderId, const std::string& receiverId)
+void MySQLConnector::UpdateFriend(const std::string& senderId, const std::string& receiverId, const std::string& status)
 {
-    std::string query = "UPDATE friend_requests SET status = 'A' WHERE sender_id = ? AND receiver_id = ?";
-    std::vector<std::string> params = { senderId, receiverId };
+    std::string query = "UPDATE friend_requests SET status = ? WHERE sender_id = ? AND receiver_id = ?";
+    std::vector<std::string> params = { status, senderId, receiverId };
 
     try 
     {
         executePreparedStatement(query, params);
     }
-    catch (const std::exception& e) {
+    catch (const std::exception& e) 
+    {
         throw std::runtime_error("Failed to update user: " + std::string(e.what()));
     }
 }
+
+void MySQLConnector::DeleteFriendRequest(const std::string& sender_id, const std::string& receiver_id)
+{
+    std::string query = "DELETE FROM friend_requests WHERE sender_id = ? AND receiver_id = ?";
+    std::vector<std::string> params = { sender_id, receiver_id };
+
+    try
+    {
+        executePreparedStatement(query, params);
+    }
+    catch (const std::exception& e)
+    {
+        throw std::runtime_error("Failed to update user: " + std::string(e.what()));
+    }
+}
+
 
 bool MySQLConnector::AddFriendship(const std::string& user_id1, const std::string& user_id2)
 {

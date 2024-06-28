@@ -49,12 +49,15 @@ private:
     bool IsPartyMessage(const std::string& userInput);
     bool IsFriendRequestMessage(const std::string& userInput);
     bool IsFriendAcceptMessage(const std::string& userInput);
+    bool IsFriendRejectMessage(const std::string& userInput);
 
     bool CreateWhisperMessage(std::shared_ptr<myChatMessage::ChatMessage>& chatMessage, const std::string& userInput);
     bool CreatePartyMessage(std::shared_ptr<myChatMessage::ChatMessage>& chatMessage, const std::string& userInput);
     bool CreateNormalMessage(std::shared_ptr<myChatMessage::ChatMessage>& chatMessage, const std::string& userInput);
     bool CreateFriendRequestMessage(std::shared_ptr<myChatMessage::ChatMessage>& chatMessage, const std::string& userInput);
     bool CreateFriendAcceptMessage(std::shared_ptr<myChatMessage::ChatMessage>& chatMessage, const std::string& userInput);
+    bool CreateFriendRejectMessage(std::shared_ptr<myChatMessage::ChatMessage>& chatMessage, const std::string& userInput);
+
 
     std::pair<std::string, std::string> ExtractOptionAndPartyName(const std::string& userInput);
     myChatMessage::ChatMessageType GetPartyMessageType(const std::string& option);

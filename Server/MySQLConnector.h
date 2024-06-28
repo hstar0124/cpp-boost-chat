@@ -32,8 +32,9 @@ public:
     std::shared_ptr<UserEntity> GetUserById(const std::string& user_id);
     std::shared_ptr<UserEntity> GetUserByConditions(const std::vector<Condition>& conditions);
 
-    void UpdateFriendAccept(const std::string& username, const std::string& newEmail);
+    void UpdateFriend(const std::string& senderId, const std::string& receiverId, const std::string& status);
 
+    void DeleteFriendRequest(const std::string& sender_id, const std::string& receiver_id);
 
 
 private:

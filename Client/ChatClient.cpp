@@ -86,6 +86,13 @@ std::function<bool(std::shared_ptr<myChatMessage::ChatMessage>&, const std::stri
                 return CreateFriendAcceptMessage(msg, input);
             };
     }
+    if (IsFriendRejectMessage(userInput))
+    {
+        return [this](std::shared_ptr<myChatMessage::ChatMessage>& msg, const std::string& input)
+            {
+                return CreateFriendRejectMessage(msg, input);
+            };
+    }
     return [this](std::shared_ptr<myChatMessage::ChatMessage>& msg, const std::string& input) 
         {
             return CreateNormalMessage(msg, input);
@@ -134,6 +141,14 @@ bool ChatClient::IsFriendAcceptMessage(const std::string& userInput)
 {
     return userInput.substr(0, 4) == "/fa ";
 }
+
+bool ChatClient::IsFriendRejectMessage(const std::string& userInput)
+{
+    return userInput.substr(0, 4) == "/fj ";
+}
+
+
+
 
 std::pair<std::string, std::string> ChatClient::ExtractOptionAndPartyName(const std::string& userInput) 
 {
@@ -238,6 +253,16 @@ bool ChatClient::CreateFriendAcceptMessage(std::shared_ptr<myChatMessage::ChatMe
 
     return true;
 }
+
+bool ChatClient::CreateFriendRejectMessage(std::shared_ptr<myChatMessage::ChatMessage>& chatMessage, const std::string& userInput)
+{
+    std::string friendId = userInput.substr(4); // Remove "/fj "
+    chatMessage->set_messagetype(myChatMessage::ChatMessageType::FRIEND_REJECT);
+    chatMessage->set_content(friendId);
+
+    return true;
+}
+
 
 bool ChatClient::SendPong() 
 {
