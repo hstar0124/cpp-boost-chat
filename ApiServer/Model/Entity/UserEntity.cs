@@ -9,7 +9,7 @@ namespace ApiServer.Model.Entity
         [Key]
         [Column("id")]
         public long Id { get; set; }
-        [Column("userId")]
+        [Column("user_id")]
         public string UserId { get; set; }
         [Column("password")]
         public string Password { get; set; }
@@ -17,7 +17,7 @@ namespace ApiServer.Model.Entity
         public string Username { get; set; }
         [Column("email")]
         public string Email { get; set; }
-        [Column("isAlive")]
+        [Column("is_alive")]
         public string IsAlive { get; set; }
 
     }

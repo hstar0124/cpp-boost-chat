@@ -37,17 +37,24 @@ private:
     void AsyncWrite(std::shared_ptr<myChatMessage::ChatMessage> message);
     void ReadHeader();
     void ReadBody(size_t bodySize);
-    void SendPong();
+
+    bool SendPong();
+    bool SendFriendRequest(const std::string& friendId);
+    bool SendFriendAccept(const std::string& friendId);
 
     void SetVerified(bool isVerified);
     
 
     bool IsWhisperMessage(const std::string& userInput);
     bool IsPartyMessage(const std::string& userInput);
+    bool IsFriendRequestMessage(const std::string& userInput);
+    bool IsFriendAcceptMessage(const std::string& userInput);
 
     bool CreateWhisperMessage(std::shared_ptr<myChatMessage::ChatMessage>& chatMessage, const std::string& userInput);
     bool CreatePartyMessage(std::shared_ptr<myChatMessage::ChatMessage>& chatMessage, const std::string& userInput);
     bool CreateNormalMessage(std::shared_ptr<myChatMessage::ChatMessage>& chatMessage, const std::string& userInput);
+    bool CreateFriendRequestMessage(std::shared_ptr<myChatMessage::ChatMessage>& chatMessage, const std::string& userInput);
+    bool CreateFriendAcceptMessage(std::shared_ptr<myChatMessage::ChatMessage>& chatMessage, const std::string& userInput);
 
     std::pair<std::string, std::string> ExtractOptionAndPartyName(const std::string& userInput);
     myChatMessage::ChatMessageType GetPartyMessageType(const std::string& option);

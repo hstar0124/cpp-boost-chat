@@ -20,6 +20,19 @@ void ChatClient::Connect(const std::string& host, int port)
         });
 }
 
+void ChatClient::OnConnect(const boost::system::error_code& err)
+{
+    if (!err)
+    {
+        ReadHeader();
+    }
+    else
+    {
+        std::cout << "[CLIENT] ERROR : " << err.message() << "\n";
+        exit(1);
+    }
+}
+
 void ChatClient::Send(const std::string& userInput) 
 {
     auto chatMessage = std::make_shared<myChatMessage::ChatMessage>();
@@ -59,24 +72,27 @@ std::function<bool(std::shared_ptr<myChatMessage::ChatMessage>&, const std::stri
                 return CreatePartyMessage(msg, input);
             };
     }
+    if (IsFriendRequestMessage(userInput)) 
+    {
+        return [this](std::shared_ptr<myChatMessage::ChatMessage>& msg, const std::string& input) 
+            {
+                return CreateFriendRequestMessage(msg, input);
+            };
+    }
+    if (IsFriendAcceptMessage(userInput)) 
+    {
+        return [this](std::shared_ptr<myChatMessage::ChatMessage>& msg, const std::string& input) 
+            {
+                return CreateFriendAcceptMessage(msg, input);
+            };
+    }
     return [this](std::shared_ptr<myChatMessage::ChatMessage>& msg, const std::string& input) 
         {
             return CreateNormalMessage(msg, input);
         };
 }
 
-void ChatClient::OnConnect(const boost::system::error_code& err) 
-{
-    if (!err) 
-    {
-        ReadHeader();
-    }
-    else 
-    {
-        std::cout << "[CLIENT] ERROR : " << err.message() << "\n";
-        exit(1);
-    }
-}
+
 
 bool ChatClient::IsWhisperMessage(const std::string& userInput) 
 {
@@ -107,6 +123,16 @@ bool ChatClient::CreateWhisperMessage(std::shared_ptr<myChatMessage::ChatMessage
 bool ChatClient::IsPartyMessage(const std::string& userInput) 
 {
     return userInput.substr(0, 3) == "/p ";
+}
+
+bool ChatClient::IsFriendRequestMessage(const std::string& userInput)
+{
+    return userInput.substr(0, 4) == "/fr ";
+}
+
+bool ChatClient::IsFriendAcceptMessage(const std::string& userInput)
+{
+    return userInput.substr(0, 4) == "/fa ";
 }
 
 std::pair<std::string, std::string> ChatClient::ExtractOptionAndPartyName(const std::string& userInput) 
@@ -196,7 +222,24 @@ bool ChatClient::CreateNormalMessage(std::shared_ptr<myChatMessage::ChatMessage>
     return true;
 }
 
-void ChatClient::SendPong() 
+bool ChatClient::CreateFriendRequestMessage(std::shared_ptr<myChatMessage::ChatMessage>& chatMessage, const std::string& userInput)
+{
+    std::string friendId = userInput.substr(4); // Remove "/fr "
+    chatMessage->set_messagetype(myChatMessage::ChatMessageType::FRIEND_REQUEST);
+    chatMessage->set_content(friendId);
+
+    return true;
+}
+bool ChatClient::CreateFriendAcceptMessage(std::shared_ptr<myChatMessage::ChatMessage>& chatMessage, const std::string& userInput)
+{
+    std::string friendId = userInput.substr(4); // Remove "/fa "
+    chatMessage->set_messagetype(myChatMessage::ChatMessageType::FRIEND_ACCEPT);
+    chatMessage->set_content(friendId);
+
+    return true;
+}
+
+bool ChatClient::SendPong() 
 {
     auto now = std::chrono::system_clock::now();
     auto now_ms = std::chrono::time_point_cast<std::chrono::milliseconds>(now);
@@ -207,6 +250,27 @@ void ChatClient::SendPong()
     message->set_content(std::to_string(value));
 
     AsyncWrite(message);
+    return true;
+}
+
+bool ChatClient::SendFriendRequest(const std::string& friendId)
+{
+    auto friendRequestMessage = std::make_shared<myChatMessage::ChatMessage>();
+    friendRequestMessage->set_messagetype(myChatMessage::ChatMessageType::FRIEND_REQUEST);
+    friendRequestMessage->set_content(friendId);
+
+    AsyncWrite(friendRequestMessage);
+    return true;
+}
+
+bool ChatClient::SendFriendAccept(const std::string& friendId)
+{
+    auto friendAcceptMessage = std::make_shared<myChatMessage::ChatMessage>();
+    friendAcceptMessage->set_messagetype(myChatMessage::ChatMessageType::FRIEND_ACCEPT);
+    friendAcceptMessage->set_content(friendId);
+
+    AsyncWrite(friendAcceptMessage);
+    return true;
 }
 
 bool ChatClient::GetVerified()
@@ -275,7 +339,7 @@ void ChatClient::ReadHeader()
             }
             else 
             {
-                std::cout << "[CLIENT] Read Header Fail.\n";
+                std::cout << "[CLIENT] Read Header Fail.\n" + ec.message();
                 m_Socket.close();
             }
         });
@@ -315,24 +379,28 @@ void ChatClient::OnMessage(std::shared_ptr<myChatMessage::ChatMessage>& message)
     switch (message->messagetype()) 
     {
     case MsgType::ALL_MESSAGE:
-        std::cout << "[" << message->sender() << "] " << message->content() << std::endl;
-        break;
-    case MsgType::LOGIN_MESSAGE:
-        std::cout << "[SERVER] " << message->content() << std::endl;
-        SetVerified(true);
+        std::cout << message->sender() << " >> " << message->content() << std::endl;
         break;
     case MsgType::SERVER_PING:
         HandleServerPing(message);
         break;
+    case MsgType::LOGIN_MESSAGE:
+        SetVerified(true);
     case MsgType::SERVER_MESSAGE:
     case MsgType::ERROR_MESSAGE:
         std::cout << "[SERVER] " << message->content() << std::endl;
         break;
     case MsgType::WHISPER_MESSAGE:
-        std::cout << "<<" << message->sender() << ">> " << message->content() << std::endl;
+        std::cout << "[WHISPER MESSAGE] " << message->sender() << " >> " << message->content() << std::endl;
         break;
     case MsgType::PARTY_MESSAGE:
-        std::cout << "##" << message->sender() << "## " << message->content() << std::endl;
+        std::cout << "[PARTY MESSAGE] " << message->sender() << " >> " << message->content() << std::endl;
+        break;
+    case MsgType::FRIEND_REQUEST:
+        std::cout << "[FRIEND REQUEST] " << message->sender() << " has sent you a friend request." << std::endl;
+        break;
+    case MsgType::FRIEND_ACCEPT:
+        std::cout << "[FRIEND ACCEPT] " << message->sender() << " has accepted your friend request." << std::endl;
         break;
     default:
         std::cerr << "[CLIENT] Unknown message type received" << std::endl;

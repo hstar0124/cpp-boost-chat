@@ -91,17 +91,17 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)Libraries\include\boost_1_84_0;$(SolutionDir)Libraries\include\hiredis_1_2_0;$(SolutionDir)Libraries\include\protobuf_3_14_0;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Libraries\include\mysql_8_0;$(SolutionDir)Libraries\include\boost_1_84_0;$(SolutionDir)Libraries\include\hiredis_1_2_0;$(SolutionDir)Libraries\include\protobuf_3_14_0;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)Libraries\libs;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>libprotobufd.lib;hiredisd.lib;WS2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>libprotobufd.lib;hiredisd.lib;WS2_32.lib;libmysql.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -125,17 +125,17 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)Libraries\include\boost_1_84_0;$(SolutionDir)Libraries\include\hiredis_1_2_0;$(SolutionDir)Libraries\include\protobuf_3_14_0;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Libraries\include\mysql_8_0;$(SolutionDir)Libraries\include\boost_1_84_0;$(SolutionDir)Libraries\include\hiredis_1_2_0;$(SolutionDir)Libraries\include\protobuf_3_14_0;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)Libraries\libs;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>libprotobufd.lib;hiredisd.lib;WS2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>libprotobufd.lib;hiredisd.lib;WS2_32.lib;libmysql.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -157,17 +157,19 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="MyMessage.pb.cc" />
+    <ClCompile Include="MySQLConnector.cpp" />
     <ClCompile Include="Party.cpp" />
     <ClCompile Include="PartyManager.cpp" />
     <ClCompile Include="RedisClient.cpp" />
     <ClCompile Include="TcpServer.cpp" />
     <ClCompile Include="App.cpp" />
-    <ClCompile Include="User.cpp" />
+    <ClCompile Include="UserSession.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common.h" />
     <ClInclude Include="Message.h" />
     <ClInclude Include="MyMessage.pb.h" />
+    <ClInclude Include="MySQLConnector.h" />
     <ClInclude Include="PacketConverter.hpp" />
     <ClInclude Include="Party.h" />
     <ClInclude Include="PartyManager.h" />
@@ -175,7 +177,8 @@
     <ClInclude Include="TcpServer.h" />
     <ClInclude Include="ThreadSafeVector.h" />
     <ClInclude Include="ThreadSafeQueue.h" />
-    <ClInclude Include="User.h" />
+    <ClInclude Include="UserSession.h" />
+    <ClInclude Include="UserEntity.hpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="MyMessage.proto" />

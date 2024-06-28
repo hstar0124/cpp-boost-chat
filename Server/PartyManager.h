@@ -1,7 +1,7 @@
 #pragma once
 #include "ThreadSafeVector.h""
 #include "Party.h"
-#include "User.h"
+#include "UserSession.h"
 
 class PartyManager
 {
@@ -13,10 +13,10 @@ public:
     PartyManager();
     ~PartyManager();
 
-    std::shared_ptr<Party> CreateParty(std::shared_ptr<User> user, const std::string& partyName);
-    std::shared_ptr<Party> JoinParty(std::shared_ptr<User> user, const std::string& partyName);
-    uint32_t DeleteParty(std::shared_ptr<User> user, const std::string& partyName);
-    bool LeaveParty(std::shared_ptr<User> user, const std::string& partyName);
+    std::shared_ptr<Party> CreateParty(std::shared_ptr<UserSession> user, const std::string& partyName);
+    std::shared_ptr<Party> JoinParty(std::shared_ptr<UserSession> user, const std::string& partyName);
+    uint32_t DeleteParty(std::shared_ptr<UserSession> user, const std::string& partyName);
+    bool LeaveParty(std::shared_ptr<UserSession> user, const std::string& partyName);
     bool HasParty(uint32_t partyId);
     std::shared_ptr<Party> FindPartyById(uint32_t partyId);
     std::shared_ptr<Party> FindPartyByName(const std::string& partyName); 

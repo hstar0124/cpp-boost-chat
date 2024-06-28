@@ -1,6 +1,10 @@
 ﻿#include "Common.h"
 #include "TcpServer.h"
 
+#include "MySQLConnector.h"
+#include <iostream>
+
+
 
 int main()
 {
@@ -9,10 +13,11 @@ int main()
 	TcpServer tcpServer(io_context, 4242);
 	if (!tcpServer.Start(2))
 	{
-		std::cerr << "[SERVER] Server Error!!" << "\n";
+	  std::cerr << "[SERVER] Server Error!!" << "\n";
 	}
 
 	tcpServer.Update();
 
 	return 0;
+
 }
