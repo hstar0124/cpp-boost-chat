@@ -13,14 +13,28 @@ private:
     std::unique_ptr<MYSQL, decltype(&mysql_close)> m_Conn;
 
 public:
-    MySQLConnector(const std::string& host, const std::string& user, const std::string& password, const std::string& db, unsigned int port = 3306);
+    struct Condition 
+    {
+        std::string column;
+        std::string value;
+    };
 
-    bool CreateFriendRequest(const std::string& sender_id, const std::string& receiver_id);
-    bool CreateFriendship(const std::string& sender_id, const std::string& receiver_id);
+    MySQLConnector(const std::string& host, const std::string& user, const std::string& password, const std::string& db, unsigned int port = 3306);
+    
+    void BeginTransaction();
+    void CommitTransaction();
+    void RollbackTransaction();
+
+    bool AddFriendRequest(const std::string& sender_id, const std::string& receiver_id);
+    bool AddFriendship(const std::string& sender_id, const std::string& receiver_id);
+    bool HasFriendRequest(const std::string& sender_id, const std::string& receiver_id);
 
     std::shared_ptr<UserEntity> GetUserById(const std::string& user_id);
+    std::shared_ptr<UserEntity> GetUserByConditions(const std::vector<Condition>& conditions);
 
-    void UpdateFriendRequest(const std::string& username, const std::string& newEmail);
+    void UpdateFriendAccept(const std::string& username, const std::string& newEmail);
+
+
 
 private:
     void executePreparedStatement(const std::string& query, std::vector<std::string>& params);
