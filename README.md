@@ -80,16 +80,19 @@ Protobuf를 통해 메시지 직렬화/역직렬화를 진행하여 JSON 대비 
 
 ## 주요 흐름도
 
-[연결 및 일반 메시지 발송]
+**[접속_흐름도]**
 
-![연결 및 일반 메시지 발송](https://github.com/hstar0124/cpp-boost-chat/assets/57317290/d92238d0-b330-4cc6-a77a-b2511d2ac2aa)
-
-
+![접속_흐름도](https://github.com/hstar0124/hstar-project/assets/57317290/c510c2d1-6e41-4748-89fd-976ba140731b)
 
 
-[파티 생성 및 파티 메시지 발송]
+**[메시지 발송]**
 
-![파티 생성 및 파티 메시지 발송](https://github.com/hstar0124/cpp-boost-chat/assets/57317290/4daf5315-d7b2-4974-b262-a25b9f603e4c)
+![메시지_발송](https://github.com/hstar0124/hstar-project/assets/57317290/bb31bdf8-0c1e-4793-94b2-b349337bba86)
+
+
+**[친구추가 흐름도]**
+
+![친구추가_흐름도](https://github.com/hstar0124/hstar-project/assets/57317290/b5f72f61-0adc-49ac-b38b-d482020714a1)
 
 
 
