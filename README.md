@@ -14,14 +14,16 @@ Boost.Asio 와 Protobuf를 활용한 Socket Server
 Protobuf를 통해 메시지 직렬화/역직렬화를 진행하여 JSON 대비 **패킷 사이즈를 2/3 절감** 했습니다.
 
 
-[Boost.Asio를 사용한 이유]
+
+**[Boost.Asio를 사용한 이유]**
 - Boost 라이브러리는 풍부한 기능과 유연성을 제공
 - Asio 라이브러리는 이 Boost 생태계 일부로 표준화될 가능성이 높음
 - Boost.Asio는 다양한 플랫폼에서 동작하기 때문에 다양한 환경에서 배포할 때 큰 장점
 - Boost.Asio는 사용사례가 많기 때문에 이슈가 있을 때 해결방법을 찾기 쉬움
 
 
-[Protobuf를 사용한 이유]
+
+**[Protobuf를 사용한 이유]**
 - 빠르고 효율적인 데이터 직렬화로 네트워크 트래픽을 최적화
 - Protobuf는 여러 언어와 플랫폼에서 사용 가능
 - Google에서 개발하고 오랜 기간 동안 사용하는 데에서 비롯된 안정성이 보장
@@ -30,7 +32,8 @@ Protobuf를 통해 메시지 직렬화/역직렬화를 진행하여 JSON 대비 
 
 
 ## 주요 특장점
-[API 서버]
+
+**[API 서버]**
 - 로그인/유저 CRUD 기능 제공
 - **Protobuf** 를 활용한 Http Body 직렬화/역직렬화 하여 **JSON 대비 패킷 2/3** 절감
 - Password 를 **Hash + Salt** 하여 개인정보 보호
@@ -38,7 +41,7 @@ Protobuf를 통해 메시지 직렬화/역직렬화를 진행하여 JSON 대비 
 - MVC 패턴을 적용하여 **유지보수성, 확장성, 유연성 확보**
 - EntityFrameworkCore 를 적용하여 **생산성 향상**
 
-[소켓 서버]
+**[소켓 서버]**
 - Redis 에서 **Session Key** 를 활용하여 로그인 처리함으로 **API Server 와 결합도** 낮춤
 - **비동기 TCP 소켓** 통신 기능
 - **Protobuf** 를 활용한 Http Body 직렬화/역직렬화 하여 **JSON 대비 패킷 2/3** 절감
@@ -58,6 +61,22 @@ Protobuf를 통해 메시지 직렬화/역직렬화를 진행하여 JSON 대비 
 
 <img src="https://github.com/hstar0124/hstar-project/assets/57317290/a56e7096-b6bc-4831-a975-135733c5f8ac" width="750" height="400"/>
 
+
+## 주요 기능
+
+**[API 서버]**
+- 로그인
+- 회원가입
+- 회원 정보 조회
+- 회원 정보 변경
+- 회원 탈퇴
+
+**[소켓 서버]**
+- 전체 채팅
+- 귓속말 채팅
+- 파티 생성/가입/탈퇴/삭제
+- 친구 신청/수락
+  
 
 ## 흐름도
 
