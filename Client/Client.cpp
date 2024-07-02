@@ -249,14 +249,16 @@ void Client::GetUserInput(const std::string& prompt, std::string* input)
 void Client::ChatLoop() 
 {
     std::string userInput;
-    while (getline(std::cin, userInput)) 
+    if (m_IsVerified)
     {
-        // 인증이 완료된 후에만 입력을 처리한다
-        if (m_IsVerified) {
+        while (getline(std::cin, userInput)) 
+        {
+            // 인증이 완료된 후에만 입력을 처리한다        
             m_ChatClient->Send(userInput);
         }
-        else {
-            std::cout << "Waiting for verification. Please wait..." << std::endl;
-        }
+    }
+    else
+    {
+        std::cout << "Waiting for verification. Please wait..." << std::endl;
     }
 }

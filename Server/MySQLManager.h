@@ -8,7 +8,7 @@
 
 #include "UserEntity.hpp"
 
-class MySQLConnector {
+class MySQLManager {
 private:
     std::unique_ptr<MYSQL, decltype(&mysql_close)> m_Conn;
 
@@ -19,7 +19,7 @@ public:
         std::string value;
     };
 
-    MySQLConnector(const std::string& host, const std::string& user, const std::string& password, const std::string& db, unsigned int port = 3306);
+    MySQLManager(const std::string& host, const std::string& user, const std::string& password, const std::string& db, unsigned int port = 3306);
     
     void BeginTransaction();
     void CommitTransaction();

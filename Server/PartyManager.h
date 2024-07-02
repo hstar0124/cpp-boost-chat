@@ -1,5 +1,4 @@
 #pragma once
-#include "ThreadSafeVector.h""
 #include "Party.h"
 #include "UserSession.h"
 

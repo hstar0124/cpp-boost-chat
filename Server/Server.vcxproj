@@ -157,26 +157,27 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="MyMessage.pb.cc" />
-    <ClCompile Include="MySQLConnector.cpp" />
+    <ClCompile Include="MySQLManager.cpp" />
     <ClCompile Include="Party.cpp" />
     <ClCompile Include="PartyManager.cpp" />
     <ClCompile Include="RedisClient.cpp" />
     <ClCompile Include="TcpServer.cpp" />
-    <ClCompile Include="App.cpp" />
+    <ClCompile Include="main.cpp" />
     <ClCompile Include="UserSession.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common.h" />
+    <ClInclude Include="HSThreadPool.hpp" />
     <ClInclude Include="Message.h" />
     <ClInclude Include="MyMessage.pb.h" />
-    <ClInclude Include="MySQLConnector.h" />
+    <ClInclude Include="MySQLManager.h" />
     <ClInclude Include="PacketConverter.hpp" />
     <ClInclude Include="Party.h" />
     <ClInclude Include="PartyManager.h" />
     <ClInclude Include="RedisClient.hpp" />
     <ClInclude Include="TcpServer.h" />
-    <ClInclude Include="ThreadSafeVector.h" />
-    <ClInclude Include="ThreadSafeQueue.h" />
+    <ClInclude Include="ThreadSafeVector.hpp" />
+    <ClInclude Include="ThreadSafeQueue.hpp" />
     <ClInclude Include="UserSession.h" />
     <ClInclude Include="UserEntity.hpp" />
   </ItemGroup>
