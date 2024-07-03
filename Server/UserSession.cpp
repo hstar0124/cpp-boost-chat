@@ -45,7 +45,7 @@ void UserSession::SetID(uint32_t id)
 	m_Id = id;
 }
 
-uint32_t UserSession::GetID() const
+uint32_t UserSession::GetId() const
 {
 	return m_Id;
 }

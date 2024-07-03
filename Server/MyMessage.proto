@@ -19,6 +19,7 @@ enum ChatMessageType
 
     FRIEND_REQUEST = 50;
     FRIEND_ACCEPT = 51;
+    FRIEND_REJECT = 52;
 
     LOGIN_MESSAGE = 70;
 

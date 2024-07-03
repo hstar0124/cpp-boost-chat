@@ -76,6 +76,7 @@ enum ChatMessageType : int {
   PARTY_LEAVE = 44,
   FRIEND_REQUEST = 50,
   FRIEND_ACCEPT = 51,
+  FRIEND_REJECT = 52,
   LOGIN_MESSAGE = 70,
   ERROR_MESSAGE = 99,
   ChatMessageType_INT_MIN_SENTINEL_DO_NOT_USE_ = std::numeric_limits<::PROTOBUF_NAMESPACE_ID::int32>::min(),

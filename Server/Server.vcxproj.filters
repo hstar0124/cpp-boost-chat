@@ -7,9 +7,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="App.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="TcpServer.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
@@ -25,10 +22,13 @@
     <ClCompile Include="RedisClient.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="MySQLManager.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
     <ClCompile Include="MyMessage.pb.cc">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="MySQLConnector.cpp">
+    <ClCompile Include="main.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
@@ -39,7 +39,7 @@
     <ClInclude Include="Message.h">
       <Filter>소스 파일</Filter>
     </ClInclude>
-    <ClInclude Include="ThreadSafeQueue.h">
+    <ClInclude Include="ThreadSafeQueue.hpp">
       <Filter>소스 파일</Filter>
     </ClInclude>
     <ClInclude Include="Common.h">
@@ -51,7 +51,7 @@
     <ClInclude Include="Party.h">
       <Filter>소스 파일</Filter>
     </ClInclude>
-    <ClInclude Include="ThreadSafeVector.h">
+    <ClInclude Include="ThreadSafeVector.hpp">
       <Filter>소스 파일</Filter>
     </ClInclude>
     <ClInclude Include="PartyManager.h">
@@ -63,13 +63,16 @@
     <ClInclude Include="RedisClient.hpp">
       <Filter>소스 파일</Filter>
     </ClInclude>
-    <ClInclude Include="MyMessage.pb.h">
-      <Filter>소스 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="MySQLConnector.h">
+    <ClInclude Include="MySQLManager.h">
       <Filter>소스 파일</Filter>
     </ClInclude>
     <ClInclude Include="UserEntity.hpp">
+      <Filter>소스 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="MyMessage.pb.h">
+      <Filter>소스 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="HSThreadPool.hpp">
       <Filter>소스 파일</Filter>
     </ClInclude>
   </ItemGroup>

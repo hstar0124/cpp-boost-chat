@@ -1,17 +1,13 @@
 #include "TcpServer.h"
 
-TcpServer::TcpServer(boost::asio::io_context& io_context, int port)
+TcpServer::TcpServer(boost::asio::io_context& io_context, int port, std::unique_ptr<CRedisClient> redisClient, std::unique_ptr<MySQLManager> mysqlManager, HSThreadPool& threadPool)
 	: m_Acceptor(io_context, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), port))
 	, m_IoContext(io_context)
 	, m_PartyManager(std::make_unique<PartyManager>())
-	, m_RedisClient(std::make_unique<CRedisClient>())
-	, m_MySQLConnector(std::make_unique<MySQLConnector>("127.0.0.1", "root", "root", "hstar"))
+	, m_RedisClient(std::move(redisClient))
+	, m_MySQLConnector(std::move(mysqlManager))
+	, m_ThreadPool(threadPool)
 {
-	if (!m_RedisClient->Initialize("127.0.0.1", 6379, 2, 10))
-	{
-		std::cout << "connect to redis failed" << std::endl;
-	}
-	std::cout << "connect to redis Success!" << std::endl;
 }
 
 TcpServer::~TcpServer()
@@ -81,6 +77,12 @@ bool TcpServer::Start(uint32_t maxUser = 3)
 }
 
 
+void TcpServer::EnqueueJob(std::function<void()>&& task)
+{
+	// Multi Thread에 작업 등록
+	m_ThreadPool.EnqueueJob(std::move(task));
+}
+
 void TcpServer::WaitForClientConnection()
 {
 	// 클라이언트 연결 정보 shared_ptr로 관리
@@ -136,11 +138,11 @@ void TcpServer::UpdateUsers()
 
 		if (msg && VerifyUser(user, msg->content()))
 		{
-			auto userID = user->GetID();
+			auto userID = user->GetId();
 			// 이미 접속 중인 유저가 있는지 확인하고 기존 유저를 해제
 			auto it = std::find_if(m_Users.begin(), m_Users.end(), [&](const auto& existingUser)
 				{
-					return existingUser->GetID() == userID;
+					return existingUser->GetId() == userID;
 				});
 
 			if (it != m_Users.end())
@@ -166,19 +168,28 @@ bool TcpServer::VerifyUser(std::shared_ptr<UserSession>& user, const std::string
 	std::string sessionKey = "Session:" + sessionId;
 	std::string sessionValue;
 
-	if (m_RedisClient->Get(sessionKey, &sessionValue) != RC_SUCCESS)
+	try
 	{
-		std::cout << "Not Found Session ID!!" << std::endl;
+		if (m_RedisClient->Get(sessionKey, &sessionValue) != RC_SUCCESS)
+		{
+			std::cout << "Not Found Session ID!!" << std::endl;
+			return false;
+		}
+
+		std::cout << sessionKey << " : " << sessionValue << std::endl;
+		user->SetID(StringToUint32(sessionValue));
+		user->SetVerified(true);
+
+		std::shared_ptr<UserEntity> userEntity = m_MySQLConnector->GetUserById(sessionValue);
+		user->SetUserEntity(userEntity);
+
+		return true;
+	}
+	catch (const std::exception& e)
+	{
+		std::cout << "Exception occurred: " << e.what() << std::endl;
 		return false;
 	}
-
-	std::cout << sessionKey << " : " << sessionValue << std::endl;
-	user->SetID(StringToUint32(sessionValue));
-	user->SetVerified(true);
-
-	std::shared_ptr<UserEntity> userEntity = m_MySQLConnector->GetUserById(sessionValue);
-	user->SetUserEntity(userEntity);
-
 	return true;
 }
 
@@ -245,10 +256,14 @@ void TcpServer::OnMessage(std::shared_ptr<UserSession> user, std::shared_ptr<myC
 		HandleWhisperMessage(user, msg);
 		break;
 	case myChatMessage::ChatMessageType::FRIEND_REQUEST:
+		//m_ThreadPool.EnqueueJob([=](){ HandleFriendRequestMessage(user, msg); });
 		HandleFriendRequestMessage(user, msg);
 		break;
 	case myChatMessage::ChatMessageType::FRIEND_ACCEPT:
 		HandleFriendAcceptMessage(user, msg);
+		break;
+	case myChatMessage::ChatMessageType::FRIEND_REJECT:
+		HandleFriendRejectMessage(user, msg);
 		break;
 	default:
 		SendErrorMessage(user, "Unknown message type received.");
@@ -414,99 +429,375 @@ void TcpServer::HandleWhisperMessage(std::shared_ptr<UserSession> user, std::sha
 	SendWhisperMessage(user, msg->receiver(), msg);
 }
 
-void TcpServer::HandleFriendRequestMessage(std::shared_ptr<UserSession> user, std::shared_ptr<myChatMessage::ChatMessage> msg)
-{
+void TcpServer::HandleFriendRequestMessage(std::shared_ptr<UserSession> user, std::shared_ptr<myChatMessage::ChatMessage> msg) {
+	try {
+		auto validateFuture = ValidateRequest(user, msg);
+		validateFuture.get();
 
-	if (msg->content().empty())
-	{
-		SendErrorMessage(user, "The content of the friend id is empty.");
-		return;
+		auto checkUserExistenceFuture = CheckUserExistence(msg->content());
+		auto receiveUser = checkUserExistenceFuture.get();
+
+		auto checkFriendRequestStatusFuture = CheckFriendRequestStatus(user, receiveUser);
+		checkFriendRequestStatusFuture.get();
+
+		auto addFriendRequestFuture = AddFriendRequest(user, receiveUser);
+		addFriendRequestFuture.get();
+
+		NotifyUsers(user, receiveUser);
 	}
+	catch (const std::exception& e) {
+		SendErrorMessage(user, e.what());
+	}
+}
+
+std::future<void> TcpServer::ValidateRequest(std::shared_ptr<UserSession> user, std::shared_ptr<myChatMessage::ChatMessage> msg) {
+	return m_ThreadPool.EnqueueJob([this, user, msg]() 
+	{
+		if (msg->content().empty()) 
+		{
+			throw std::runtime_error("The content of is empty.");
+		}
+		if (user->GetUserEntity()->GetUserId() == msg->content()) 
+		{
+			throw std::runtime_error("You cannot send request to yourself.");
+		}
+	});
+}
+
+std::future<std::shared_ptr<UserEntity>> TcpServer::CheckUserExistence(const std::string& userId) 
+{
+	return m_ThreadPool.EnqueueJob([this, userId]() -> std::shared_ptr<UserEntity> 
+	{
+		std::vector<MySQLManager::Condition> conditions = { {"user_id", userId} };
+		auto receiveUser = m_MySQLConnector->GetUserByConditions(conditions);
+		if (!receiveUser) 
+		{
+			throw std::runtime_error("User not found.");
+		}
 		
-	auto receiveUser = GetUserByUserId(msg->content());
-	if (!receiveUser)
-	{
-		SendErrorMessage(user, "The user with the provided ID does not exist.");
-		return;
-	}
-
-	if (user->GetID() == receiveUser->GetID())
-	{
-		SendErrorMessage(user, "You cannot send a friend request to yourself.");
-		return;
-	}
-
-	auto requestId = std::to_string(user->GetID());
-	auto receiveId = std::to_string(receiveUser->GetID());
-
-	if (m_MySQLConnector->HasFriendRequest(requestId, receiveId))
-	{
-		SendErrorMessage(user, "You have already sent a friend request to this user.");
-		return;
-	}
-
-	if (m_MySQLConnector->HasFriendRequest(receiveId, requestId))
-	{
-		SendErrorMessage(user, "This user has already sent you a friend request.");
-		return;
-	}
-
-
-	bool isSuccess = m_MySQLConnector->AddFriendRequest(std::to_string(user->GetID()), std::to_string(receiveUser->GetID()));
-	if (!isSuccess)
-	{
-		SendErrorMessage(user, "Failed to create friend request.");
-		return;
-	}
-
-	auto requestUserId = user->GetUserEntity()->GetUserId();
-	std::string inviteMessage = "Friend Request Received From [" + requestUserId + "]. "
-		"To accept, /fa " + requestUserId;
-
-	SendServerMessage(receiveUser, inviteMessage);
+		return receiveUser;
+	});
 }
 
-void TcpServer::HandleFriendAcceptMessage(std::shared_ptr<UserSession> user, std::shared_ptr<myChatMessage::ChatMessage> msg)
+std::future<void> TcpServer::CheckFriendRequestStatus(std::shared_ptr<UserSession> user, std::shared_ptr<UserEntity> receiveUser) {
+	return m_ThreadPool.EnqueueJob([this, user, receiveUser]() 
+	{
+		auto requestId = std::to_string(user->GetId());
+		auto receiveId = std::to_string(receiveUser->GetId());
+
+		if (m_MySQLConnector->HasFriendRequest(requestId, receiveId)) 
+		{
+			throw std::runtime_error("You have already sent a friend request to this user.");
+		}
+		if (m_MySQLConnector->HasFriendRequest(receiveId, requestId)) 
+		{
+			throw std::runtime_error("This user has already sent you a friend request.");
+		}
+	});
+}
+
+std::future<void> TcpServer::AddFriendRequest(std::shared_ptr<UserSession> user, std::shared_ptr<UserEntity> receiveUser) {
+	return m_ThreadPool.EnqueueJob([this, user, receiveUser]() 
+	{
+		if (!m_MySQLConnector->AddFriendRequest(std::to_string(user->GetId()), std::to_string(receiveUser->GetId()))) 
+		{
+			throw std::runtime_error("Failed to create friend request.");
+		}
+	});
+}
+
+
+
+
+void TcpServer::HandleFriendAcceptMessage(std::shared_ptr<UserSession> user, std::shared_ptr<myChatMessage::ChatMessage> msg) 
 {
-	if (msg->content().empty())
+	try 
 	{
-		SendErrorMessage(user, "The content of the friend id is empty.");
-		return;
+		auto validateFuture = ValidateRequest(user, msg);
+		validateFuture.get();
+
+		auto checkUserExistenceFuture = CheckUserExistence(msg->content());
+		auto sender = checkUserExistenceFuture.get();
+
+		auto processFriendAcceptFuture = ProcessFriendAccept(user, sender);
+		processFriendAcceptFuture.get();
+
+		NotifyAcceptUsers(user, sender);
 	}
-
-	if (msg->content() == user->GetUserEntity()->GetUserId())
-	{
-		SendErrorMessage(user, "You cannot accept your own friend request.");
-		return;
+	catch (const std::exception& e) {
+		SendErrorMessage(user, e.what());
 	}
-
-	auto sender = GetUserByUserId(msg->content());
-	if (!sender)
-	{
-		SendErrorMessage(user, "Sender not found!");
-		return;
-	}
-
-	try
-	{
-		m_MySQLConnector->BeginTransaction();
-		m_MySQLConnector->UpdateFriendAccept(std::to_string(sender->GetID()), std::to_string(user->GetID()));
-		m_MySQLConnector->AddFriendship(std::to_string(sender->GetID()), std::to_string(user->GetID()));
-		m_MySQLConnector->CommitTransaction();
-	}
-	catch (const std::exception& e)
-	{
-		m_MySQLConnector->RollbackTransaction();
-
-		SendErrorMessage(user, "Failed to process friend Accept");
-		return;
-	}
-
-
-	SendServerMessage(sender, "Your friend request to [" + user->GetUserEntity()->GetUserId() + "] has been accepted.");
-	SendServerMessage(user, "You have accepted the friend request from [" + sender->GetUserEntity()->GetUserId() + "].");
-
 }
+
+
+std::future<void> TcpServer::ProcessFriendAccept(std::shared_ptr<UserSession> user, std::shared_ptr<UserEntity> sender) 
+{
+	return m_ThreadPool.EnqueueJob([this, user, sender]() 
+	{
+		try 		
+		{
+			m_MySQLConnector->BeginTransaction();
+			m_MySQLConnector->UpdateFriend(std::to_string(sender->GetId()), std::to_string(user->GetId()), "A");
+			m_MySQLConnector->AddFriendship(std::to_string(sender->GetId()), std::to_string(user->GetId()));
+			m_MySQLConnector->CommitTransaction();
+		}
+		catch (const std::exception&) 
+		{
+			m_MySQLConnector->RollbackTransaction();
+			throw std::runtime_error("Failed to process friend accept.");
+		}
+	});
+}
+
+
+
+void TcpServer::HandleFriendRejectMessage(std::shared_ptr<UserSession> user, std::shared_ptr<myChatMessage::ChatMessage> msg) 
+{
+	try {
+		auto validateFuture = ValidateRequest(user, msg);
+		validateFuture.get();
+
+		auto checkUserExistenceFuture = CheckUserExistence(msg->content());
+		auto sender = checkUserExistenceFuture.get();
+
+		auto processFriendRejectFuture = ProcessFriendReject(user, sender);
+		processFriendRejectFuture.get();
+
+		NotifyRejectUsers(user, sender);
+	}
+	catch (const std::exception& e) {
+		SendErrorMessage(user, e.what());
+	}
+}
+
+
+std::future<void> TcpServer::ProcessFriendReject(std::shared_ptr<UserSession> user, std::shared_ptr<UserEntity> sender) 
+{
+	return m_ThreadPool.EnqueueJob([this, user, sender]() 
+	{
+		try 
+		{
+			m_MySQLConnector->BeginTransaction();
+			m_MySQLConnector->DeleteFriendRequest(std::to_string(sender->GetId()), std::to_string(user->GetId()));
+			m_MySQLConnector->CommitTransaction();
+		}
+		catch (const std::exception&) 
+		{
+			m_MySQLConnector->RollbackTransaction();
+			throw std::runtime_error("Failed to process friend reject.");
+		}
+	});
+}
+
+void TcpServer::NotifyUsers(std::shared_ptr<UserSession> user, std::shared_ptr<UserEntity> receiveUser) {
+	auto requestUserId = user->GetUserEntity()->GetUserId();
+	std::string inviteMessage = "Friend Request Received From [" + requestUserId + "]. To accept, /fa " + requestUserId;
+
+	auto receiveUserSession = GetUserByUserId(receiveUser->GetUserId());
+	if (receiveUserSession)
+	{
+		SendServerMessage(receiveUserSession, inviteMessage);
+	}
+
+	SendServerMessage(user, "Success friend request message!");
+}
+
+
+void TcpServer::NotifyAcceptUsers(std::shared_ptr<UserSession> user, std::shared_ptr<UserEntity> sender)
+{
+	auto senderUserSession = GetUserByUserId(sender->GetUserId());
+	if (senderUserSession)
+	{
+		SendServerMessage(senderUserSession, "Your friend request to [" + user->GetUserEntity()->GetUserId() + "] has been accepted.");
+	}
+
+	SendServerMessage(user, "You have accepted the friend request from [" + sender->GetUserId() + "].");
+}
+
+
+void TcpServer::NotifyRejectUsers(std::shared_ptr<UserSession> user, std::shared_ptr<UserEntity> sender) 
+{
+	auto senderUserSession = GetUserByUserId(sender->GetUserId());
+	if (senderUserSession) 
+	{
+		SendServerMessage(senderUserSession, "Your friend request to [" + user->GetUserEntity()->GetUserId() + "] has been rejected.");
+	}
+
+	SendServerMessage(user, "You have rejected the friend request from [" + sender->GetUserId() + "].");
+}
+
+//void TcpServer::HandleFriendRequestMessage(std::shared_ptr<UserSession> user, std::shared_ptr<myChatMessage::ChatMessage> msg)
+//{
+//
+//	try
+//	{
+//		if (msg->content().empty())
+//		{
+//			SendErrorMessage(user, "The content of the friend id is empty.");
+//			return;
+//		}
+//
+//		if (user->GetUserEntity()->GetUserId() == msg->content())
+//		{
+//			SendErrorMessage(user, "You cannot send a friend request to yourself.");
+//			return;
+//		}
+//
+//
+//		std::vector<MySQLManager::Condition> conditions =
+//		{
+//			{"user_id", msg->content()}
+//		};
+//
+//		auto receiveUser = m_MySQLConnector->GetUserByConditions(conditions);
+//
+//		auto requestId = std::to_string(user->GetId());
+//		auto receiveId = std::to_string(receiveUser->GetId());
+//
+//		if (m_MySQLConnector->HasFriendRequest(requestId, receiveId))
+//		{
+//			SendErrorMessage(user, "You have already sent a friend request to this user.");
+//			return;
+//		}
+//
+//		if (m_MySQLConnector->HasFriendRequest(receiveId, requestId))
+//		{
+//			SendErrorMessage(user, "This user has already sent you a friend request.");
+//			return;
+//		}
+//
+//
+//		bool isSuccess = m_MySQLConnector->AddFriendRequest(std::to_string(user->GetId()), std::to_string(receiveUser->GetId()));
+//		if (!isSuccess)
+//		{
+//			SendErrorMessage(user, "Failed to create friend request.");
+//			return;
+//		}
+//
+//		auto requestUserId = user->GetUserEntity()->GetUserId();
+//		std::string inviteMessage = "Friend Request Received From [" + requestUserId + "]. "
+//			"To accept, /fa " + requestUserId;
+//
+//		auto receiveUserSession = GetUserByUserId(msg->content());
+//		if (receiveUserSession)
+//		{
+//			SendServerMessage(receiveUserSession, inviteMessage);
+//		}
+//
+//		SendServerMessage(user, "Success friend request message!");
+//	}
+//	catch (const std::exception&)
+//	{
+//		SendErrorMessage(user, "Failed to create friend request.");
+//	}
+//	
+//}
+
+//void TcpServer::HandleFriendAcceptMessage(std::shared_ptr<UserSession> user, std::shared_ptr<myChatMessage::ChatMessage> msg)
+//{
+//	try
+//	{
+//		if (msg->content().empty())
+//		{
+//			SendErrorMessage(user, "The content of the friend id is empty.");
+//			return;
+//		}
+//
+//		if (msg->content() == user->GetUserEntity()->GetUserId())
+//		{
+//			SendErrorMessage(user, "You cannot accept your own friend request.");
+//			return;
+//		}
+//
+//		std::vector<MySQLManager::Condition> conditions =
+//		{
+//				{"user_id", msg->content()}
+//		};
+//
+//		auto sender = m_MySQLConnector->GetUserByConditions(conditions);
+//
+//		try
+//		{
+//			m_MySQLConnector->BeginTransaction();
+//			m_MySQLConnector->UpdateFriend(std::to_string(sender->GetId()), std::to_string(user->GetId()), "A");
+//			m_MySQLConnector->AddFriendship(std::to_string(sender->GetId()), std::to_string(user->GetId()));
+//			m_MySQLConnector->CommitTransaction();
+//		}
+//		catch (const std::exception& e)
+//		{
+//			m_MySQLConnector->RollbackTransaction();
+//
+//			SendErrorMessage(user, "Failed to process friend Accept");
+//			return;
+//		}
+//
+//		auto senderUserSession = GetUserByUserId(msg->content());
+//		if (senderUserSession)
+//		{
+//			SendServerMessage(senderUserSession, "Your friend request to [" + user->GetUserEntity()->GetUserId() + "] has been accepted.");
+//		}
+//
+//		SendServerMessage(user, "You have accepted the friend request from [" + sender->GetUserId() + "].");
+//	}
+//	catch (const std::exception&)
+//	{
+//		SendErrorMessage(user, "Failed to process friend Accept");
+//	}
+//
+//}
+
+
+//void TcpServer::HandleFriendRejectMessage(std::shared_ptr<UserSession> user, std::shared_ptr<myChatMessage::ChatMessage> msg)
+//{
+//	try
+//	{
+//		if (msg->content().empty())
+//		{
+//			SendErrorMessage(user, "The content of the friend id is empty.");
+//			return;
+//		}
+//
+//		if (msg->content() == user->GetUserEntity()->GetUserId())
+//		{
+//			SendErrorMessage(user, "You cannot reject your own friend request.");
+//			return;
+//		}
+//
+//		std::vector<MySQLManager::Condition> conditions =
+//		{
+//			{"user_id", msg->content()}
+//		};
+//
+//		auto sender = m_MySQLConnector->GetUserByConditions(conditions);
+//
+//		try
+//		{
+//			m_MySQLConnector->BeginTransaction();
+//			m_MySQLConnector->DeleteFriendRequest(std::to_string(sender->GetId()), std::to_string(user->GetId()));
+//			m_MySQLConnector->CommitTransaction();
+//		}
+//		catch (const std::exception& e)
+//		{
+//			m_MySQLConnector->RollbackTransaction();
+//
+//			SendErrorMessage(user, "Failed to process friend Reject");
+//			return;
+//		}
+//
+//		auto senderUserSession = GetUserByUserId(msg->content());
+//		if (senderUserSession)
+//		{
+//			SendServerMessage(senderUserSession, "Your friend request to [" + user->GetUserEntity()->GetUserId() + "] has been rejected.");
+//		}
+//
+//		SendServerMessage(user, "You have rejected the friend request from [" + sender->GetUserId() + "].");
+//	}
+//	catch (const std::exception&)
+//	{
+//		SendErrorMessage(user, "Failed to process friend Reject");
+//	}
+//}
+
 
 
 
@@ -636,7 +927,7 @@ std::shared_ptr<UserSession> TcpServer::GetUserById(uint32_t userId)
 {
 	for (auto user : m_Users)
 	{
-		if (user->GetID() == userId)
+		if (user->GetId() == userId)
 		{
 			return user;
 		}

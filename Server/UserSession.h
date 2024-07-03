@@ -2,7 +2,7 @@
 #include "Common.h"
 #include "MyMessage.pb.h"
 #include "PacketConverter.hpp"
-#include "MySQLConnector.h"
+#include "MySQLManager.h"
 #include "UserEntity.hpp"
 
 class UserSession : public std::enable_shared_from_this<UserSession>
@@ -39,7 +39,7 @@ public:
 	void Close();
 	bool IsConnected();
 
-	uint32_t GetID() const;
+	uint32_t GetId() const;
 	uint32_t GetPartyId() const;
 	std::shared_ptr<UserEntity> GetUserEntity() const;
 	bool GetVerified();
