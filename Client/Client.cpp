@@ -249,6 +249,7 @@ void Client::GetUserInput(const std::string& prompt, std::string* input)
 void Client::ChatLoop() 
 {
     std::string userInput;
+    std::cout << "chat loop : " << m_IsVerified << std::endl;
     if (m_IsVerified)
     {
         while (getline(std::cin, userInput)) 

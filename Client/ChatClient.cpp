@@ -411,6 +411,9 @@ void ChatClient::OnMessage(std::shared_ptr<myChatMessage::ChatMessage>& message)
         break;
     case MsgType::LOGIN_MESSAGE:
         SetVerified(true);
+        ClearScreen();
+        std::cout << "[SERVER] Connect Success!!!!" << std::endl;
+        break;
     case MsgType::SERVER_MESSAGE:
     case MsgType::ERROR_MESSAGE:
         std::cout << "[SERVER] " << message->content() << std::endl;
@@ -441,4 +444,13 @@ void ChatClient::HandleServerPing(const std::shared_ptr<myChatMessage::ChatMessa
     auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - sentTime);
     //std::cout << "Response time: " << elapsedTime.count() << "ms" << std::endl;
     SendPong();
+}
+
+void ChatClient::ClearScreen()
+{
+#ifdef _WIN32
+    system("cls");
+#else
+    system("clear");
+#endif
 }

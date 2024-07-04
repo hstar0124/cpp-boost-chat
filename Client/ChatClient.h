@@ -64,4 +64,6 @@ private:
 
     std::function<bool(std::shared_ptr<myChatMessage::ChatMessage>&, const std::string&)> GetCreateMessageStrategy(const std::string& userInput);
     void HandleServerPing(const std::shared_ptr<myChatMessage::ChatMessage>& message);
+
+    void ClearScreen();
 };
