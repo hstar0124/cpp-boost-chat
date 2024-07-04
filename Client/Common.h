@@ -16,6 +16,7 @@
 #include <fstream>
 #include <unordered_map>
 #include <sstream>
+#include <cstdlib>
 
 #ifdef _WIN32
 #define _WIN32_WINNT 0x0601
