@@ -1,6 +1,6 @@
-#include "MySQLManager.h"
+#include "MySQLClient.h"
 
-MySQLManager::MySQLManager(const std::string& host, const std::string& user, const std::string& password, const std::string& db, unsigned int port)
+MySQLClient::MySQLClient(const std::string& host, const std::string& user, const std::string& password, const std::string& db, unsigned int port)
     : m_Conn(mysql_init(nullptr), mysql_close)
 {
 
@@ -15,7 +15,7 @@ MySQLManager::MySQLManager(const std::string& host, const std::string& user, con
     }
 }
 
-bool MySQLManager::AddFriendRequest(const std::string& sender_id, const std::string& receiver_id)
+bool MySQLClient::AddFriendRequest(const std::string& sender_id, const std::string& receiver_id)
 {
     std::string query = "INSERT INTO friend_requests (sender_id, receiver_id, status) VALUES (?, ?, 'P')";
     std::vector<std::string> params = { sender_id, receiver_id };
@@ -30,7 +30,7 @@ bool MySQLManager::AddFriendRequest(const std::string& sender_id, const std::str
     }
 }
 
-void MySQLManager::executePreparedStatement(const std::string& query, std::vector<std::string>& params)
+void MySQLClient::executePreparedStatement(const std::string& query, std::vector<std::string>& params)
 {
     std::unique_ptr<MYSQL_STMT, decltype(&mysql_stmt_close)> stmt(mysql_stmt_init(m_Conn.get()), mysql_stmt_close);
 
@@ -80,7 +80,7 @@ void MySQLManager::executePreparedStatement(const std::string& query, std::vecto
     std::cout << "Number of rows affected: " << numRowsAffected << std::endl;
 }
 
-void MySQLManager::UpdateFriend(const std::string& senderId, const std::string& receiverId, const std::string& status)
+void MySQLClient::UpdateFriend(const std::string& senderId, const std::string& receiverId, const std::string& status)
 {
     std::string query = "UPDATE friend_requests SET status = ? WHERE sender_id = ? AND receiver_id = ?";
     std::vector<std::string> params = { status, senderId, receiverId };
@@ -95,7 +95,7 @@ void MySQLManager::UpdateFriend(const std::string& senderId, const std::string& 
     }
 }
 
-void MySQLManager::DeleteFriendRequest(const std::string& sender_id, const std::string& receiver_id)
+void MySQLClient::DeleteFriendRequest(const std::string& sender_id, const std::string& receiver_id)
 {
     std::string query = "DELETE FROM friend_requests WHERE sender_id = ? AND receiver_id = ?";
     std::vector<std::string> params = { sender_id, receiver_id };
@@ -111,7 +111,7 @@ void MySQLManager::DeleteFriendRequest(const std::string& sender_id, const std::
 }
 
 
-bool MySQLManager::AddFriendship(const std::string& user_id1, const std::string& user_id2)
+bool MySQLClient::AddFriendship(const std::string& user_id1, const std::string& user_id2)
 {
     std::string query = "INSERT INTO friendships (user_id1, user_id2) VALUES (?, ?)";
     std::vector<std::string> params = { user_id1, user_id2 };
@@ -126,7 +126,7 @@ bool MySQLManager::AddFriendship(const std::string& user_id1, const std::string&
     }
 }
 
-bool MySQLManager::HasFriendRequest(const std::string& sender_id, const std::string& receiver_id)
+bool MySQLClient::HasFriendRequest(const std::string& sender_id, const std::string& receiver_id)
 {
     try
     {
@@ -193,7 +193,7 @@ bool MySQLManager::HasFriendRequest(const std::string& sender_id, const std::str
     }
 }
 
-std::shared_ptr<UserEntity> MySQLManager::GetUserById(const std::string& requestId) 
+std::shared_ptr<UserEntity> MySQLClient::GetUserById(const std::string& requestId) 
 {
     std::string query = "SELECT id, user_id, password, username, email, is_alive FROM user WHERE id = ?";
     std::vector<std::string> params = { requestId };
@@ -290,7 +290,7 @@ std::shared_ptr<UserEntity> MySQLManager::GetUserById(const std::string& request
     return user;
 }
 
-std::shared_ptr<UserEntity> MySQLManager::GetUserByConditions(const std::vector<Condition>& conditions)
+std::shared_ptr<UserEntity> MySQLClient::GetUserByConditions(const std::vector<Condition>& conditions)
 {
     std::string query = "SELECT id, user_id, password, username, email, is_alive FROM user WHERE ";
     std::vector<std::string> params;
@@ -395,7 +395,7 @@ std::shared_ptr<UserEntity> MySQLManager::GetUserByConditions(const std::vector<
 }
 
 
-void MySQLManager::BeginTransaction()
+void MySQLClient::BeginTransaction()
 {
     if (mysql_autocommit(m_Conn.get(), false) != 0)
     {
@@ -403,7 +403,7 @@ void MySQLManager::BeginTransaction()
     }
 }
 
-void MySQLManager::CommitTransaction()
+void MySQLClient::CommitTransaction()
 {
     if (mysql_commit(m_Conn.get()) != 0)
     {
@@ -412,7 +412,7 @@ void MySQLManager::CommitTransaction()
     mysql_autocommit(m_Conn.get(), true); // Restore autocommit mode
 }
 
-void MySQLManager::RollbackTransaction()
+void MySQLClient::RollbackTransaction()
 {
     if (mysql_rollback(m_Conn.get()) != 0)
     {

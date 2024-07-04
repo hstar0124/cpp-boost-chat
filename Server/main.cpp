@@ -1,9 +1,6 @@
 ﻿#include "Common.h"
 #include "TcpServer.h"
-#include "MySQLManager.h"
-
-
-
+#include "MySQLClient.h"
 
 int main()
 {
@@ -14,11 +11,13 @@ int main()
 	if (!redisClient->Initialize("127.0.0.1", 6379, 2, 10))
 	{
 		std::cout << "connect to redis failed" << std::endl;
+		exit(1);
 	}
+
 	std::cout << "connect to redis Success!" << std::endl;
 
 	// MySQL 초기화
-	std::unique_ptr<MySQLManager> mysqlManager = std::make_unique<MySQLManager>("127.0.0.1", "root", "root", "hstar");
+	std::unique_ptr<MySQLClient> mysqlManager = std::make_unique<MySQLClient>("127.0.0.1", "root", "root", "hstar");
 
 	// Socket Server 초기화
 	boost::asio::io_context io_context;

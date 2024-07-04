@@ -2,7 +2,7 @@
 #include "Common.h"
 #include "MyMessage.pb.h"
 #include "PacketConverter.hpp"
-#include "MySQLManager.h"
+#include "MySQLClient.h"
 #include "UserEntity.hpp"
 
 class UserSession : public std::enable_shared_from_this<UserSession>

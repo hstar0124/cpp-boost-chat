@@ -22,13 +22,13 @@
     <ClCompile Include="RedisClient.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="MySQLManager.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="MyMessage.pb.cc">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="main.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="MySQLClient.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
@@ -63,7 +63,7 @@
     <ClInclude Include="RedisClient.hpp">
       <Filter>소스 파일</Filter>
     </ClInclude>
-    <ClInclude Include="MySQLManager.h">
+    <ClInclude Include="MySQLClient.h">
       <Filter>소스 파일</Filter>
     </ClInclude>
     <ClInclude Include="UserEntity.hpp">

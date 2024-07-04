@@ -157,7 +157,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="MyMessage.pb.cc" />
-    <ClCompile Include="MySQLManager.cpp" />
+    <ClCompile Include="MySQLClient.cpp" />
     <ClCompile Include="Party.cpp" />
     <ClCompile Include="PartyManager.cpp" />
     <ClCompile Include="RedisClient.cpp" />
@@ -170,7 +170,7 @@
     <ClInclude Include="HSThreadPool.hpp" />
     <ClInclude Include="Message.h" />
     <ClInclude Include="MyMessage.pb.h" />
-    <ClInclude Include="MySQLManager.h" />
+    <ClInclude Include="MySQLClient.h" />
     <ClInclude Include="PacketConverter.hpp" />
     <ClInclude Include="Party.h" />
     <ClInclude Include="PartyManager.h" />

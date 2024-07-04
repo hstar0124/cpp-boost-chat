@@ -1,11 +1,11 @@
 #include "TcpServer.h"
 
-TcpServer::TcpServer(boost::asio::io_context& io_context, int port, std::unique_ptr<CRedisClient> redisClient, std::unique_ptr<MySQLManager> mysqlManager, HSThreadPool& threadPool)
+TcpServer::TcpServer(boost::asio::io_context& io_context, int port, std::unique_ptr<CRedisClient> redisClient, std::unique_ptr<MySQLClient> mysqlClient, HSThreadPool& threadPool)
 	: m_Acceptor(io_context, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), port))
 	, m_IoContext(io_context)
 	, m_PartyManager(std::make_unique<PartyManager>())
 	, m_RedisClient(std::move(redisClient))
-	, m_MySQLConnector(std::move(mysqlManager))
+	, m_MySQLClient(std::move(mysqlClient))
 	, m_ThreadPool(threadPool)
 {
 }
@@ -180,7 +180,7 @@ bool TcpServer::VerifyUser(std::shared_ptr<UserSession>& user, const std::string
 		user->SetID(StringToUint32(sessionValue));
 		user->SetVerified(true);
 
-		std::shared_ptr<UserEntity> userEntity = m_MySQLConnector->GetUserById(sessionValue);
+		std::shared_ptr<UserEntity> userEntity = m_MySQLClient->GetUserById(sessionValue);
 		user->SetUserEntity(userEntity);
 
 		return true;
@@ -468,8 +468,8 @@ std::future<std::shared_ptr<UserEntity>> TcpServer::CheckUserExistence(const std
 {
 	return m_ThreadPool.EnqueueJob([this, userId]() -> std::shared_ptr<UserEntity> 
 	{
-		std::vector<MySQLManager::Condition> conditions = { {"user_id", userId} };
-		auto receiveUser = m_MySQLConnector->GetUserByConditions(conditions);
+		std::vector<MySQLClient::Condition> conditions = { {"user_id", userId} };
+		auto receiveUser = m_MySQLClient->GetUserByConditions(conditions);
 		if (!receiveUser) 
 		{
 			throw std::runtime_error("User not found.");
@@ -485,11 +485,11 @@ std::future<void> TcpServer::CheckFriendRequestStatus(std::shared_ptr<UserSessio
 		auto requestId = std::to_string(user->GetId());
 		auto receiveId = std::to_string(receiveUser->GetId());
 
-		if (m_MySQLConnector->HasFriendRequest(requestId, receiveId)) 
+		if (m_MySQLClient->HasFriendRequest(requestId, receiveId)) 
 		{
 			throw std::runtime_error("You have already sent a friend request to this user.");
 		}
-		if (m_MySQLConnector->HasFriendRequest(receiveId, requestId)) 
+		if (m_MySQLClient->HasFriendRequest(receiveId, requestId)) 
 		{
 			throw std::runtime_error("This user has already sent you a friend request.");
 		}
@@ -499,7 +499,7 @@ std::future<void> TcpServer::CheckFriendRequestStatus(std::shared_ptr<UserSessio
 std::future<void> TcpServer::AddFriendRequest(std::shared_ptr<UserSession> user, std::shared_ptr<UserEntity> receiveUser) {
 	return m_ThreadPool.EnqueueJob([this, user, receiveUser]() 
 	{
-		if (!m_MySQLConnector->AddFriendRequest(std::to_string(user->GetId()), std::to_string(receiveUser->GetId()))) 
+		if (!m_MySQLClient->AddFriendRequest(std::to_string(user->GetId()), std::to_string(receiveUser->GetId()))) 
 		{
 			throw std::runtime_error("Failed to create friend request.");
 		}
@@ -536,14 +536,14 @@ std::future<void> TcpServer::ProcessFriendAccept(std::shared_ptr<UserSession> us
 	{
 		try 		
 		{
-			m_MySQLConnector->BeginTransaction();
-			m_MySQLConnector->UpdateFriend(std::to_string(sender->GetId()), std::to_string(user->GetId()), "A");
-			m_MySQLConnector->AddFriendship(std::to_string(sender->GetId()), std::to_string(user->GetId()));
-			m_MySQLConnector->CommitTransaction();
+			m_MySQLClient->BeginTransaction();
+			m_MySQLClient->UpdateFriend(std::to_string(sender->GetId()), std::to_string(user->GetId()), "A");
+			m_MySQLClient->AddFriendship(std::to_string(sender->GetId()), std::to_string(user->GetId()));
+			m_MySQLClient->CommitTransaction();
 		}
 		catch (const std::exception&) 
 		{
-			m_MySQLConnector->RollbackTransaction();
+			m_MySQLClient->RollbackTransaction();
 			throw std::runtime_error("Failed to process friend accept.");
 		}
 	});
@@ -577,13 +577,13 @@ std::future<void> TcpServer::ProcessFriendReject(std::shared_ptr<UserSession> us
 	{
 		try 
 		{
-			m_MySQLConnector->BeginTransaction();
-			m_MySQLConnector->DeleteFriendRequest(std::to_string(sender->GetId()), std::to_string(user->GetId()));
-			m_MySQLConnector->CommitTransaction();
+			m_MySQLClient->BeginTransaction();
+			m_MySQLClient->DeleteFriendRequest(std::to_string(sender->GetId()), std::to_string(user->GetId()));
+			m_MySQLClient->CommitTransaction();
 		}
 		catch (const std::exception&) 
 		{
-			m_MySQLConnector->RollbackTransaction();
+			m_MySQLClient->RollbackTransaction();
 			throw std::runtime_error("Failed to process friend reject.");
 		}
 	});

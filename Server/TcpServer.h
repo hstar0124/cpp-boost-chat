@@ -4,7 +4,7 @@
 #include "PartyManager.h"
 #include "UserSession.h"
 #include "RedisClient.hpp"
-#include "MySQLManager.h"
+#include "MySQLClient.h"
 #include "HSThreadPool.hpp"
 
 class TcpServer 
@@ -24,7 +24,7 @@ private:
     // Redis 관리 클래스
     std::unique_ptr<CRedisClient>               m_RedisClient;
     // MySQL 관리 클래스
-    std::unique_ptr<MySQLManager>               m_MySQLConnector;
+    std::unique_ptr<MySQLClient>                m_MySQLClient;
     // 동접자 수
     uint32_t                                    m_MaxUser = 5;
 
@@ -32,7 +32,7 @@ private:
     HSThreadPool&                               m_ThreadPool;
 
 public:
-    TcpServer(boost::asio::io_context& io_context, int port, std::unique_ptr<CRedisClient> redisClient, std::unique_ptr<MySQLManager> mysqlManager, HSThreadPool& threadPool);
+    TcpServer(boost::asio::io_context& io_context, int port, std::unique_ptr<CRedisClient> redisClient, std::unique_ptr<MySQLClient> mysqlManager, HSThreadPool& threadPool);
     ~TcpServer();
     bool Start(uint32_t maxUser);
     void Update();
