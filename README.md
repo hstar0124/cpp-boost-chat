@@ -102,7 +102,8 @@ Protobuf를 통해 메시지 직렬화/역직렬화를 진행하여 JSON 대비 
 ## 기술 스택
 
 - C++ 17
-- ASP.net Core 6.4.0
+- .NET8
+- ASP.Net Core
 - EntityFreamworkCore-MySql 8.0.2
 - Boost 1.84.0
 - Protobuf 3.14.0
