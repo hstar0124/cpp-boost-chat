@@ -1,4 +1,4 @@
-#include "Party.h"
+#include "Party/include/Party.h"
 
 Party::Party(uint32_t partyId, uint32_t creator, const std::string& partyName) :
   m_PartyId(partyId)

@@ -287,7 +287,6 @@ void TcpServer::HandleAllMessage(std::shared_ptr<UserSession> user, std::shared_
 	// 메시지가 비어 있는지 확인
 	if (msg->content().empty())
 	{
-		std::cout << "[SERVER] Empty message, not sending.\n";
 		return;
 	}
 

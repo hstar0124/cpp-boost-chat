@@ -1,11 +1,11 @@
 #pragma once
 #include "Common.h"
-#include "Party.h"
-#include "PartyManager.h"
-#include "UserSession.h"
-#include "RedisClient.hpp"
-#include "MySQLManager.h"
-#include "HSThreadPool.hpp"
+#include "Party/include/Party.h"
+#include "Party/include/PartyManager.h"
+#include "User/include/UserSession.h"
+#include "DB/include/RedisClient.hpp"
+#include "DB/include/MySQLManager.h"
+#include "Util/HSThreadPool.hpp"
 
 class TcpServer 
 {

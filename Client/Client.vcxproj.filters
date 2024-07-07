@@ -5,59 +5,85 @@
       <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
       <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
     </Filter>
+    <Filter Include="소스 파일\Message">
+      <UniqueIdentifier>{db0d1903-c7b0-407e-b135-f07af5b7f275}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\Api">
+      <UniqueIdentifier>{58888374-bc91-4408-9e15-c65e02eb74de}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\Socket">
+      <UniqueIdentifier>{9a57cb6c-423f-4d67-b267-e87cd6afd80e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\Util">
+      <UniqueIdentifier>{bf9cbe7d-2857-4e94-8c10-34d944046422}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\Api\include">
+      <UniqueIdentifier>{40a13600-6277-416d-ae42-666099b9223e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\Api\src">
+      <UniqueIdentifier>{418fdbbe-0727-49e6-9b24-138acfad8969}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\Socket\include">
+      <UniqueIdentifier>{582cf78d-abf5-4550-a55e-205ae1e9b9b8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\Socket\src">
+      <UniqueIdentifier>{9867b5e8-807e-4e1c-8e94-3477b88e8782}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="HttpClient.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="Client.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="ChatClient.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="UserMessage.pb.cc">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="MyMessage.pb.cc">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="main.cpp">
       <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Message\UserMessage.pb.cc">
+      <Filter>소스 파일\Message</Filter>
+    </ClCompile>
+    <ClCompile Include="Message\MyMessage.pb.cc">
+      <Filter>소스 파일\Message</Filter>
+    </ClCompile>
+    <ClCompile Include="Api\src\HttpClient.cpp">
+      <Filter>소스 파일\Api\src</Filter>
+    </ClCompile>
+    <ClCompile Include="Socket\src\ChatClient.cpp">
+      <Filter>소스 파일\Socket\src</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common.h">
       <Filter>소스 파일</Filter>
     </ClInclude>
-    <ClInclude Include="ThreadSafeQueue.h">
-      <Filter>소스 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="HttpClient.h">
-      <Filter>소스 파일</Filter>
-    </ClInclude>
     <ClInclude Include="Client.h">
       <Filter>소스 파일</Filter>
     </ClInclude>
-    <ClInclude Include="ChatClient.h">
-      <Filter>소스 파일</Filter>
+    <ClInclude Include="Message\UserMessage.pb.h">
+      <Filter>소스 파일\Message</Filter>
     </ClInclude>
-    <ClInclude Include="UserMessage.pb.h">
-      <Filter>소스 파일</Filter>
+    <ClInclude Include="Message\MyMessage.pb.h">
+      <Filter>소스 파일\Message</Filter>
     </ClInclude>
-    <ClInclude Include="MyMessage.pb.h">
-      <Filter>소스 파일</Filter>
+    <ClInclude Include="Api\include\HttpClient.h">
+      <Filter>소스 파일\Api\include</Filter>
+    </ClInclude>
+    <ClInclude Include="Socket\include\ChatClient.h">
+      <Filter>소스 파일\Socket\include</Filter>
+    </ClInclude>
+    <ClInclude Include="Util\ThreadSafeQueue.h">
+      <Filter>소스 파일\Util</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="ApiUrl.txt">
-      <Filter>소스 파일</Filter>
+    <None Include="Message\MyMessage.proto">
+      <Filter>소스 파일\Message</Filter>
     </None>
-    <None Include="UserMessage.proto">
-      <Filter>소스 파일</Filter>
+    <None Include="Message\UserMessage.proto">
+      <Filter>소스 파일\Message</Filter>
     </None>
-    <None Include="MyMessage.proto">
-      <Filter>소스 파일</Filter>
-    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="Api\include\ApiUrl.txt">
+      <Filter>소스 파일\Api\include</Filter>
+    </Text>
   </ItemGroup>
 </Project>

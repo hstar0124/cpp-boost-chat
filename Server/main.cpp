@@ -1,9 +1,8 @@
 ﻿#include "Common.h"
 #include "TcpServer.h"
-#include "MySQLManager.h"
-
-
-
+#include "DB/include/MySQLManager.h"
+#include "DB/include/RedisClient.hpp"
+#include "Util/HSThreadPool.hpp"
 
 int main()
 {
@@ -15,7 +14,10 @@ int main()
 	{
 		std::cout << "connect to redis failed" << std::endl;
 	}
-	std::cout << "connect to redis Success!" << std::endl;
+	else
+	{
+		std::cout << "connect to redis Success!" << std::endl;
+	}
 
 	// MySQL 초기화
 	std::unique_ptr<MySQLManager> mysqlManager = std::make_unique<MySQLManager>("127.0.0.1", "root", "root", "hstar");

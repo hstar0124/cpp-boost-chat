@@ -1,5 +1,5 @@
 #pragma once
-#include "MyMessage.pb.h"
+#include "Message/MyMessage.pb.h"
 #include "Common.h"
 
 template <typename T>

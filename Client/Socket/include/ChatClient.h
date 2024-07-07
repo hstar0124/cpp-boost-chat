@@ -1,6 +1,6 @@
 #pragma once
 #include "Common.h"
-#include "MyMessage.pb.h"
+#include "Message/MyMessage.pb.h"
 #include <functional>
 
 class ChatClient

@@ -1,4 +1,4 @@
-#include "MySQLManager.h"
+#include "DB/include/MySQLManager.h"
 
 MySQLManager::MySQLManager(const std::string& host, const std::string& user, const std::string& password, const std::string& db, unsigned int port)
     : m_Conn(mysql_init(nullptr), mysql_close)

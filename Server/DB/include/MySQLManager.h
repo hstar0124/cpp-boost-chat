@@ -6,7 +6,7 @@
 #include <string>
 #include <stdexcept>
 
-#include "UserEntity.hpp"
+#include "User/include/UserEntity.hpp"
 
 class MySQLManager {
 private:
