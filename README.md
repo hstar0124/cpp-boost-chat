@@ -123,12 +123,28 @@ C++는 **높은 성능과 자원 효율성**을 제공하며,
 
 ## Getting Started
 
-### 소스 및 라이브러리 다운로드
+### 소스 다운로드
 
-github develop 브런치에서 소스를 ![다운로드](https://github.com/hstar0124/hstar-project/archive/refs/heads/develop.zip)
+github develop 브런치에서 소스 [다운로드](https://github.com/hstar0124/hstar-project/archive/refs/heads/develop.zip) 이후 압축해제
 
 https://github.com/hstar0124/hstar-project
 
 ![image](https://github.com/hstar0124/hstar-project/assets/57317290/e07f0cc9-88f1-42c0-b284-d0509463f9d9)
 
+![image](https://github.com/hstar0124/hstar-project/assets/57317290/c4bc0df2-a77f-44dd-b465-ba1c1c5d7ffe)
 
+### 라이브러리 다운로드
+
+dropbox 에서 관련 라이브러리 [다운로드](https://www.dropbox.com/scl/fi/d40xvoxuj9pbzt6njkkyo/Libraries.zip?rlkey=pz0fj9rviodcz6jby4etphf0x&st=ojmfume1&dl=0) 이후 압축해제
+
+압축 해제할 때 폴더 구조는 아래와 같이 진행
+```
+- ApiServer
+- Client
+**- Libraries
+  └ include
+  └ libs**
+- Proto
+- Server
+- ...
+```
