@@ -148,3 +148,21 @@ dropbox 에서 관련 라이브러리 [다운로드](https://www.dropbox.com/scl
 - Server
 - ...
 ```
+
+### DB 세팅 
+
+로컬에 Mysql, Redis 가 기동(두 DB 모두 기본 포트로 기동)
+MySQL DB 명은 hstar로 기본적으로 접속 시도
+
+[DB Script](https://github.com/hstar0124/hstar-project/wiki/MySQL-DB-Script)
+
+### Solution 세팅 및 기동
+
+root 폴더에 있는 HStarProject.sln 을 실행시키면 Visual Studio가 열리게 된다. 
+열리면 Debug 모드로 빌드 후 테스트 진행하면 된다.
+
+![image](https://github.com/hstar0124/hstar-project/assets/57317290/d012dfd5-3af6-44f1-b5e3-effb098db525)
+
+Multiple startup projects 세팅은 아래와 같이 세팅 후 진행하면 오류 없이 잘 실행된다.
+
+![image](https://github.com/hstar0124/hstar-project/assets/57317290/0bee494a-c4f7-44f9-a024-6a56deb30271)
