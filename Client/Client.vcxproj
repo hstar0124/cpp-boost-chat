@@ -178,7 +178,7 @@
     <None Include="Message\UserMessage.proto" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="Api\include\ApiUrl.txt" />
+    <Text Include="ApiUrl.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

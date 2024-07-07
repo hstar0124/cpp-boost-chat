@@ -82,8 +82,8 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="Api\include\ApiUrl.txt">
-      <Filter>소스 파일\Api\include</Filter>
+    <Text Include="ApiUrl.txt">
+      <Filter>소스 파일</Filter>
     </Text>
   </ItemGroup>
 </Project>

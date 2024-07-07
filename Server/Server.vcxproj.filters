@@ -108,6 +108,9 @@
     <ClInclude Include="Util\PacketConverter.hpp">
       <Filter>소스 파일\Util</Filter>
     </ClInclude>
+    <ClInclude Include="Util\ConfigParser.hpp">
+      <Filter>소스 파일\Util</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Message\MyMessage.proto">
