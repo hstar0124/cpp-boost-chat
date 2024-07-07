@@ -10,7 +10,7 @@
 
 class MySQLManager {
 private:
-    std::unique_ptr<MYSQL, decltype(&mysql_close)> m_Conn;
+    std::unique_ptr<MYSQL, decltype(&mysql_close)> m_Connection;
 
 public:
     struct Condition 
