@@ -15,7 +15,6 @@ TcpServer::~TcpServer()
 	try
 	{
 		m_Acceptor.close();
-
 		m_IoContext.stop();
 
 		if (m_ContextThread.joinable())
@@ -23,28 +22,8 @@ TcpServer::~TcpServer()
 			m_ContextThread.join();
 		}
 
-		{
-			std::scoped_lock lock(m_UsersMutex);
-
-			for (auto& user : m_Users)
-			{
-				if (user && user->IsConnected())
-				{
-					user->Close();
-				}
-			}
-
-			m_Users.clear();
-		}
-
-		{
-			std::scoped_lock lock(m_NewUsersMutex);
-
-			while (!m_NewUsers.empty())
-			{
-				m_NewUsers.pop();
-			}
-		}
+		RemoveUserSessions();
+		RemoveNewUserSessions();
 	}
 	catch (const std::exception& e)
 	{
@@ -191,6 +170,31 @@ bool TcpServer::VerifyUser(std::shared_ptr<UserSession>& user, const std::string
 		return false;
 	}
 	return true;
+}
+
+void TcpServer::RemoveUserSessions()
+{
+	std::scoped_lock lock(m_UsersMutex);
+
+	for (auto& user : m_Users)
+	{
+		if (user && user->IsConnected())
+		{
+			user->Close();
+		}
+	}
+
+	m_Users.clear();
+}
+
+void TcpServer::RemoveNewUserSessions()
+{
+	std::scoped_lock lock(m_NewUsersMutex);
+
+	while (!m_NewUsers.empty())
+	{
+		m_NewUsers.pop();
+	}
 }
 
 void TcpServer::Update()

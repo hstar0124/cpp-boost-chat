@@ -48,6 +48,9 @@ private:
     void UpdateUsers();
     bool VerifyUser(std::shared_ptr<UserSession>& user, const std::string& sessionId);
 
+    void RemoveUserSessions();
+    void RemoveNewUserSessions();
+
     void OnAccept(std::shared_ptr<UserSession> user, const boost::system::error_code& err);
     void OnMessage(std::shared_ptr<UserSession> user, std::shared_ptr<myChatMessage::ChatMessage> msg);
 
