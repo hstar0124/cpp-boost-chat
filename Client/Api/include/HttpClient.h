@@ -6,7 +6,7 @@
 #include <boost/asio/connect.hpp>
 #include <boost/asio/ip/tcp.hpp>
 #include <google/protobuf/message.h>
-#include "UserMessage.pb.h"  
+#include "Message/UserMessage.pb.h"  
 #include <memory>
 #include <string>
 

@@ -4,6 +4,6 @@ namespace LoginApiServer.Repository.Interface
 {
     public interface ICacheRepository
     {
-        UserStatusCode CreateSession(string sessionId, long id);
+        Task<UserStatusCode> CreateSession(string sessionId, long id);
     }
 }

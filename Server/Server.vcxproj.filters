@@ -5,80 +5,116 @@
       <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
       <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
     </Filter>
+    <Filter Include="소스 파일\DB">
+      <UniqueIdentifier>{dba12ae1-563d-4b5f-bd6c-ef7a79e804c1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\Message">
+      <UniqueIdentifier>{5970717f-659f-47f6-90e2-83f599901a48}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\Party">
+      <UniqueIdentifier>{5bc10a46-eae4-4509-9380-faa15060044d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\User">
+      <UniqueIdentifier>{986dc096-eebd-4af0-885f-8419219bb95e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\Util">
+      <UniqueIdentifier>{5b07553c-330a-4ac7-84b7-4ecd8273d445}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\DB\include">
+      <UniqueIdentifier>{52f5e207-0331-457a-ac16-d02888eca681}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\DB\src">
+      <UniqueIdentifier>{de283238-e4c8-482a-968e-56dcde3fa129}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\User\include">
+      <UniqueIdentifier>{8bbf9842-9f57-4b31-ac71-6933bc11317d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\User\src">
+      <UniqueIdentifier>{2fee976d-acb9-4a9e-a3a4-191c5183eb30}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\Party\include">
+      <UniqueIdentifier>{42641d66-d8ae-4366-8642-f304693741d1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\Party\src">
+      <UniqueIdentifier>{4f8964cc-d8ce-4b23-a303-d772a233cc10}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="TcpServer.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Party.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="PartyManager.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="UserSession.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="RedisClient.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="MySQLManager.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="MyMessage.pb.cc">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="main.cpp">
       <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="DB\src\MySQLManager.cpp">
+      <Filter>소스 파일\DB\src</Filter>
+    </ClCompile>
+    <ClCompile Include="DB\src\RedisClient.cpp">
+      <Filter>소스 파일\DB\src</Filter>
+    </ClCompile>
+    <ClCompile Include="Message\MyMessage.pb.cc">
+      <Filter>소스 파일\Message</Filter>
+    </ClCompile>
+    <ClCompile Include="Party\src\Party.cpp">
+      <Filter>소스 파일\Party\src</Filter>
+    </ClCompile>
+    <ClCompile Include="Party\src\PartyManager.cpp">
+      <Filter>소스 파일\Party\src</Filter>
+    </ClCompile>
+    <ClCompile Include="User\src\UserSession.cpp">
+      <Filter>소스 파일\User\src</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="TcpServer.h">
       <Filter>소스 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Message.h">
-      <Filter>소스 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="ThreadSafeQueue.hpp">
-      <Filter>소스 파일</Filter>
-    </ClInclude>
     <ClInclude Include="Common.h">
       <Filter>소스 파일</Filter>
     </ClInclude>
-    <ClInclude Include="PacketConverter.hpp">
-      <Filter>소스 파일</Filter>
+    <ClInclude Include="DB\include\MySQLManager.h">
+      <Filter>소스 파일\DB\include</Filter>
     </ClInclude>
-    <ClInclude Include="Party.h">
-      <Filter>소스 파일</Filter>
+    <ClInclude Include="DB\include\RedisClient.hpp">
+      <Filter>소스 파일\DB\include</Filter>
     </ClInclude>
-    <ClInclude Include="ThreadSafeVector.hpp">
-      <Filter>소스 파일</Filter>
+    <ClInclude Include="Message\MyMessage.pb.h">
+      <Filter>소스 파일\Message</Filter>
     </ClInclude>
-    <ClInclude Include="PartyManager.h">
-      <Filter>소스 파일</Filter>
+    <ClInclude Include="Message\Message.h">
+      <Filter>소스 파일\Message</Filter>
     </ClInclude>
-    <ClInclude Include="UserSession.h">
-      <Filter>소스 파일</Filter>
+    <ClInclude Include="Party\include\PartyManager.h">
+      <Filter>소스 파일\Party\include</Filter>
     </ClInclude>
-    <ClInclude Include="RedisClient.hpp">
-      <Filter>소스 파일</Filter>
+    <ClInclude Include="Party\include\Party.h">
+      <Filter>소스 파일\Party\include</Filter>
     </ClInclude>
-    <ClInclude Include="MySQLManager.h">
-      <Filter>소스 파일</Filter>
+    <ClInclude Include="User\include\UserSession.h">
+      <Filter>소스 파일\User\include</Filter>
     </ClInclude>
-    <ClInclude Include="UserEntity.hpp">
-      <Filter>소스 파일</Filter>
+    <ClInclude Include="User\include\UserEntity.hpp">
+      <Filter>소스 파일\User\include</Filter>
     </ClInclude>
-    <ClInclude Include="MyMessage.pb.h">
-      <Filter>소스 파일</Filter>
+    <ClInclude Include="Util\ThreadSafeQueue.hpp">
+      <Filter>소스 파일\Util</Filter>
     </ClInclude>
-    <ClInclude Include="HSThreadPool.hpp">
-      <Filter>소스 파일</Filter>
+    <ClInclude Include="Util\ThreadSafeVector.hpp">
+      <Filter>소스 파일\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="Util\HSThreadPool.hpp">
+      <Filter>소스 파일\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="Util\PacketConverter.hpp">
+      <Filter>소스 파일\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="Util\ConfigParser.hpp">
+      <Filter>소스 파일\Util</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="MyMessage.proto">
-      <Filter>소스 파일</Filter>
+    <None Include="Message\MyMessage.proto">
+      <Filter>소스 파일\Message</Filter>
     </None>
   </ItemGroup>
 </Project>

@@ -1,8 +1,8 @@
 #pragma once
 #include "Common.h"
-#include "UserMessage.pb.h"
-#include "HttpClient.h"
-#include "ChatClient.h"
+#include "Message/UserMessage.pb.h"
+#include "Api/include/HttpClient.h"
+#include "Socket/include/ChatClient.h"
 
 class Client
 {

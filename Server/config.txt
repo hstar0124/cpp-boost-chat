@@ -1,0 +1,6 @@
+redis_host=127.0.0.1
+redis_port=6379
+mysql_host=127.0.0.1
+mysql_id=root
+mysql_pw=root
+mysql_db=hstar

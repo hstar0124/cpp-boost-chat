@@ -73,7 +73,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ExternalIncludePath>$(ExternalIncludePath)</ExternalIncludePath>
     <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
-    <PublicIncludeDirectories>C:\workspace\portfolio\Libraries\include\boost_1_84_0;$(PublicIncludeDirectories)</PublicIncludeDirectories>
+    <PublicIncludeDirectories>$(PublicIncludeDirectories)</PublicIncludeDirectories>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ExternalIncludePath>..\lib\boost_1_84_0;$(ExternalIncludePath)</ExternalIncludePath>
@@ -82,7 +82,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ExternalIncludePath>$(ExternalIncludePath)</ExternalIncludePath>
     <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
-    <PublicIncludeDirectories>C:\workspace\portfolio\Libraries\include\boost_1_84_0;$(PublicIncludeDirectories)</PublicIncludeDirectories>
+    <PublicIncludeDirectories>$(PublicIncludeDirectories)</PublicIncludeDirectories>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ExternalIncludePath>..\lib\boost_1_84_0;$(ExternalIncludePath)</ExternalIncludePath>
@@ -95,7 +95,7 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)Libraries\include\boost_1_84_0;$(SolutionDir)Libraries\include\protobuf_3_14_0;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Libraries\include\boost_1_84_0;$(SolutionDir)Client;$(SolutionDir)Libraries\include\protobuf_3_14_0;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
     <Link>
@@ -129,7 +129,7 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)Libraries\include\boost_1_84_0;$(SolutionDir)Libraries\include\protobuf_3_14_0;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Libraries\include\boost_1_84_0;$(SolutionDir)Client;$(SolutionDir)Libraries\include\protobuf_3_14_0;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
     <Link>
@@ -157,26 +157,28 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Api\src\HttpClient.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="ChatClient.cpp" />
     <ClCompile Include="Client.cpp" />
-    <ClCompile Include="HttpClient.cpp" />
-    <ClCompile Include="MyMessage.pb.cc" />
-    <ClCompile Include="UserMessage.pb.cc" />
+    <ClCompile Include="Message\MyMessage.pb.cc" />
+    <ClCompile Include="Message\UserMessage.pb.cc" />
+    <ClCompile Include="Socket\src\ChatClient.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="ChatClient.h" />
+    <ClInclude Include="Api\include\HttpClient.h" />
     <ClInclude Include="Client.h" />
     <ClInclude Include="Common.h" />
-    <ClInclude Include="HttpClient.h" />
-    <ClInclude Include="MyMessage.pb.h" />
-    <ClInclude Include="ThreadSafeQueue.h" />
-    <ClInclude Include="UserMessage.pb.h" />
+    <ClInclude Include="Message\MyMessage.pb.h" />
+    <ClInclude Include="Message\UserMessage.pb.h" />
+    <ClInclude Include="Socket\include\ChatClient.h" />
+    <ClInclude Include="Util\ThreadSafeQueue.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="ApiUrl.txt" />
-    <None Include="MyMessage.proto" />
-    <None Include="UserMessage.proto" />
+    <None Include="Message\MyMessage.proto" />
+    <None Include="Message\UserMessage.proto" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="ApiUrl.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -1,4 +1,4 @@
-#include "PartyManager.h"
+#include "Party/include/PartyManager.h"
 
 
 PartyManager::PartyManager()

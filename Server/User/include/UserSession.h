@@ -1,8 +1,8 @@
 #pragma once
 #include "Common.h"
-#include "MyMessage.pb.h"
-#include "PacketConverter.hpp"
-#include "MySQLManager.h"
+#include "Message/MyMessage.pb.h"
+#include "Util/PacketConverter.hpp"
+#include "DB/include/MySQLManager.h"
 #include "UserEntity.hpp"
 
 class UserSession : public std::enable_shared_from_this<UserSession>

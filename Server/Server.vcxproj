@@ -94,7 +94,7 @@
       <PreprocessorDefinitions>%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)Libraries\include\mysql_8_0;$(SolutionDir)Libraries\include\boost_1_84_0;$(SolutionDir)Libraries\include\hiredis_1_2_0;$(SolutionDir)Libraries\include\protobuf_3_14_0;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Server;$(SolutionDir)Libraries\include\mysql_8_0;$(SolutionDir)Libraries\include\boost_1_84_0;$(SolutionDir)Libraries\include\hiredis_1_2_0;$(SolutionDir)Libraries\include\protobuf_3_14_0;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
     <Link>
@@ -128,7 +128,7 @@
       <PreprocessorDefinitions>%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)Libraries\include\mysql_8_0;$(SolutionDir)Libraries\include\boost_1_84_0;$(SolutionDir)Libraries\include\hiredis_1_2_0;$(SolutionDir)Libraries\include\protobuf_3_14_0;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Server;$(SolutionDir)Libraries\include\mysql_8_0;$(SolutionDir)Libraries\include\boost_1_84_0;$(SolutionDir)Libraries\include\hiredis_1_2_0;$(SolutionDir)Libraries\include\protobuf_3_14_0;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
     <Link>
@@ -156,33 +156,34 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="MyMessage.pb.cc" />
-    <ClCompile Include="MySQLManager.cpp" />
-    <ClCompile Include="Party.cpp" />
-    <ClCompile Include="PartyManager.cpp" />
-    <ClCompile Include="RedisClient.cpp" />
+    <ClCompile Include="DB\src\MySQLManager.cpp" />
+    <ClCompile Include="DB\src\RedisClient.cpp" />
+    <ClCompile Include="Message\MyMessage.pb.cc" />
+    <ClCompile Include="Party\src\Party.cpp" />
+    <ClCompile Include="Party\src\PartyManager.cpp" />
     <ClCompile Include="TcpServer.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="UserSession.cpp" />
+    <ClCompile Include="User\src\UserSession.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common.h" />
-    <ClInclude Include="HSThreadPool.hpp" />
-    <ClInclude Include="Message.h" />
-    <ClInclude Include="MyMessage.pb.h" />
-    <ClInclude Include="MySQLManager.h" />
-    <ClInclude Include="PacketConverter.hpp" />
-    <ClInclude Include="Party.h" />
-    <ClInclude Include="PartyManager.h" />
-    <ClInclude Include="RedisClient.hpp" />
+    <ClInclude Include="DB\include\MySQLManager.h" />
+    <ClInclude Include="DB\include\RedisClient.hpp" />
+    <ClInclude Include="Message\Message.h" />
+    <ClInclude Include="Message\MyMessage.pb.h" />
+    <ClInclude Include="Party\include\Party.h" />
+    <ClInclude Include="Party\include\PartyManager.h" />
     <ClInclude Include="TcpServer.h" />
-    <ClInclude Include="ThreadSafeVector.hpp" />
-    <ClInclude Include="ThreadSafeQueue.hpp" />
-    <ClInclude Include="UserSession.h" />
-    <ClInclude Include="UserEntity.hpp" />
+    <ClInclude Include="User\include\UserEntity.hpp" />
+    <ClInclude Include="User\include\UserSession.h" />
+    <ClInclude Include="Util\ConfigParser.hpp" />
+    <ClInclude Include="Util\HSThreadPool.hpp" />
+    <ClInclude Include="Util\PacketConverter.hpp" />
+    <ClInclude Include="Util\ThreadSafeQueue.hpp" />
+    <ClInclude Include="Util\ThreadSafeVector.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="MyMessage.proto" />
+    <None Include="Message\MyMessage.proto" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

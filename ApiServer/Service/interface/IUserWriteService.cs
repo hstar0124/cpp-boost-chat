@@ -4,9 +4,9 @@ namespace LoginApiServer.Service.Interface
 {
     public interface IUserWriteService
     {
-        UserResponse LoginUser(LoginRequest request);
-        UserResponse CreateUser(CreateUserRequest request);
-        UserResponse DeleteUser(DeleteUserRequest request);
-        UserResponse UpdateUser(UpdateUserRequest request);
+        Task<UserResponse> LoginUser(LoginRequest request);
+        Task<UserResponse> CreateUser(CreateUserRequest request);
+        Task<UserResponse> DeleteUser(DeleteUserRequest request);
+        Task<UserResponse> UpdateUser(UpdateUserRequest request);
     }
 }

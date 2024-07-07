@@ -18,11 +18,11 @@ namespace LoginApiServer.Service
             _userRepository = userRepository;
         }
 
-        public UserResponse GetUserFromUserid(string id)
+        public async Task<UserResponse> GetUserFromUserid(string id)
         {
             var status = UserStatusCode.Success;
 
-            (status, UserEntity storedUser) = _userRepository.GetUserFromUserid(id);
+            (status, GetUserResponse response) = await _userRepository.GetUserFromUserid(id);
             
             if (status != UserStatusCode.Success)
             {
@@ -34,19 +34,11 @@ namespace LoginApiServer.Service
                 };
             }
 
-            // DB에서 가져온 값을 그대로 유저에게 넘겨주지 않도록 주의
-            var userResponse = new GetUserResponse
-            {
-                UserId = storedUser.UserId,
-                Username = storedUser.Username,
-                Email = storedUser.Email
-            };
-
             return new UserResponse
             {
                 Status = status,
                 Message = "User retrieved successfully",
-                Content = Any.Pack(userResponse)
+                Content = Any.Pack(response)
             };
             
         }

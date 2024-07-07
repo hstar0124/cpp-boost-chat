@@ -6,11 +6,11 @@
 #include <string>
 #include <stdexcept>
 
-#include "UserEntity.hpp"
+#include "User/include/UserEntity.hpp"
 
 class MySQLManager {
 private:
-    std::unique_ptr<MYSQL, decltype(&mysql_close)> m_Conn;
+    std::unique_ptr<MYSQL, decltype(&mysql_close)> m_Connection;
 
 public:
     struct Condition 

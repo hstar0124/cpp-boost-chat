@@ -1,11 +1,11 @@
 #pragma once
 #include "Common.h"
-#include "Party.h"
-#include "PartyManager.h"
-#include "UserSession.h"
-#include "RedisClient.hpp"
-#include "MySQLManager.h"
-#include "HSThreadPool.hpp"
+#include "Party/include/Party.h"
+#include "Party/include/PartyManager.h"
+#include "User/include/UserSession.h"
+#include "DB/include/RedisClient.hpp"
+#include "DB/include/MySQLManager.h"
+#include "Util/HSThreadPool.hpp"
 
 class TcpServer 
 {
@@ -47,6 +47,9 @@ private:
     void WaitForClientConnection();
     void UpdateUsers();
     bool VerifyUser(std::shared_ptr<UserSession>& user, const std::string& sessionId);
+
+    void RemoveUserSessions();
+    void RemoveNewUserSessions();
 
     void OnAccept(std::shared_ptr<UserSession> user, const boost::system::error_code& err);
     void OnMessage(std::shared_ptr<UserSession> user, std::shared_ptr<myChatMessage::ChatMessage> msg);

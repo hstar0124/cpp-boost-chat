@@ -1,4 +1,5 @@
-﻿using ApiServer.Model.Entity;
+﻿using ApiServer.Model;
+using ApiServer.Model.Entity;
 using Google.Protobuf.WellKnownTypes;
 using LoginApiServer.Model;
 using LoginApiServer.Repository.Interface;
@@ -21,11 +22,11 @@ namespace LoginApiServer.Service
             _cacheRepository = cacheRepository;
         }
 
-        public UserResponse LoginUser(LoginRequest request)
+        public async Task<UserResponse> LoginUser(LoginRequest request)
         {
-            var status = UserStatusCode.Success;            
+            var status = UserStatusCode.Failure;
 
-            UserEntity user = new UserEntity
+            UserDto user = new UserDto
             {
                 UserId = request.UserId,
                 Password = request.Password
@@ -33,7 +34,7 @@ namespace LoginApiServer.Service
 
             try
             {
-                (status, UserEntity storedUser) = _userRepository.ValidateUserCredentials(user);
+                (status, UserDto userInfo) = await _userRepository.ValidateUserCredentials(user);
 
                 // 로그인 실패시 Fast Return
                 if (status != UserStatusCode.Success)
@@ -49,7 +50,7 @@ namespace LoginApiServer.Service
                 string sessionId = Guid.NewGuid().ToString().Replace("-", "");
 
                 // Redis에 세션 ID 저장
-                status = _cacheRepository.CreateSession(sessionId, storedUser.Id);
+                status = await _cacheRepository.CreateSession(sessionId, userInfo.Id);
                 if (status != UserStatusCode.Success)
                 {
                     _logger.LogError("An error occurred while login the User for UserId {UserId}.", request.UserId);
@@ -87,11 +88,11 @@ namespace LoginApiServer.Service
             }
         }
 
-        public UserResponse CreateUser(CreateUserRequest request)
+        public async Task<UserResponse> CreateUser(CreateUserRequest request)
         {
-            var status = UserStatusCode.Success;
+            var status = UserStatusCode.Failure;
 
-            UserEntity user = new UserEntity
+            UserDto user = new UserDto
             {
                 UserId = request.UserId,
                 Password = PasswordHelper.HashPassword(request.Password),
@@ -103,7 +104,7 @@ namespace LoginApiServer.Service
 
             try
             {
-                status = _userRepository.CreateUser(user);
+                status = await _userRepository.CreateUser(user);
 
                 return new UserResponse
                 {
@@ -123,73 +124,70 @@ namespace LoginApiServer.Service
             }
         }
 
-        public UserResponse UpdateUser(UpdateUserRequest request)
+        public async Task<UserResponse> UpdateUser(UpdateUserRequest request)
         {
-            var status = UserStatusCode.Success;
+            var status = UserStatusCode.Failure;
 
-            UserEntity user = new UserEntity
+            UserDto user = new UserDto
             {
                 UserId = request.UserId,
                 Password = request.Password
             };
 
-            using (var scope = new TransactionScope())
+
+            try
             {
-                try
+                (status, UserDto userInfo) = await _userRepository.ValidateUserCredentials(user);
+
+                // 유저가 존재하지 않거나, 비밀번호가 틀린경우
+                if (status != UserStatusCode.Success)
                 {
-                    (status, UserEntity storedUser) = _userRepository.ValidateUserCredentials(user);
-                    
-                    // 유저가 존재하지 않거나, 비밀번호가 틀린경우
-                    if (status != UserStatusCode.Success)
-                    {
-                        _logger.LogError("An error occurred while updating the User for UserId {UserId}.", request.UserId);
-                        return new UserResponse
-                        {
-                            Status = status,
-                            Message = "An error occurred while updating the User"
-                        };
-                    }
-
-                    // 업데이트할 필드만 업데이트
-                    if (!string.IsNullOrEmpty(request.ToBePassword))
-                    {
-                        storedUser.Password = PasswordHelper.HashPassword(request.ToBePassword);                        
-                    }
-                    if (!string.IsNullOrEmpty(request.ToBeUsername))
-                    {
-                        storedUser.Username = request.ToBeUsername;
-                    }
-                    if (!string.IsNullOrEmpty(request.ToBeEmail))
-                    {
-                        storedUser.Email = request.ToBeEmail;
-                    }
-
-                    // 사용자 정보를 업데이트
-                    status = _userRepository.UpdateUser(storedUser);
-                    if (status != UserStatusCode.Success)
-                    {
-                        _logger.LogError("An error occurred while updating the User for UserId {UserId}.", request.UserId);
-                        return new UserResponse
-                        {
-                            Status = status,
-                            Message = "An error occurred while updating the User"
-                        };
-                    }
-
-                    // 트랜잭션 범위 완료
-                    scope.Complete();
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, "An exception occurred while updating the User for UserId {UserId}.", request.UserId);
-                    status = UserStatusCode.Failure;
+                    _logger.LogError("An error occurred while updating the User for UserId {UserId}.", request.UserId);
                     return new UserResponse
                     {
                         Status = status,
-                        Message = "An exception occurred while updating the User"
+                        Message = "An error occurred while updating the User"
                     };
                 }
+
+                // 업데이트할 필드만 업데이트
+                if (!string.IsNullOrEmpty(request.ToBePassword))
+                {
+                    userInfo.Password = PasswordHelper.HashPassword(request.ToBePassword);                        
+                }
+                if (!string.IsNullOrEmpty(request.ToBeUsername))
+                {
+                    userInfo.Username = request.ToBeUsername;
+                }
+                if (!string.IsNullOrEmpty(request.ToBeEmail))
+                {
+                    userInfo.Email = request.ToBeEmail;
+                }
+
+                // 사용자 정보를 업데이트
+                status = await _userRepository.UpdateUser(userInfo);
+                if (status != UserStatusCode.Success)
+                {
+                    _logger.LogError("An error occurred while updating the User for UserId {UserId}.", request.UserId);
+                    return new UserResponse
+                    {
+                        Status = status,
+                        Message = "An error occurred while updating the User"
+                    };
+                }
+
             }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An exception occurred while updating the User for UserId {UserId}.", request.UserId);
+                status = UserStatusCode.Failure;
+                return new UserResponse
+                {
+                    Status = status,
+                    Message = "An exception occurred while updating the User"
+                };
+            }
+            
 
             return new UserResponse
             {
@@ -199,60 +197,54 @@ namespace LoginApiServer.Service
         }
 
 
-        public UserResponse DeleteUser(DeleteUserRequest request)
+        public async Task<UserResponse> DeleteUser(DeleteUserRequest request)
         {
-            var status = UserStatusCode.Success;
+            var status = UserStatusCode.Failure;
 
-            UserEntity user = new UserEntity
+            UserDto user = new UserDto
             {
                 UserId = request.UserId,
                 Password = request.Password
             };
 
-            using (var scope = new TransactionScope())
+            try
             {
-                try
+                (status, UserDto userInfo) = await _userRepository.ValidateUserCredentials(user);
+
+                if (status != UserStatusCode.Success)
                 {
-                    (status, UserEntity storedUser) = _userRepository.ValidateUserCredentials(user);
-
-                    if (status != UserStatusCode.Success)
-                    {
-                        _logger.LogError("An error occurred while deleting the User for UserId {UserId}.", request.UserId);
-                        return new UserResponse
-                        {
-                            Status = status,
-                            Message = "An error occurred while deleting the User"
-                        };
-                    }
-
-                    // 소프트 삭제
-                    storedUser.IsAlive = "N";
-
-                    status = _userRepository.DeleteUser(storedUser);
-                    if (status != UserStatusCode.Success)
-                    {
-                        _logger.LogError("An error occurred while deleting the User for UserId {UserId}.", request.UserId);
-                        return new UserResponse
-                        {
-                            Status = status,
-                            Message = "An error occurred while deleting the User"
-                        };
-                    }
-
-
-                    // 트랜잭션 범위 완료
-                    scope.Complete();
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, "An exception occurred while deleting the User for UserId {UserId}.", request.UserId);
-                    status = UserStatusCode.Failure;
+                    _logger.LogError("An error occurred while deleting the User for UserId {UserId}.", request.UserId);
                     return new UserResponse
                     {
                         Status = status,
-                        Message = "An exception occurred while deleting the User"
+                        Message = "An error occurred while deleting the User"
                     };
                 }
+
+                // 소프트 삭제
+                userInfo.IsAlive = "N";
+
+                status = await _userRepository.DeleteUser(userInfo);
+                if (status != UserStatusCode.Success)
+                {
+                    _logger.LogError("An error occurred while deleting the User for UserId {UserId}.", request.UserId);
+                    return new UserResponse
+                    {
+                        Status = status,
+                        Message = "An error occurred while deleting the User"
+                    };
+                }
+
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An exception occurred while deleting the User for UserId {UserId}.", request.UserId);
+                status = UserStatusCode.Failure;
+                return new UserResponse
+                {
+                    Status = status,
+                    Message = "An exception occurred while deleting the User"
+                };
             }
 
             return new UserResponse

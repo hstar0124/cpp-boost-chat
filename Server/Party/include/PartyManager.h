@@ -1,6 +1,6 @@
 #pragma once
 #include "Party.h"
-#include "UserSession.h"
+#include "User/include/UserSession.h"
 
 class PartyManager
 {
