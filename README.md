@@ -141,9 +141,9 @@ dropbox 에서 관련 라이브러리 [다운로드](https://www.dropbox.com/scl
 ```
 - ApiServer
 - Client
-**- Libraries
+- Libraries
   └ include
-  └ libs**
+  └ libs
 - Proto
 - Server
 - ...
