@@ -121,5 +121,14 @@ C++는 **높은 성능과 자원 효율성**을 제공하며,
 
 ![친구추가_흐름도](https://github.com/hstar0124/hstar-project/assets/57317290/b5f72f61-0adc-49ac-b38b-d482020714a1)
 
+## Getting Started
+
+### 소스 및 라이브러리 다운로드
+
+github develop 브런치에서 소스를 ![다운로드](https://github.com/hstar0124/hstar-project/archive/refs/heads/develop.zip)
+
+https://github.com/hstar0124/hstar-project
+
+![image](https://github.com/hstar0124/hstar-project/assets/57317290/e07f0cc9-88f1-42c0-b284-d0509463f9d9)
 
 
