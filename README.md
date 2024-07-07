@@ -151,7 +151,7 @@ dropbox 에서 관련 라이브러리 [다운로드](https://www.dropbox.com/scl
 
 ### DB 세팅 
 
-로컬에 Mysql, Redis 가 기동(두 DB 모두 기본 포트로 기동)
+로컬에 Mysql, Redis 가 기본포트로 기동되어 있어야 한다.
 MySQL DB 명은 hstar로 기본적으로 접속 시도
 
 [DB Script](https://github.com/hstar0124/hstar-project/wiki/MySQL-DB-Script)
