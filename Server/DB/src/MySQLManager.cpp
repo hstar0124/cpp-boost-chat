@@ -1,24 +1,24 @@
 #include "DB/include/MySQLManager.h"
 
 MySQLManager::MySQLManager(const std::string& host, const std::string& user, const std::string& password, const std::string& db, unsigned int port)
-    : m_Conn(mysql_init(nullptr), mysql_close)
+    : m_Connection(mysql_init(nullptr), mysql_close)
 {
 
-    if (!m_Conn) 
+    if (!m_Connection) 
     {
         throw std::runtime_error("MySQL initialization failed");
     }
 
-    if (!mysql_real_connect(m_Conn.get(), host.c_str(), user.c_str(), password.c_str(), db.c_str(), port, nullptr, 0)) 
+    if (!mysql_real_connect(m_Connection.get(), host.c_str(), user.c_str(), password.c_str(), db.c_str(), port, nullptr, 0)) 
     {
-        throw std::runtime_error(mysql_error(m_Conn.get()));
+        throw std::runtime_error(mysql_error(m_Connection.get()));
     }
 }
 
-bool MySQLManager::AddFriendRequest(const std::string& sender_id, const std::string& receiver_id)
+bool MySQLManager::AddFriendRequest(const std::string& senderId, const std::string& receiverId)
 {
     std::string query = "INSERT INTO friend_requests (sender_id, receiver_id, status) VALUES (?, ?, 'P')";
-    std::vector<std::string> params = { sender_id, receiver_id };
+    std::vector<std::string> params = { senderId, receiverId };
 
     try 
     {
@@ -32,7 +32,7 @@ bool MySQLManager::AddFriendRequest(const std::string& sender_id, const std::str
 
 void MySQLManager::executePreparedStatement(const std::string& query, std::vector<std::string>& params)
 {
-    std::unique_ptr<MYSQL_STMT, decltype(&mysql_stmt_close)> stmt(mysql_stmt_init(m_Conn.get()), mysql_stmt_close);
+    std::unique_ptr<MYSQL_STMT, decltype(&mysql_stmt_close)> stmt(mysql_stmt_init(m_Connection.get()), mysql_stmt_close);
 
     if (!stmt)
     {
@@ -95,10 +95,10 @@ void MySQLManager::UpdateFriend(const std::string& senderId, const std::string& 
     }
 }
 
-void MySQLManager::DeleteFriendRequest(const std::string& sender_id, const std::string& receiver_id)
+void MySQLManager::DeleteFriendRequest(const std::string& senderId, const std::string& receiverId)
 {
     std::string query = "DELETE FROM friend_requests WHERE sender_id = ? AND receiver_id = ?";
-    std::vector<std::string> params = { sender_id, receiver_id };
+    std::vector<std::string> params = { senderId, receiverId };
 
     try
     {
@@ -111,10 +111,10 @@ void MySQLManager::DeleteFriendRequest(const std::string& sender_id, const std::
 }
 
 
-bool MySQLManager::AddFriendship(const std::string& user_id1, const std::string& user_id2)
+bool MySQLManager::AddFriendship(const std::string& userId1, const std::string& userId2)
 {
     std::string query = "INSERT INTO friendships (user_id1, user_id2) VALUES (?, ?)";
-    std::vector<std::string> params = { user_id1, user_id2 };
+    std::vector<std::string> params = { userId1, userId2 };
 
     try
     {
@@ -126,15 +126,15 @@ bool MySQLManager::AddFriendship(const std::string& user_id1, const std::string&
     }
 }
 
-bool MySQLManager::HasFriendRequest(const std::string& sender_id, const std::string& receiver_id)
+bool MySQLManager::HasFriendRequest(const std::string& senderId, const std::string& receiverId)
 {
     try
     {
         std::string query = "SELECT COUNT(*) AS count FROM friend_requests WHERE sender_id = ? AND receiver_id = ? AND (status = 'P' OR status = 'A')";
-        std::vector<std::string> params = { sender_id, receiver_id };
+        std::vector<std::string> params = { senderId, receiverId };
         int count = 0;
 
-        auto stmt = mysql_stmt_init(m_Conn.get());
+        auto stmt = mysql_stmt_init(m_Connection.get());
         if (!stmt)
         {
             throw std::runtime_error("Failed to initialize statement");
@@ -198,7 +198,7 @@ std::shared_ptr<UserEntity> MySQLManager::GetUserById(const std::string& request
     std::string query = "SELECT id, user_id, password, username, email, is_alive FROM user WHERE id = ?";
     std::vector<std::string> params = { requestId };
 
-    MYSQL_STMT* stmt = mysql_stmt_init(m_Conn.get());
+    MYSQL_STMT* stmt = mysql_stmt_init(m_Connection.get());
     if (!stmt) 
     {
         throw std::runtime_error("Failed to initialize statement");
@@ -302,7 +302,7 @@ std::shared_ptr<UserEntity> MySQLManager::GetUserByConditions(const std::vector<
         params.push_back(conditions[i].value);
     }
 
-    MYSQL_STMT* stmt = mysql_stmt_init(m_Conn.get());
+    MYSQL_STMT* stmt = mysql_stmt_init(m_Connection.get());
     if (!stmt)
     {
         throw std::runtime_error("Failed to initialize statement");
@@ -397,26 +397,26 @@ std::shared_ptr<UserEntity> MySQLManager::GetUserByConditions(const std::vector<
 
 void MySQLManager::BeginTransaction()
 {
-    if (mysql_autocommit(m_Conn.get(), false) != 0)
+    if (mysql_autocommit(m_Connection.get(), false) != 0)
     {
-        throw std::runtime_error("Failed to start transaction: " + std::string(mysql_error(m_Conn.get())));
+        throw std::runtime_error("Failed to start transaction: " + std::string(mysql_error(m_Connection.get())));
     }
 }
 
 void MySQLManager::CommitTransaction()
 {
-    if (mysql_commit(m_Conn.get()) != 0)
+    if (mysql_commit(m_Connection.get()) != 0)
     {
-        throw std::runtime_error("Failed to commit transaction: " + std::string(mysql_error(m_Conn.get())));
+        throw std::runtime_error("Failed to commit transaction: " + std::string(mysql_error(m_Connection.get())));
     }
-    mysql_autocommit(m_Conn.get(), true); // Restore autocommit mode
+    mysql_autocommit(m_Connection.get(), true); // Restore autocommit mode
 }
 
 void MySQLManager::RollbackTransaction()
 {
-    if (mysql_rollback(m_Conn.get()) != 0)
+    if (mysql_rollback(m_Connection.get()) != 0)
     {
-        throw std::runtime_error("Failed to rollback transaction: " + std::string(mysql_error(m_Conn.get())));
+        throw std::runtime_error("Failed to rollback transaction: " + std::string(mysql_error(m_Connection.get())));
     }
-    mysql_autocommit(m_Conn.get(), true); // Restore autocommit mode
+    mysql_autocommit(m_Connection.get(), true); // Restore autocommit mode
 }

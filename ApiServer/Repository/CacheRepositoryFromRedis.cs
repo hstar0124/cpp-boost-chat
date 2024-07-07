@@ -16,7 +16,7 @@ namespace LoginApiServer.Repository
             _sessionDb = _redis.GetDatabase(_sessionDbIndex);
         }
 
-        public UserStatusCode CreateSession(string sessionId, long accountId)
+        public async Task<UserStatusCode> CreateSession(string sessionId, long accountId)
         {
             try
             {
@@ -24,7 +24,7 @@ namespace LoginApiServer.Repository
                 var sessionKey = $"Session:{sessionId}";
 
                 // 먼저 AccountID로 조회
-                RedisValue existingSessionId = _sessionDb.StringGet(accountKey);
+                RedisValue existingSessionId = await _sessionDb.StringGetAsync(accountKey);
                 if (existingSessionId.HasValue)
                 {
                     var existingSessionKey = $"Session:{existingSessionId}";
@@ -32,11 +32,11 @@ namespace LoginApiServer.Repository
                     var tran = _sessionDb.CreateTransaction();
 
                     // 기존 세션 삭제 및 새로운 세션 설정
-                    tran.KeyDeleteAsync(existingSessionKey);
-                    tran.StringSetAsync(sessionKey, accountId, new TimeSpan(0, 3, 0));
-                    tran.StringSetAsync(accountKey, sessionId, new TimeSpan(0, 3, 0));
+                    await tran.KeyDeleteAsync(existingSessionKey);
+                    await tran.StringSetAsync(sessionKey, accountId, new TimeSpan(0, 3, 0));
+                    await tran.StringSetAsync(accountKey, sessionId, new TimeSpan(0, 3, 0));
 
-                    bool committed = tran.Execute();
+                    bool committed = await tran.ExecuteAsync();
                     return committed ? UserStatusCode.Success : UserStatusCode.Failure;
                 }
                 else
@@ -47,10 +47,10 @@ namespace LoginApiServer.Repository
                     tran.AddCondition(Condition.KeyNotExists(sessionKey));
                     tran.AddCondition(Condition.KeyNotExists(accountKey));
 
-                    tran.StringSetAsync(sessionKey, accountId, new TimeSpan(0, 3, 0));
-                    tran.StringSetAsync(accountKey, sessionId, new TimeSpan(0, 3, 0));
+                    await tran.StringSetAsync(sessionKey, accountId, new TimeSpan(0, 3, 0));
+                    await tran.StringSetAsync(accountKey, sessionId, new TimeSpan(0, 3, 0));
 
-                    bool committed = tran.Execute();
+                    bool committed = await tran.ExecuteAsync();
                     return committed ? UserStatusCode.Success : UserStatusCode.Failure;
                 }
             }
@@ -60,12 +60,12 @@ namespace LoginApiServer.Repository
             }
         }
 
-        public UserStatusCode KeepAliveSessionFromAccountId(long accountId)
+        public async Task<UserStatusCode> KeepAliveSessionFromAccountId(long accountId)
         {
             try
             {
                 string accountKey = $"Account:{accountId}";
-                RedisValue redisValue = _sessionDb.StringGet(accountKey);
+                RedisValue redisValue = await _sessionDb.StringGetAsync(accountKey);
                 if (!redisValue.HasValue)
                 {
                     return UserStatusCode.Failure;
@@ -76,10 +76,10 @@ namespace LoginApiServer.Repository
 
                 var tran = _sessionDb.CreateTransaction();
 
-                tran.KeyExpireAsync(accountKey, new TimeSpan(0, 3, 0));
-                tran.KeyExpireAsync(sessionKey, new TimeSpan(0, 3, 0));
+                await tran.KeyExpireAsync(accountKey, new TimeSpan(0, 3, 0));
+                await tran.KeyExpireAsync(sessionKey, new TimeSpan(0, 3, 0));
 
-                bool committed = tran.Execute();
+                bool committed = await tran.ExecuteAsync();
                 return committed ? UserStatusCode.Success : UserStatusCode.Failure;
             }
             catch (Exception)
@@ -88,12 +88,12 @@ namespace LoginApiServer.Repository
             }
         }
 
-        public UserStatusCode DeleteSessionFromAccountId(long accountId)
+        public async Task<UserStatusCode> DeleteSessionFromAccountId(long accountId)
         {
             try
             {
                 string accountKey = $"Account:{accountId}";
-                RedisValue redisValue = _sessionDb.StringGet(accountKey);
+                RedisValue redisValue = await _sessionDb.StringGetAsync(accountKey);
                 if (!redisValue.HasValue)
                 {
                     return UserStatusCode.Failure;
@@ -104,10 +104,10 @@ namespace LoginApiServer.Repository
 
                 var tran = _sessionDb.CreateTransaction();
 
-                tran.KeyDeleteAsync(sessionKey);
-                tran.KeyDeleteAsync(accountKey);
+                await tran.KeyDeleteAsync(sessionKey);
+                await tran.KeyDeleteAsync(accountKey);
 
-                bool committed = tran.Execute();
+                bool committed = await tran.ExecuteAsync();
                 return committed ? UserStatusCode.Success : UserStatusCode.Failure;
             }
             catch (Exception)

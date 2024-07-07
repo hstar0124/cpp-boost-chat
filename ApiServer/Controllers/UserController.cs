@@ -24,11 +24,11 @@ namespace LoginApiServer.Controllers
         }
 
         [HttpGet]
-        public UserResponse GetUser([FromQuery]string userId)
+        public async Task<UserResponse> GetUser([FromQuery]string userId)
         {           
             try
             {
-                var response = _userReadService.GetUserFromUserid(userId);
+                var response = await _userReadService.GetUserFromUserid(userId);
                 return response;
             }
             catch (Exception ex)
@@ -39,12 +39,11 @@ namespace LoginApiServer.Controllers
 
         // 유저 생성
         [HttpPost]
-        public UserResponse Create([FromBody] CreateUserRequest request)
+        public async Task<UserResponse> Create([FromBody] CreateUserRequest request)
         {
             try
             {
-                var response = _userWriteService.CreateUser(request);
-
+                var response = await _userWriteService.CreateUser(request);
                 return response;
             }
             catch (Exception ex)
@@ -55,11 +54,11 @@ namespace LoginApiServer.Controllers
 
         // 유저 로그인
         [HttpPost]
-        public UserResponse Login([FromBody] LoginRequest request)
+        public async Task<UserResponse> Login([FromBody] LoginRequest request)
         {
             try
             {
-                var response = _userWriteService.LoginUser(request);
+                var response = await _userWriteService.LoginUser(request);
 
                 return response;
             }
@@ -71,11 +70,11 @@ namespace LoginApiServer.Controllers
 
         // 유저 변경
         [HttpPost]
-        public UserResponse Update([FromBody] UpdateUserRequest request)
+        public async Task<UserResponse> Update([FromBody] UpdateUserRequest request)
         {
             try
             {
-                var response = _userWriteService.UpdateUser(request);
+                var response = await _userWriteService.UpdateUser(request);
 
                 return response;
 
@@ -89,11 +88,11 @@ namespace LoginApiServer.Controllers
 
         // 유저 삭제
         [HttpPost]
-        public UserResponse Delete([FromBody] DeleteUserRequest request)
+        public async Task<UserResponse> Delete([FromBody] DeleteUserRequest request)
         {
             try
             {
-                var response = _userWriteService.DeleteUser(request);
+                var response = await _userWriteService.DeleteUser(request);
 
                 return response;
             }

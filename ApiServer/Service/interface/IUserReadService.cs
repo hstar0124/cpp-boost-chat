@@ -6,6 +6,6 @@ namespace LoginApiServer.Service.Interface
 {
     public interface IUserReadService
     {
-        UserResponse GetUserFromUserid(string id);
+        Task<UserResponse> GetUserFromUserid(string id);
     }
 }
