@@ -1,0 +1,6 @@
+[INFO] [2024-07-15 21:38:24] [Initializing Start] [C:\workspace\portfolio\Client\Client.cpp:24]
+[INFO] [2024-07-15 21:38:24] [Initializing Success!!!] [C:\workspace\portfolio\Client\Client.cpp:43]
+[INFO] [2024-07-15 21:39:07] [Initializing Start] [C:\workspace\portfolio\Client\Client.cpp:24]
+[INFO] [2024-07-15 21:39:07] [Initializing Success!!!] [C:\workspace\portfolio\Client\Client.cpp:43]
+[INFO] [2024-07-15 21:40:07] [Initializing Start] [C:\workspace\portfolio\Client\Client.cpp:24]
+[INFO] [2024-07-15 21:40:07] [Initializing Success!!!] [C:\workspace\portfolio\Client\Client.cpp:43]
