@@ -31,12 +31,15 @@ namespace LoginApiServer.Repository
 
                     var tran = _sessionDb.CreateTransaction();
 
-                    // 기존 세션 삭제 및 새로운 세션 설정
-                    await tran.KeyDeleteAsync(existingSessionKey);
-                    await tran.StringSetAsync(sessionKey, accountId, new TimeSpan(0, 3, 0));
-                    await tran.StringSetAsync(accountKey, sessionId, new TimeSpan(0, 3, 0));
+                    // 트랜잭션 내 비동기 작업을 동기식으로 수행
+                    var deleteOldSession = tran.KeyDeleteAsync(existingSessionKey);
+                    var setNewSession = tran.StringSetAsync(sessionKey, accountId, new TimeSpan(0, 3, 0));
+                    var setNewAccountKey = tran.StringSetAsync(accountKey, sessionId, new TimeSpan(0, 3, 0));
 
+                    // 트랜잭션 실행
                     bool committed = await tran.ExecuteAsync();
+                    await Task.WhenAll(deleteOldSession, setNewSession, setNewAccountKey);
+
                     return committed ? UserStatusCode.Success : UserStatusCode.Failure;
                 }
                 else
@@ -47,10 +50,14 @@ namespace LoginApiServer.Repository
                     tran.AddCondition(Condition.KeyNotExists(sessionKey));
                     tran.AddCondition(Condition.KeyNotExists(accountKey));
 
-                    await tran.StringSetAsync(sessionKey, accountId, new TimeSpan(0, 3, 0));
-                    await tran.StringSetAsync(accountKey, sessionId, new TimeSpan(0, 3, 0));
+                    // 트랜잭션 내 비동기 작업을 동기식으로 수행
+                    var setNewSession = tran.StringSetAsync(sessionKey, accountId, new TimeSpan(0, 3, 0));
+                    var setNewAccountKey = tran.StringSetAsync(accountKey, sessionId, new TimeSpan(0, 3, 0));
 
+                    // 트랜잭션 실행
                     bool committed = await tran.ExecuteAsync();
+                    await Task.WhenAll(setNewSession, setNewAccountKey);
+
                     return committed ? UserStatusCode.Success : UserStatusCode.Failure;
                 }
             }
