@@ -1,7 +1,7 @@
 #include "Api/include/HttpClient.h"
 #include <iostream>
 #include <stdexcept>
-
+#include "Util/HsLogger.hpp"
 
 HttpClient::HttpClient(boost::asio::io_context& ioc, const std::string& host, const std::string& port)
     : m_Host(host), m_Port(port), io_context(ioc), m_Resolver(ioc), m_Socket(ioc) 

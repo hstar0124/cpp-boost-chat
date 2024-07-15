@@ -1,4 +1,5 @@
 #include "Client.h"
+#include "Util/HsLogger.hpp"
 
 Client::Client() 
 {
@@ -18,6 +19,7 @@ void Client::Init()
 {
     
     std::cout << "Initializing Start......" << std::endl;
+    LOG(LogLevel::INFO, "Initializing Start");
     m_ApiUrls = LoadConfig("apiurl.txt");
 
     try
@@ -28,6 +30,7 @@ void Client::Init()
     catch (const std::exception& ex)
     {
         std::cerr << "Error initializing clients: " << ex.what() << std::endl;
+        LOG(LogLevel::ERR, "Error initializing clients");
         exit(1);  
     }
 }
@@ -35,6 +38,7 @@ void Client::Init()
 void Client::Start()
 {
     std::cout << "Initializing Success!!!" << std::endl;
+    LOG(LogLevel::INFO, "Initializing Success!!!");
     while (true)
     {
         DisplayCommand();
@@ -47,6 +51,7 @@ void Client::Start()
             std::cin.clear(); // 스트림 상태 플래그 초기화
             std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // 잘못된 입력 무시
             std::cout << "Invalid input. Please enter a number between 1 and 5." << std::endl;
+            LOG(LogLevel::WARNING, "Invalid input. Please enter a number between 1 and 5.");
             continue;
         }
 
@@ -81,6 +86,7 @@ void Client::HandleMenuChoice(int choice)
         auto response = ProcessLoginUser();
         if (response.status() != UserStatusCode::Success) 
         {
+            LOG(LogLevel::ERR, "Login Failed!!");
             std::cout << "Login Failed!!" << std::endl;
             break;
         }
@@ -112,6 +118,7 @@ void Client::HandleMenuChoice(int choice)
         ProcessDeleteUser();
         break;
     default:
+        LOG(LogLevel::WARNING, "Invalid choice. Please try again.");
         std::cout << "Invalid choice. Please try again." << std::endl;
         break;
     }
@@ -225,10 +232,10 @@ UserResponse Client::ProcessUserGetRequest(const std::string& endpoint)
 
 std::unordered_map<std::string, std::string> Client::LoadConfig(const std::string& filename)
 {
-    std::ifstream file(filename);
+    std::ifstream m_File(filename);
     std::unordered_map<std::string, std::string> config;
     std::string line;
-    while (std::getline(file, line))
+    while (std::getline(m_File, line))
     {
         std::istringstream iss(line);
         std::string key, value;
@@ -260,6 +267,7 @@ void Client::ChatLoop()
     }
     else
     {
+        LOG(LogLevel::WARNING, "Waiting for verification. Please wait...");
         std::cout << "Waiting for verification. Please wait..." << std::endl;
     }
 }

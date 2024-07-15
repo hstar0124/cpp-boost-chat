@@ -1,4 +1,5 @@
 #include "Party/include/Party.h"
+#include "Util/HsLogger.hpp"
 
 Party::Party(uint32_t partyId, uint32_t creator, const std::string& partyName) :
   m_PartyId(partyId)

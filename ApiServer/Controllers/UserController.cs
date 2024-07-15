@@ -1,6 +1,4 @@
-﻿using Google.Protobuf.WellKnownTypes;
-using LoginApiServer.Model;
-using LoginApiServer.Service.Interface;
+﻿using LoginApiServer.Service.Interface;
 using LoginApiServer.Utils;
 using Microsoft.AspNetCore.Mvc;
 

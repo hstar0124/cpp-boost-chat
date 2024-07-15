@@ -1,4 +1,5 @@
 #include "TcpServer.h"
+#include "Util/HsLogger.hpp"
 
 TcpServer::TcpServer(boost::asio::io_context& io_context, int port, std::unique_ptr<CRedisClient> redisClient, std::unique_ptr<MySQLManager> mysqlManager, HSThreadPool& threadPool)
 	: m_Acceptor(io_context, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), port))
@@ -30,6 +31,7 @@ TcpServer::~TcpServer()
 		std::cerr << "[SERVER] Exception in destructor: " << e.what() << "\n";
 	}
 
+	LOG(LogLevel::INFO, "Shutdown complete.");
 	std::cout << "[SERVER] Shutdown complete.\n";
 }
 
@@ -51,6 +53,7 @@ bool TcpServer::Start(uint32_t maxUser = 3)
 		return false;
 	}
 
+	LOG(LogLevel::INFO, "TcpServer Start");
 	std::cout << "[SERVER] Started!\n";
 	return true;
 }
@@ -85,6 +88,7 @@ void TcpServer::OnAccept(std::shared_ptr<UserSession> user, const boost::system:
 	}
 	else
 	{
+		LOG(LogLevel::ERR, "Error : " + err.message());
 		std::cout << "[SERVER] Error " << err.message() << std::endl;
 	}
 
@@ -151,6 +155,7 @@ bool TcpServer::VerifyUser(std::shared_ptr<UserSession>& user, const std::string
 	{
 		if (m_RedisClient->Get(sessionKey, &sessionValue) != RC_SUCCESS)
 		{
+			LOG(LogLevel::WARNING, "Not Found Session ID!");
 			std::cout << "Not Found Session ID!!" << std::endl;
 			return false;
 		}
@@ -260,7 +265,6 @@ void TcpServer::OnMessage(std::shared_ptr<UserSession> user, std::shared_ptr<myC
 		HandleWhisperMessage(user, msg);
 		break;
 	case myChatMessage::ChatMessageType::FRIEND_REQUEST:
-		//m_ThreadPool.EnqueueJob([=](){ HandleFriendRequestMessage(user, msg); });
 		HandleFriendRequest(user, msg);
 		break;
 	case myChatMessage::ChatMessageType::FRIEND_ACCEPT:
@@ -704,6 +708,7 @@ void TcpServer::SendPartyMessage(std::shared_ptr<Party>& party, std::shared_ptr<
 
 void TcpServer::SendErrorMessage(std::shared_ptr<UserSession>& user, const std::string& errorMessage)
 {
+	LOG(LogLevel::ERR, "Send Error Message : " + user->GetUserEntity()->GetUserId() + " : " + errorMessage);
 	std::cout << "[SERVER] " << user->GetUserEntity()->GetUserId() << " : " << errorMessage << "\n";
 	// 에러 메시지 생성
 	auto errMsg = std::make_shared<myChatMessage::ChatMessage>();

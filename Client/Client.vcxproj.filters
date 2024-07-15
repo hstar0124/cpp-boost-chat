@@ -49,6 +49,9 @@
     <ClCompile Include="Socket\src\ChatClient.cpp">
       <Filter>소스 파일\Socket\src</Filter>
     </ClCompile>
+    <ClCompile Include="HsLogger.hpp">
+      <Filter>소스 파일\Util</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common.h">

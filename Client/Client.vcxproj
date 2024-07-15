@@ -158,6 +158,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Api\src\HttpClient.cpp" />
+    <ClCompile Include="HsLogger.hpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Client.cpp" />
     <ClCompile Include="Message\MyMessage.pb.cc" />
