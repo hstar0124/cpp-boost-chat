@@ -17,6 +17,7 @@ void HttpClient::Connect()
 {
     try
     {
+        std::cout << "Http Client Connect! " << "\n";
         auto const results = m_Resolver.resolve(m_Host, m_Port);
         boost::asio::connect(m_Socket, results.begin(), results.end());
     }

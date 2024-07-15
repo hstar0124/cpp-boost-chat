@@ -57,7 +57,6 @@ namespace LoginApiServer.Controllers
             try
             {
                 var response = await _userWriteService.LoginUser(request);
-
                 return response;
             }
             catch (Exception ex)

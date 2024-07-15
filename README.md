@@ -4,14 +4,18 @@ Boost.Asio 와 Protobuf를 활용한 Socket Server
 
 ## 프로젝트 소개
 
-게임 서버에서 중요한 것은 **빠른 반응속도**와 **다양한 환경과 연결**이라고 생각합니다.
+로그인 및 유저 정보 관리는 ASP.NET Core API 서버를 통해 안정적이고 확장 가능한 백엔드 서비스를 구축했습니다.
+이를 통해 **안정적**이고 **확장 가능**한 백엔드 서비스를 구축할 수 있었습니다. 
+**MVC 패턴**을 적용함으로써 코드의 **가독성과 유지보수성**을 높였으며, 
+**Entity Framework Core**를 활용하여 데이터베이스 작업의 **생산성**을 크게 향상시켰습니다. 
+이러한 접근 방식은 유저 데이터의 효율적인 관리와 안정성을 보장합니다.
 
-로그인 및 유저 정보 관리는 ASP.net Core API 서버로 구현하였으며, **MVC 패턴**을 적용하여, 가독성과 유지보수성을 생각했습니다.
-또한 EntityFrameWorkCore를 활용하여 **생산성**을 높였습니다.
-
-**빠른 반응속도**를 생각하여 C++로 소켓서버를 구성하였습니다.
-**비동기 I/O에 특화**된 Boost.Asio를 활용하여 소켓 통신 기능을 구현 하였으며,
-Protobuf를 통해 메시지 직렬화/역직렬화를 진행하여 JSON 대비 **패킷 사이즈를 2/3 절감** 했습니다.
+빠른 반응 속도를 달성하기 위해 C++로 소켓 서버를 구성하였습니다. 
+C++는 **높은 성능과 자원 효율성**을 제공하며, 
+이를 통해 게임 서버의 핵심인 **빠른 데이터 처리를 구현**할 수 있었습니다. 
+특히, **비동기 I/O**에 특화된 Boost.Asio 라이브러리를 활용하여 소켓 통신 기능을 구현하였고, 
+이를 통해 높은 동시성을 처리할 수 있는 서버 환경을 구축하였습니다. 
+**Protobuf**를 사용한 메시지 직렬화/역직렬화는 **JSON 대비 패킷 사이즈를 약 2/3 절감**시켜 네트워크 대역폭을 효율적으로 활용할 수 있게 해주었습니다.
 
 
 
@@ -30,6 +34,22 @@ Protobuf를 통해 메시지 직렬화/역직렬화를 진행하여 JSON 대비 
 - 간단하고 명확한 인터페이스로 직관적으로 개발 가능
 
 
+## 기술 스택
+
+- C++ 17
+- .NET 8
+- ASP.Net Core
+- EntityFreamworkCore-MySql 8.0.2
+- Boost 1.84.0
+- Protobuf 3.14.0
+- hiredis 1.2.0
+- Redis
+- Mysql 8.0
+- openssl 3.3.1
+- Visual Studio 2022
+- Windows 10
+- Github
+  
 
 ## 주요 특장점
 
@@ -97,20 +117,48 @@ Protobuf를 통해 메시지 직렬화/역직렬화를 진행하여 JSON 대비 
 
 ![친구추가_흐름도](https://github.com/hstar0124/hstar-project/assets/57317290/b5f72f61-0adc-49ac-b38b-d482020714a1)
 
+## Getting Started
 
+### 소스 다운로드
 
-## 기술 스택
+github develop 브런치에서 소스 [다운로드](https://github.com/hstar0124/hstar-project/archive/refs/heads/develop.zip) 이후 압축해제
 
-- C++ 17
-- .NET8
-- ASP.Net Core
-- EntityFreamworkCore-MySql 8.0.2
-- Boost 1.84.0
-- Protobuf 3.14.0
-- hiredis 1.2.0
-- Redis
-- Mysql 8.0
-- openssl 3.3.1
-- Visual Studio 2022
-- Windows 10
-- Github
+https://github.com/hstar0124/hstar-project
+
+![image](https://github.com/hstar0124/hstar-project/assets/57317290/e07f0cc9-88f1-42c0-b284-d0509463f9d9)
+
+![image](https://github.com/hstar0124/hstar-project/assets/57317290/c4bc0df2-a77f-44dd-b465-ba1c1c5d7ffe)
+
+### 라이브러리 다운로드
+
+dropbox 에서 관련 라이브러리 [다운로드](https://www.dropbox.com/scl/fi/d40xvoxuj9pbzt6njkkyo/Libraries.zip?rlkey=pz0fj9rviodcz6jby4etphf0x&st=ojmfume1&dl=0) 이후 압축해제
+
+압축 해제할 때 폴더 구조는 아래와 같이 진행
+```
+- ApiServer
+- Client
+- Libraries
+  └ include
+  └ libs
+- Proto
+- Server
+- ...
+```
+
+### DB 세팅 
+
+로컬에 Mysql, Redis 가 기본포트로 기동되어 있어야 한다.
+MySQL DB 명은 hstar로 기본적으로 접속 시도
+
+[DB Script](https://github.com/hstar0124/hstar-project/wiki/MySQL-DB-Script)
+
+### Solution 세팅 및 기동
+
+root 폴더에 있는 HStarProject.sln 을 실행시키면 Visual Studio가 열리게 된다. 
+열리면 Debug 모드로 빌드 후 테스트 진행하면 된다.
+
+![image](https://github.com/hstar0124/hstar-project/assets/57317290/d012dfd5-3af6-44f1-b5e3-effb098db525)
+
+Multiple startup projects 세팅은 아래와 같이 세팅 후 진행하면 오류 없이 잘 실행된다.
+
+![image](https://github.com/hstar0124/hstar-project/assets/57317290/0bee494a-c4f7-44f9-a024-6a56deb30271)
