@@ -1,3 +1,4 @@
+using ApiServer.Filters;
 using ApiServer.Repository;
 using ApiServer.Repository.Context;
 using LoginApiServer.Formatter;
@@ -8,7 +9,7 @@ using LoginApiServer.Service.Interface;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllers()
+builder.Services.AddControllers(option => option.Filters.Add<GlobalExceptionFilter>())
     .AddProtobufFormatters();
 
 // API 엔드포인트 탐색 문서화위한 서비스 등록

@@ -1,5 +1,5 @@
-﻿using LoginApiServer.Service.Interface;
-using LoginApiServer.Utils;
+﻿using ApiServer.CustomException;
+using LoginApiServer.Service.Interface;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LoginApiServer.Controllers
@@ -24,81 +24,41 @@ namespace LoginApiServer.Controllers
         [HttpGet]
         public async Task<UserResponse> GetUser([FromQuery]string userId)
         {           
-            try
-            {
-                var response = await _userReadService.GetUserFromUserid(userId);
-                return response;
-            }
-            catch (Exception ex)
-            {
-                return ProtobufResultHelper.CreateErrorResult(UserStatusCode.ServerError, $"An error occurred while getting the User: {ex.Message}");
-            }
+            var response = await _userReadService.GetUserFromUserid(userId);
+            return response;
         }
 
         // 유저 생성
         [HttpPost]
         public async Task<UserResponse> Create([FromBody] CreateUserRequest request)
         {
-            try
-            {
-                var response = await _userWriteService.CreateUser(request);
-                return response;
-            }
-            catch (Exception ex)
-            {
-                return ProtobufResultHelper.CreateErrorResult(UserStatusCode.ServerError, $"An error occurred while creating the User: {ex.Message}");
-            }
+            var response = await _userWriteService.CreateUser(request);
+            return response;
         }
 
         // 유저 로그인
         [HttpPost]
         public async Task<UserResponse> Login([FromBody] LoginRequest request)
         {
-            try
-            {
-                var response = await _userWriteService.LoginUser(request);
-                return response;
-            }
-            catch (Exception ex)
-            {
-                return ProtobufResultHelper.CreateErrorResult(UserStatusCode.ServerError, $"An error occurred while loging the User: {ex.Message}");
-            }
+            var response = await _userWriteService.LoginUser(request);
+            return response;
+
         }
 
         // 유저 변경
         [HttpPost]
         public async Task<UserResponse> Update([FromBody] UpdateUserRequest request)
         {
-            try
-            {
-                var response = await _userWriteService.UpdateUser(request);
-
-                return response;
-
-            }
-            catch (Exception ex)
-            {
-
-                return ProtobufResultHelper.CreateErrorResult(UserStatusCode.ServerError, $"An error occurred while updating the User: {ex.Message}");
-            }
+            var response = await _userWriteService.UpdateUser(request);
+            return response;
         }
 
         // 유저 삭제
         [HttpPost]
         public async Task<UserResponse> Delete([FromBody] DeleteUserRequest request)
         {
-            try
-            {
-                var response = await _userWriteService.DeleteUser(request);
-
-                return response;
-            }
-            catch (Exception ex)
-            {
-
-                return ProtobufResultHelper.CreateErrorResult(UserStatusCode.ServerError, $"An error occurred while delete the User: {ex.Message}");
-            }
-
+            var response = await _userWriteService.DeleteUser(request);
+            return response;      
         }
     }
 }

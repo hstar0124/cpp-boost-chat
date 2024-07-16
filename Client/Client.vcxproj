@@ -158,7 +158,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Api\src\HttpClient.cpp" />
-    <ClCompile Include="HsLogger.hpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Client.cpp" />
     <ClCompile Include="Message\MyMessage.pb.cc" />
@@ -175,11 +174,11 @@
     <ClInclude Include="Util\ThreadSafeQueue.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Message\MyMessage.proto" />
-    <None Include="Message\UserMessage.proto" />
+    <Text Include="ApiUrl.txt" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="ApiUrl.txt" />
+    <None Include="Message\MyMessage.proto" />
+    <None Include="Message\UserMessage.proto" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

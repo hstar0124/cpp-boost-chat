@@ -244,13 +244,13 @@ class StringValue PROTOBUF_FINAL :
   enum : int {
     kValueFieldNumber = 1,
   };
-  // string value = 1;
+  // bytes value = 1;
   void clear_value();
   const std::string& value() const;
   void set_value(const std::string& value);
   void set_value(std::string&& value);
   void set_value(const char* value);
-  void set_value(const char* value, size_t size);
+  void set_value(const void* value, size_t size);
   std::string* mutable_value();
   std::string* release_value();
   void set_allocated_value(std::string* value);
@@ -389,13 +389,13 @@ class GetUserResponse PROTOBUF_FINAL :
     kUsernameFieldNumber = 2,
     kEmailFieldNumber = 3,
   };
-  // string userId = 1;
+  // bytes userId = 1;
   void clear_userid();
   const std::string& userid() const;
   void set_userid(const std::string& value);
   void set_userid(std::string&& value);
   void set_userid(const char* value);
-  void set_userid(const char* value, size_t size);
+  void set_userid(const void* value, size_t size);
   std::string* mutable_userid();
   std::string* release_userid();
   void set_allocated_userid(std::string* userid);
@@ -405,13 +405,13 @@ class GetUserResponse PROTOBUF_FINAL :
   std::string* _internal_mutable_userid();
   public:
 
-  // string username = 2;
+  // bytes username = 2;
   void clear_username();
   const std::string& username() const;
   void set_username(const std::string& value);
   void set_username(std::string&& value);
   void set_username(const char* value);
-  void set_username(const char* value, size_t size);
+  void set_username(const void* value, size_t size);
   std::string* mutable_username();
   std::string* release_username();
   void set_allocated_username(std::string* username);
@@ -421,13 +421,13 @@ class GetUserResponse PROTOBUF_FINAL :
   std::string* _internal_mutable_username();
   public:
 
-  // string email = 3;
+  // bytes email = 3;
   void clear_email();
   const std::string& email() const;
   void set_email(const std::string& value);
   void set_email(std::string&& value);
   void set_email(const char* value);
-  void set_email(const char* value, size_t size);
+  void set_email(const void* value, size_t size);
   std::string* mutable_email();
   std::string* release_email();
   void set_allocated_email(std::string* email);
@@ -568,13 +568,13 @@ class LoginResponse PROTOBUF_FINAL :
     kServerPortFieldNumber = 2,
     kSessionIdFieldNumber = 3,
   };
-  // string serverIp = 1;
+  // bytes serverIp = 1;
   void clear_serverip();
   const std::string& serverip() const;
   void set_serverip(const std::string& value);
   void set_serverip(std::string&& value);
   void set_serverip(const char* value);
-  void set_serverip(const char* value, size_t size);
+  void set_serverip(const void* value, size_t size);
   std::string* mutable_serverip();
   std::string* release_serverip();
   void set_allocated_serverip(std::string* serverip);
@@ -584,13 +584,13 @@ class LoginResponse PROTOBUF_FINAL :
   std::string* _internal_mutable_serverip();
   public:
 
-  // string serverPort = 2;
+  // bytes serverPort = 2;
   void clear_serverport();
   const std::string& serverport() const;
   void set_serverport(const std::string& value);
   void set_serverport(std::string&& value);
   void set_serverport(const char* value);
-  void set_serverport(const char* value, size_t size);
+  void set_serverport(const void* value, size_t size);
   std::string* mutable_serverport();
   std::string* release_serverport();
   void set_allocated_serverport(std::string* serverport);
@@ -600,13 +600,13 @@ class LoginResponse PROTOBUF_FINAL :
   std::string* _internal_mutable_serverport();
   public:
 
-  // string sessionId = 3;
+  // bytes sessionId = 3;
   void clear_sessionid();
   const std::string& sessionid() const;
   void set_sessionid(const std::string& value);
   void set_sessionid(std::string&& value);
   void set_sessionid(const char* value);
-  void set_sessionid(const char* value, size_t size);
+  void set_sessionid(const void* value, size_t size);
   std::string* mutable_sessionid();
   std::string* release_sessionid();
   void set_allocated_sessionid(std::string* sessionid);
@@ -747,13 +747,13 @@ class UserResponse PROTOBUF_FINAL :
     kContentFieldNumber = 3,
     kStatusFieldNumber = 1,
   };
-  // string message = 2;
+  // bytes message = 2;
   void clear_message();
   const std::string& message() const;
   void set_message(const std::string& value);
   void set_message(std::string&& value);
   void set_message(const char* value);
-  void set_message(const char* value, size_t size);
+  void set_message(const void* value, size_t size);
   std::string* mutable_message();
   std::string* release_message();
   void set_allocated_message(std::string* message);
@@ -919,13 +919,13 @@ class UserErrorResponse PROTOBUF_FINAL :
   enum : int {
     kMessageFieldNumber = 1,
   };
-  // string message = 1;
+  // bytes message = 1;
   void clear_message();
   const std::string& message() const;
   void set_message(const std::string& value);
   void set_message(std::string&& value);
   void set_message(const char* value);
-  void set_message(const char* value, size_t size);
+  void set_message(const void* value, size_t size);
   std::string* mutable_message();
   std::string* release_message();
   void set_allocated_message(std::string* message);
@@ -1064,13 +1064,13 @@ class GetUserRequest PROTOBUF_FINAL :
     kUsernameFieldNumber = 2,
     kEmailFieldNumber = 3,
   };
-  // string userId = 1;
+  // bytes userId = 1;
   void clear_userid();
   const std::string& userid() const;
   void set_userid(const std::string& value);
   void set_userid(std::string&& value);
   void set_userid(const char* value);
-  void set_userid(const char* value, size_t size);
+  void set_userid(const void* value, size_t size);
   std::string* mutable_userid();
   std::string* release_userid();
   void set_allocated_userid(std::string* userid);
@@ -1080,13 +1080,13 @@ class GetUserRequest PROTOBUF_FINAL :
   std::string* _internal_mutable_userid();
   public:
 
-  // string username = 2;
+  // bytes username = 2;
   void clear_username();
   const std::string& username() const;
   void set_username(const std::string& value);
   void set_username(std::string&& value);
   void set_username(const char* value);
-  void set_username(const char* value, size_t size);
+  void set_username(const void* value, size_t size);
   std::string* mutable_username();
   std::string* release_username();
   void set_allocated_username(std::string* username);
@@ -1096,13 +1096,13 @@ class GetUserRequest PROTOBUF_FINAL :
   std::string* _internal_mutable_username();
   public:
 
-  // string email = 3;
+  // bytes email = 3;
   void clear_email();
   const std::string& email() const;
   void set_email(const std::string& value);
   void set_email(std::string&& value);
   void set_email(const char* value);
-  void set_email(const char* value, size_t size);
+  void set_email(const void* value, size_t size);
   std::string* mutable_email();
   std::string* release_email();
   void set_allocated_email(std::string* email);
@@ -1244,13 +1244,13 @@ class CreateUserRequest PROTOBUF_FINAL :
     kUsernameFieldNumber = 3,
     kEmailFieldNumber = 4,
   };
-  // string userId = 1;
+  // bytes userId = 1;
   void clear_userid();
   const std::string& userid() const;
   void set_userid(const std::string& value);
   void set_userid(std::string&& value);
   void set_userid(const char* value);
-  void set_userid(const char* value, size_t size);
+  void set_userid(const void* value, size_t size);
   std::string* mutable_userid();
   std::string* release_userid();
   void set_allocated_userid(std::string* userid);
@@ -1260,13 +1260,13 @@ class CreateUserRequest PROTOBUF_FINAL :
   std::string* _internal_mutable_userid();
   public:
 
-  // string password = 2;
+  // bytes password = 2;
   void clear_password();
   const std::string& password() const;
   void set_password(const std::string& value);
   void set_password(std::string&& value);
   void set_password(const char* value);
-  void set_password(const char* value, size_t size);
+  void set_password(const void* value, size_t size);
   std::string* mutable_password();
   std::string* release_password();
   void set_allocated_password(std::string* password);
@@ -1276,13 +1276,13 @@ class CreateUserRequest PROTOBUF_FINAL :
   std::string* _internal_mutable_password();
   public:
 
-  // string username = 3;
+  // bytes username = 3;
   void clear_username();
   const std::string& username() const;
   void set_username(const std::string& value);
   void set_username(std::string&& value);
   void set_username(const char* value);
-  void set_username(const char* value, size_t size);
+  void set_username(const void* value, size_t size);
   std::string* mutable_username();
   std::string* release_username();
   void set_allocated_username(std::string* username);
@@ -1292,13 +1292,13 @@ class CreateUserRequest PROTOBUF_FINAL :
   std::string* _internal_mutable_username();
   public:
 
-  // string email = 4;
+  // bytes email = 4;
   void clear_email();
   const std::string& email() const;
   void set_email(const std::string& value);
   void set_email(std::string&& value);
   void set_email(const char* value);
-  void set_email(const char* value, size_t size);
+  void set_email(const void* value, size_t size);
   std::string* mutable_email();
   std::string* release_email();
   void set_allocated_email(std::string* email);
@@ -1442,13 +1442,13 @@ class UpdateUserRequest PROTOBUF_FINAL :
     kToBeUsernameFieldNumber = 4,
     kToBeEmailFieldNumber = 5,
   };
-  // string userId = 1;
+  // bytes userId = 1;
   void clear_userid();
   const std::string& userid() const;
   void set_userid(const std::string& value);
   void set_userid(std::string&& value);
   void set_userid(const char* value);
-  void set_userid(const char* value, size_t size);
+  void set_userid(const void* value, size_t size);
   std::string* mutable_userid();
   std::string* release_userid();
   void set_allocated_userid(std::string* userid);
@@ -1458,13 +1458,13 @@ class UpdateUserRequest PROTOBUF_FINAL :
   std::string* _internal_mutable_userid();
   public:
 
-  // string password = 2;
+  // bytes password = 2;
   void clear_password();
   const std::string& password() const;
   void set_password(const std::string& value);
   void set_password(std::string&& value);
   void set_password(const char* value);
-  void set_password(const char* value, size_t size);
+  void set_password(const void* value, size_t size);
   std::string* mutable_password();
   std::string* release_password();
   void set_allocated_password(std::string* password);
@@ -1474,13 +1474,13 @@ class UpdateUserRequest PROTOBUF_FINAL :
   std::string* _internal_mutable_password();
   public:
 
-  // string toBePassword = 3;
+  // bytes toBePassword = 3;
   void clear_tobepassword();
   const std::string& tobepassword() const;
   void set_tobepassword(const std::string& value);
   void set_tobepassword(std::string&& value);
   void set_tobepassword(const char* value);
-  void set_tobepassword(const char* value, size_t size);
+  void set_tobepassword(const void* value, size_t size);
   std::string* mutable_tobepassword();
   std::string* release_tobepassword();
   void set_allocated_tobepassword(std::string* tobepassword);
@@ -1490,13 +1490,13 @@ class UpdateUserRequest PROTOBUF_FINAL :
   std::string* _internal_mutable_tobepassword();
   public:
 
-  // string toBeUsername = 4;
+  // bytes toBeUsername = 4;
   void clear_tobeusername();
   const std::string& tobeusername() const;
   void set_tobeusername(const std::string& value);
   void set_tobeusername(std::string&& value);
   void set_tobeusername(const char* value);
-  void set_tobeusername(const char* value, size_t size);
+  void set_tobeusername(const void* value, size_t size);
   std::string* mutable_tobeusername();
   std::string* release_tobeusername();
   void set_allocated_tobeusername(std::string* tobeusername);
@@ -1506,13 +1506,13 @@ class UpdateUserRequest PROTOBUF_FINAL :
   std::string* _internal_mutable_tobeusername();
   public:
 
-  // string toBeEmail = 5;
+  // bytes toBeEmail = 5;
   void clear_tobeemail();
   const std::string& tobeemail() const;
   void set_tobeemail(const std::string& value);
   void set_tobeemail(std::string&& value);
   void set_tobeemail(const char* value);
-  void set_tobeemail(const char* value, size_t size);
+  void set_tobeemail(const void* value, size_t size);
   std::string* mutable_tobeemail();
   std::string* release_tobeemail();
   void set_allocated_tobeemail(std::string* tobeemail);
@@ -1654,13 +1654,13 @@ class DeleteUserRequest PROTOBUF_FINAL :
     kUserIdFieldNumber = 1,
     kPasswordFieldNumber = 2,
   };
-  // string userId = 1;
+  // bytes userId = 1;
   void clear_userid();
   const std::string& userid() const;
   void set_userid(const std::string& value);
   void set_userid(std::string&& value);
   void set_userid(const char* value);
-  void set_userid(const char* value, size_t size);
+  void set_userid(const void* value, size_t size);
   std::string* mutable_userid();
   std::string* release_userid();
   void set_allocated_userid(std::string* userid);
@@ -1670,13 +1670,13 @@ class DeleteUserRequest PROTOBUF_FINAL :
   std::string* _internal_mutable_userid();
   public:
 
-  // string password = 2;
+  // bytes password = 2;
   void clear_password();
   const std::string& password() const;
   void set_password(const std::string& value);
   void set_password(std::string&& value);
   void set_password(const char* value);
-  void set_password(const char* value, size_t size);
+  void set_password(const void* value, size_t size);
   std::string* mutable_password();
   std::string* release_password();
   void set_allocated_password(std::string* password);
@@ -1815,13 +1815,13 @@ class LoginRequest PROTOBUF_FINAL :
     kUserIdFieldNumber = 1,
     kPasswordFieldNumber = 2,
   };
-  // string userId = 1;
+  // bytes userId = 1;
   void clear_userid();
   const std::string& userid() const;
   void set_userid(const std::string& value);
   void set_userid(std::string&& value);
   void set_userid(const char* value);
-  void set_userid(const char* value, size_t size);
+  void set_userid(const void* value, size_t size);
   std::string* mutable_userid();
   std::string* release_userid();
   void set_allocated_userid(std::string* userid);
@@ -1831,13 +1831,13 @@ class LoginRequest PROTOBUF_FINAL :
   std::string* _internal_mutable_userid();
   public:
 
-  // string password = 2;
+  // bytes password = 2;
   void clear_password();
   const std::string& password() const;
   void set_password(const std::string& value);
   void set_password(std::string&& value);
   void set_password(const char* value);
-  void set_password(const char* value, size_t size);
+  void set_password(const void* value, size_t size);
   std::string* mutable_password();
   std::string* release_password();
   void set_allocated_password(std::string* password);
@@ -1870,7 +1870,7 @@ class LoginRequest PROTOBUF_FINAL :
 #endif  // __GNUC__
 // StringValue
 
-// string value = 1;
+// bytes value = 1;
 inline void StringValue::clear_value() {
   value_.ClearToEmpty();
 }
@@ -1905,7 +1905,7 @@ inline void StringValue::set_value(const char* value) {
   value_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(value), GetArena());
   // @@protoc_insertion_point(field_set_char:StringValue.value)
 }
-inline void StringValue::set_value(const char* value,
+inline void StringValue::set_value(const void* value,
     size_t size) {
   
   value_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(
@@ -1935,7 +1935,7 @@ inline void StringValue::set_allocated_value(std::string* value) {
 
 // GetUserResponse
 
-// string userId = 1;
+// bytes userId = 1;
 inline void GetUserResponse::clear_userid() {
   userid_.ClearToEmpty();
 }
@@ -1970,7 +1970,7 @@ inline void GetUserResponse::set_userid(const char* value) {
   userid_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(value), GetArena());
   // @@protoc_insertion_point(field_set_char:GetUserResponse.userId)
 }
-inline void GetUserResponse::set_userid(const char* value,
+inline void GetUserResponse::set_userid(const void* value,
     size_t size) {
   
   userid_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(
@@ -1996,7 +1996,7 @@ inline void GetUserResponse::set_allocated_userid(std::string* userid) {
   // @@protoc_insertion_point(field_set_allocated:GetUserResponse.userId)
 }
 
-// string username = 2;
+// bytes username = 2;
 inline void GetUserResponse::clear_username() {
   username_.ClearToEmpty();
 }
@@ -2031,7 +2031,7 @@ inline void GetUserResponse::set_username(const char* value) {
   username_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(value), GetArena());
   // @@protoc_insertion_point(field_set_char:GetUserResponse.username)
 }
-inline void GetUserResponse::set_username(const char* value,
+inline void GetUserResponse::set_username(const void* value,
     size_t size) {
   
   username_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(
@@ -2057,7 +2057,7 @@ inline void GetUserResponse::set_allocated_username(std::string* username) {
   // @@protoc_insertion_point(field_set_allocated:GetUserResponse.username)
 }
 
-// string email = 3;
+// bytes email = 3;
 inline void GetUserResponse::clear_email() {
   email_.ClearToEmpty();
 }
@@ -2092,7 +2092,7 @@ inline void GetUserResponse::set_email(const char* value) {
   email_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(value), GetArena());
   // @@protoc_insertion_point(field_set_char:GetUserResponse.email)
 }
-inline void GetUserResponse::set_email(const char* value,
+inline void GetUserResponse::set_email(const void* value,
     size_t size) {
   
   email_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(
@@ -2122,7 +2122,7 @@ inline void GetUserResponse::set_allocated_email(std::string* email) {
 
 // LoginResponse
 
-// string serverIp = 1;
+// bytes serverIp = 1;
 inline void LoginResponse::clear_serverip() {
   serverip_.ClearToEmpty();
 }
@@ -2157,7 +2157,7 @@ inline void LoginResponse::set_serverip(const char* value) {
   serverip_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(value), GetArena());
   // @@protoc_insertion_point(field_set_char:LoginResponse.serverIp)
 }
-inline void LoginResponse::set_serverip(const char* value,
+inline void LoginResponse::set_serverip(const void* value,
     size_t size) {
   
   serverip_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(
@@ -2183,7 +2183,7 @@ inline void LoginResponse::set_allocated_serverip(std::string* serverip) {
   // @@protoc_insertion_point(field_set_allocated:LoginResponse.serverIp)
 }
 
-// string serverPort = 2;
+// bytes serverPort = 2;
 inline void LoginResponse::clear_serverport() {
   serverport_.ClearToEmpty();
 }
@@ -2218,7 +2218,7 @@ inline void LoginResponse::set_serverport(const char* value) {
   serverport_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(value), GetArena());
   // @@protoc_insertion_point(field_set_char:LoginResponse.serverPort)
 }
-inline void LoginResponse::set_serverport(const char* value,
+inline void LoginResponse::set_serverport(const void* value,
     size_t size) {
   
   serverport_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(
@@ -2244,7 +2244,7 @@ inline void LoginResponse::set_allocated_serverport(std::string* serverport) {
   // @@protoc_insertion_point(field_set_allocated:LoginResponse.serverPort)
 }
 
-// string sessionId = 3;
+// bytes sessionId = 3;
 inline void LoginResponse::clear_sessionid() {
   sessionid_.ClearToEmpty();
 }
@@ -2279,7 +2279,7 @@ inline void LoginResponse::set_sessionid(const char* value) {
   sessionid_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(value), GetArena());
   // @@protoc_insertion_point(field_set_char:LoginResponse.sessionId)
 }
-inline void LoginResponse::set_sessionid(const char* value,
+inline void LoginResponse::set_sessionid(const void* value,
     size_t size) {
   
   sessionid_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(
@@ -2329,7 +2329,7 @@ inline void UserResponse::set_status(::UserStatusCode value) {
   // @@protoc_insertion_point(field_set:UserResponse.status)
 }
 
-// string message = 2;
+// bytes message = 2;
 inline void UserResponse::clear_message() {
   message_.ClearToEmpty();
 }
@@ -2364,7 +2364,7 @@ inline void UserResponse::set_message(const char* value) {
   message_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(value), GetArena());
   // @@protoc_insertion_point(field_set_char:UserResponse.message)
 }
-inline void UserResponse::set_message(const char* value,
+inline void UserResponse::set_message(const void* value,
     size_t size) {
   
   message_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(
@@ -2471,7 +2471,7 @@ inline void UserResponse::set_allocated_content(PROTOBUF_NAMESPACE_ID::Any* cont
 
 // UserErrorResponse
 
-// string message = 1;
+// bytes message = 1;
 inline void UserErrorResponse::clear_message() {
   message_.ClearToEmpty();
 }
@@ -2506,7 +2506,7 @@ inline void UserErrorResponse::set_message(const char* value) {
   message_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(value), GetArena());
   // @@protoc_insertion_point(field_set_char:UserErrorResponse.message)
 }
-inline void UserErrorResponse::set_message(const char* value,
+inline void UserErrorResponse::set_message(const void* value,
     size_t size) {
   
   message_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(
@@ -2536,7 +2536,7 @@ inline void UserErrorResponse::set_allocated_message(std::string* message) {
 
 // GetUserRequest
 
-// string userId = 1;
+// bytes userId = 1;
 inline void GetUserRequest::clear_userid() {
   userid_.ClearToEmpty();
 }
@@ -2571,7 +2571,7 @@ inline void GetUserRequest::set_userid(const char* value) {
   userid_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(value), GetArena());
   // @@protoc_insertion_point(field_set_char:GetUserRequest.userId)
 }
-inline void GetUserRequest::set_userid(const char* value,
+inline void GetUserRequest::set_userid(const void* value,
     size_t size) {
   
   userid_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(
@@ -2597,7 +2597,7 @@ inline void GetUserRequest::set_allocated_userid(std::string* userid) {
   // @@protoc_insertion_point(field_set_allocated:GetUserRequest.userId)
 }
 
-// string username = 2;
+// bytes username = 2;
 inline void GetUserRequest::clear_username() {
   username_.ClearToEmpty();
 }
@@ -2632,7 +2632,7 @@ inline void GetUserRequest::set_username(const char* value) {
   username_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(value), GetArena());
   // @@protoc_insertion_point(field_set_char:GetUserRequest.username)
 }
-inline void GetUserRequest::set_username(const char* value,
+inline void GetUserRequest::set_username(const void* value,
     size_t size) {
   
   username_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(
@@ -2658,7 +2658,7 @@ inline void GetUserRequest::set_allocated_username(std::string* username) {
   // @@protoc_insertion_point(field_set_allocated:GetUserRequest.username)
 }
 
-// string email = 3;
+// bytes email = 3;
 inline void GetUserRequest::clear_email() {
   email_.ClearToEmpty();
 }
@@ -2693,7 +2693,7 @@ inline void GetUserRequest::set_email(const char* value) {
   email_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(value), GetArena());
   // @@protoc_insertion_point(field_set_char:GetUserRequest.email)
 }
-inline void GetUserRequest::set_email(const char* value,
+inline void GetUserRequest::set_email(const void* value,
     size_t size) {
   
   email_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(
@@ -2723,7 +2723,7 @@ inline void GetUserRequest::set_allocated_email(std::string* email) {
 
 // CreateUserRequest
 
-// string userId = 1;
+// bytes userId = 1;
 inline void CreateUserRequest::clear_userid() {
   userid_.ClearToEmpty();
 }
@@ -2758,7 +2758,7 @@ inline void CreateUserRequest::set_userid(const char* value) {
   userid_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(value), GetArena());
   // @@protoc_insertion_point(field_set_char:CreateUserRequest.userId)
 }
-inline void CreateUserRequest::set_userid(const char* value,
+inline void CreateUserRequest::set_userid(const void* value,
     size_t size) {
   
   userid_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(
@@ -2784,7 +2784,7 @@ inline void CreateUserRequest::set_allocated_userid(std::string* userid) {
   // @@protoc_insertion_point(field_set_allocated:CreateUserRequest.userId)
 }
 
-// string password = 2;
+// bytes password = 2;
 inline void CreateUserRequest::clear_password() {
   password_.ClearToEmpty();
 }
@@ -2819,7 +2819,7 @@ inline void CreateUserRequest::set_password(const char* value) {
   password_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(value), GetArena());
   // @@protoc_insertion_point(field_set_char:CreateUserRequest.password)
 }
-inline void CreateUserRequest::set_password(const char* value,
+inline void CreateUserRequest::set_password(const void* value,
     size_t size) {
   
   password_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(
@@ -2845,7 +2845,7 @@ inline void CreateUserRequest::set_allocated_password(std::string* password) {
   // @@protoc_insertion_point(field_set_allocated:CreateUserRequest.password)
 }
 
-// string username = 3;
+// bytes username = 3;
 inline void CreateUserRequest::clear_username() {
   username_.ClearToEmpty();
 }
@@ -2880,7 +2880,7 @@ inline void CreateUserRequest::set_username(const char* value) {
   username_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(value), GetArena());
   // @@protoc_insertion_point(field_set_char:CreateUserRequest.username)
 }
-inline void CreateUserRequest::set_username(const char* value,
+inline void CreateUserRequest::set_username(const void* value,
     size_t size) {
   
   username_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(
@@ -2906,7 +2906,7 @@ inline void CreateUserRequest::set_allocated_username(std::string* username) {
   // @@protoc_insertion_point(field_set_allocated:CreateUserRequest.username)
 }
 
-// string email = 4;
+// bytes email = 4;
 inline void CreateUserRequest::clear_email() {
   email_.ClearToEmpty();
 }
@@ -2941,7 +2941,7 @@ inline void CreateUserRequest::set_email(const char* value) {
   email_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(value), GetArena());
   // @@protoc_insertion_point(field_set_char:CreateUserRequest.email)
 }
-inline void CreateUserRequest::set_email(const char* value,
+inline void CreateUserRequest::set_email(const void* value,
     size_t size) {
   
   email_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(
@@ -2971,7 +2971,7 @@ inline void CreateUserRequest::set_allocated_email(std::string* email) {
 
 // UpdateUserRequest
 
-// string userId = 1;
+// bytes userId = 1;
 inline void UpdateUserRequest::clear_userid() {
   userid_.ClearToEmpty();
 }
@@ -3006,7 +3006,7 @@ inline void UpdateUserRequest::set_userid(const char* value) {
   userid_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(value), GetArena());
   // @@protoc_insertion_point(field_set_char:UpdateUserRequest.userId)
 }
-inline void UpdateUserRequest::set_userid(const char* value,
+inline void UpdateUserRequest::set_userid(const void* value,
     size_t size) {
   
   userid_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(
@@ -3032,7 +3032,7 @@ inline void UpdateUserRequest::set_allocated_userid(std::string* userid) {
   // @@protoc_insertion_point(field_set_allocated:UpdateUserRequest.userId)
 }
 
-// string password = 2;
+// bytes password = 2;
 inline void UpdateUserRequest::clear_password() {
   password_.ClearToEmpty();
 }
@@ -3067,7 +3067,7 @@ inline void UpdateUserRequest::set_password(const char* value) {
   password_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(value), GetArena());
   // @@protoc_insertion_point(field_set_char:UpdateUserRequest.password)
 }
-inline void UpdateUserRequest::set_password(const char* value,
+inline void UpdateUserRequest::set_password(const void* value,
     size_t size) {
   
   password_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(
@@ -3093,7 +3093,7 @@ inline void UpdateUserRequest::set_allocated_password(std::string* password) {
   // @@protoc_insertion_point(field_set_allocated:UpdateUserRequest.password)
 }
 
-// string toBePassword = 3;
+// bytes toBePassword = 3;
 inline void UpdateUserRequest::clear_tobepassword() {
   tobepassword_.ClearToEmpty();
 }
@@ -3128,7 +3128,7 @@ inline void UpdateUserRequest::set_tobepassword(const char* value) {
   tobepassword_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(value), GetArena());
   // @@protoc_insertion_point(field_set_char:UpdateUserRequest.toBePassword)
 }
-inline void UpdateUserRequest::set_tobepassword(const char* value,
+inline void UpdateUserRequest::set_tobepassword(const void* value,
     size_t size) {
   
   tobepassword_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(
@@ -3154,7 +3154,7 @@ inline void UpdateUserRequest::set_allocated_tobepassword(std::string* tobepassw
   // @@protoc_insertion_point(field_set_allocated:UpdateUserRequest.toBePassword)
 }
 
-// string toBeUsername = 4;
+// bytes toBeUsername = 4;
 inline void UpdateUserRequest::clear_tobeusername() {
   tobeusername_.ClearToEmpty();
 }
@@ -3189,7 +3189,7 @@ inline void UpdateUserRequest::set_tobeusername(const char* value) {
   tobeusername_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(value), GetArena());
   // @@protoc_insertion_point(field_set_char:UpdateUserRequest.toBeUsername)
 }
-inline void UpdateUserRequest::set_tobeusername(const char* value,
+inline void UpdateUserRequest::set_tobeusername(const void* value,
     size_t size) {
   
   tobeusername_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(
@@ -3215,7 +3215,7 @@ inline void UpdateUserRequest::set_allocated_tobeusername(std::string* tobeusern
   // @@protoc_insertion_point(field_set_allocated:UpdateUserRequest.toBeUsername)
 }
 
-// string toBeEmail = 5;
+// bytes toBeEmail = 5;
 inline void UpdateUserRequest::clear_tobeemail() {
   tobeemail_.ClearToEmpty();
 }
@@ -3250,7 +3250,7 @@ inline void UpdateUserRequest::set_tobeemail(const char* value) {
   tobeemail_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(value), GetArena());
   // @@protoc_insertion_point(field_set_char:UpdateUserRequest.toBeEmail)
 }
-inline void UpdateUserRequest::set_tobeemail(const char* value,
+inline void UpdateUserRequest::set_tobeemail(const void* value,
     size_t size) {
   
   tobeemail_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(
@@ -3280,7 +3280,7 @@ inline void UpdateUserRequest::set_allocated_tobeemail(std::string* tobeemail) {
 
 // DeleteUserRequest
 
-// string userId = 1;
+// bytes userId = 1;
 inline void DeleteUserRequest::clear_userid() {
   userid_.ClearToEmpty();
 }
@@ -3315,7 +3315,7 @@ inline void DeleteUserRequest::set_userid(const char* value) {
   userid_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(value), GetArena());
   // @@protoc_insertion_point(field_set_char:DeleteUserRequest.userId)
 }
-inline void DeleteUserRequest::set_userid(const char* value,
+inline void DeleteUserRequest::set_userid(const void* value,
     size_t size) {
   
   userid_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(
@@ -3341,7 +3341,7 @@ inline void DeleteUserRequest::set_allocated_userid(std::string* userid) {
   // @@protoc_insertion_point(field_set_allocated:DeleteUserRequest.userId)
 }
 
-// string password = 2;
+// bytes password = 2;
 inline void DeleteUserRequest::clear_password() {
   password_.ClearToEmpty();
 }
@@ -3376,7 +3376,7 @@ inline void DeleteUserRequest::set_password(const char* value) {
   password_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(value), GetArena());
   // @@protoc_insertion_point(field_set_char:DeleteUserRequest.password)
 }
-inline void DeleteUserRequest::set_password(const char* value,
+inline void DeleteUserRequest::set_password(const void* value,
     size_t size) {
   
   password_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(
@@ -3406,7 +3406,7 @@ inline void DeleteUserRequest::set_allocated_password(std::string* password) {
 
 // LoginRequest
 
-// string userId = 1;
+// bytes userId = 1;
 inline void LoginRequest::clear_userid() {
   userid_.ClearToEmpty();
 }
@@ -3441,7 +3441,7 @@ inline void LoginRequest::set_userid(const char* value) {
   userid_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(value), GetArena());
   // @@protoc_insertion_point(field_set_char:LoginRequest.userId)
 }
-inline void LoginRequest::set_userid(const char* value,
+inline void LoginRequest::set_userid(const void* value,
     size_t size) {
   
   userid_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(
@@ -3467,7 +3467,7 @@ inline void LoginRequest::set_allocated_userid(std::string* userid) {
   // @@protoc_insertion_point(field_set_allocated:LoginRequest.userId)
 }
 
-// string password = 2;
+// bytes password = 2;
 inline void LoginRequest::clear_password() {
   password_.ClearToEmpty();
 }
@@ -3502,7 +3502,7 @@ inline void LoginRequest::set_password(const char* value) {
   password_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(value), GetArena());
   // @@protoc_insertion_point(field_set_char:LoginRequest.password)
 }
-inline void LoginRequest::set_password(const char* value,
+inline void LoginRequest::set_password(const void* value,
     size_t size) {
   
   password_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(

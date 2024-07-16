@@ -66,4 +66,6 @@ private:
     void HandleServerPing(const std::shared_ptr<myChatMessage::ChatMessage>& message);
 
     void ClearScreen();
+
+
 };

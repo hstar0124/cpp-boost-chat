@@ -1,9 +1,9 @@
 ﻿using Google.Protobuf;
 using Microsoft.AspNetCore.Mvc;
 
-namespace LoginApiServer.Utils
+namespace ApiServer.CustomException
 {
-    public static class ProtobufResultHelper
+    public static class ProtobufException
     {
         public static UserResponse CreateErrorResult(UserStatusCode statusCode, string message)
         {

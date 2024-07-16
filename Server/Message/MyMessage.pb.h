@@ -220,13 +220,13 @@ class ChatMessage PROTOBUF_FINAL :
     kContentFieldNumber = 4,
     kMessageTypeFieldNumber = 1,
   };
-  // string sender = 2;
+  // bytes sender = 2;
   void clear_sender();
   const std::string& sender() const;
   void set_sender(const std::string& value);
   void set_sender(std::string&& value);
   void set_sender(const char* value);
-  void set_sender(const char* value, size_t size);
+  void set_sender(const void* value, size_t size);
   std::string* mutable_sender();
   std::string* release_sender();
   void set_allocated_sender(std::string* sender);
@@ -236,13 +236,13 @@ class ChatMessage PROTOBUF_FINAL :
   std::string* _internal_mutable_sender();
   public:
 
-  // string receiver = 3;
+  // bytes receiver = 3;
   void clear_receiver();
   const std::string& receiver() const;
   void set_receiver(const std::string& value);
   void set_receiver(std::string&& value);
   void set_receiver(const char* value);
-  void set_receiver(const char* value, size_t size);
+  void set_receiver(const void* value, size_t size);
   std::string* mutable_receiver();
   std::string* release_receiver();
   void set_allocated_receiver(std::string* receiver);
@@ -252,13 +252,13 @@ class ChatMessage PROTOBUF_FINAL :
   std::string* _internal_mutable_receiver();
   public:
 
-  // string content = 4;
+  // bytes content = 4;
   void clear_content();
   const std::string& content() const;
   void set_content(const std::string& value);
   void set_content(std::string&& value);
   void set_content(const char* value);
-  void set_content(const char* value, size_t size);
+  void set_content(const void* value, size_t size);
   std::string* mutable_content();
   std::string* release_content();
   void set_allocated_content(std::string* content);
@@ -322,7 +322,7 @@ inline void ChatMessage::set_messagetype(::myChatMessage::ChatMessageType value)
   // @@protoc_insertion_point(field_set:myChatMessage.ChatMessage.messageType)
 }
 
-// string sender = 2;
+// bytes sender = 2;
 inline void ChatMessage::clear_sender() {
   sender_.ClearToEmpty();
 }
@@ -357,7 +357,7 @@ inline void ChatMessage::set_sender(const char* value) {
   sender_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(value), GetArena());
   // @@protoc_insertion_point(field_set_char:myChatMessage.ChatMessage.sender)
 }
-inline void ChatMessage::set_sender(const char* value,
+inline void ChatMessage::set_sender(const void* value,
     size_t size) {
   
   sender_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(
@@ -383,7 +383,7 @@ inline void ChatMessage::set_allocated_sender(std::string* sender) {
   // @@protoc_insertion_point(field_set_allocated:myChatMessage.ChatMessage.sender)
 }
 
-// string receiver = 3;
+// bytes receiver = 3;
 inline void ChatMessage::clear_receiver() {
   receiver_.ClearToEmpty();
 }
@@ -418,7 +418,7 @@ inline void ChatMessage::set_receiver(const char* value) {
   receiver_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(value), GetArena());
   // @@protoc_insertion_point(field_set_char:myChatMessage.ChatMessage.receiver)
 }
-inline void ChatMessage::set_receiver(const char* value,
+inline void ChatMessage::set_receiver(const void* value,
     size_t size) {
   
   receiver_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(
@@ -444,7 +444,7 @@ inline void ChatMessage::set_allocated_receiver(std::string* receiver) {
   // @@protoc_insertion_point(field_set_allocated:myChatMessage.ChatMessage.receiver)
 }
 
-// string content = 4;
+// bytes content = 4;
 inline void ChatMessage::clear_content() {
   content_.ClearToEmpty();
 }
@@ -479,7 +479,7 @@ inline void ChatMessage::set_content(const char* value) {
   content_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(value), GetArena());
   // @@protoc_insertion_point(field_set_char:myChatMessage.ChatMessage.content)
 }
-inline void ChatMessage::set_content(const char* value,
+inline void ChatMessage::set_content(const void* value,
     size_t size) {
   
   content_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(

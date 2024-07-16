@@ -3,6 +3,9 @@
 #include "Message/UserMessage.pb.h"
 #include "Api/include/HttpClient.h"
 #include "Socket/include/ChatClient.h"
+#include <Windows.h>
+#include <io.h>
+#include <fcntl.h>
 
 class Client
 {
@@ -47,6 +50,6 @@ private:
 
 	UserResponse ProcessUserGetRequest(const std::string& endpoint);
 
-
 	std::unordered_map<std::string, std::string> LoadConfig(const std::string& filename);
+
 };
