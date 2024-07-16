@@ -9,7 +9,7 @@ int main()
 {
 	ConfigParser parser("config.txt");
 
-	if (!parser.readConfig()) 
+	if (!parser.readConfig())
 	{
 		std::cerr << "Error: Failed to read configuration from file" << std::endl;
 		return 1;
@@ -25,6 +25,7 @@ int main()
 	if (!redisClient->Initialize(config.at("redis_host"), stoi(config.at("redis_port")), 2, 10))
 	{
 		std::cout << "connect to redis failed" << std::endl;
+		exit(1);
 	}
 	else
 	{
@@ -40,7 +41,7 @@ int main()
 
 	if (!tcpServer.Start(2))
 	{
-	  std::cerr << "[SERVER] Server Error!!" << "\n";
+		std::cerr << "[SERVER] Server Error!!" << "\n";
 	}
 
 	tcpServer.Update();

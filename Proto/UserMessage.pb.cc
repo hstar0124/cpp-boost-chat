@@ -297,24 +297,24 @@ static ::PROTOBUF_NAMESPACE_ID::Message const * const file_default_instances[] =
 
 const char descriptor_table_protodef_UserMessage_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
   "\n\021UserMessage.proto\032\031google/protobuf/any"
-  ".proto\"\034\n\013StringValue\022\r\n\005value\030\001 \001(\t\"B\n\017"
-  "GetUserResponse\022\016\n\006userId\030\001 \001(\t\022\020\n\010usern"
-  "ame\030\002 \001(\t\022\r\n\005email\030\003 \001(\t\"H\n\rLoginRespons"
-  "e\022\020\n\010serverIp\030\001 \001(\t\022\022\n\nserverPort\030\002 \001(\t\022"
-  "\021\n\tsessionId\030\003 \001(\t\"g\n\014UserResponse\022\037\n\006st"
+  ".proto\"\034\n\013StringValue\022\r\n\005value\030\001 \001(\014\"B\n\017"
+  "GetUserResponse\022\016\n\006userId\030\001 \001(\014\022\020\n\010usern"
+  "ame\030\002 \001(\014\022\r\n\005email\030\003 \001(\014\"H\n\rLoginRespons"
+  "e\022\020\n\010serverIp\030\001 \001(\014\022\022\n\nserverPort\030\002 \001(\014\022"
+  "\021\n\tsessionId\030\003 \001(\014\"g\n\014UserResponse\022\037\n\006st"
   "atus\030\001 \001(\0162\017.UserStatusCode\022\017\n\007message\030\002"
-  " \001(\t\022%\n\007content\030\003 \001(\0132\024.google.protobuf."
+  " \001(\014\022%\n\007content\030\003 \001(\0132\024.google.protobuf."
   "Any\"$\n\021UserErrorResponse\022\017\n\007message\030\001 \001("
-  "\t\"A\n\016GetUserRequest\022\016\n\006userId\030\001 \001(\t\022\020\n\010u"
-  "sername\030\002 \001(\t\022\r\n\005email\030\003 \001(\t\"V\n\021CreateUs"
-  "erRequest\022\016\n\006userId\030\001 \001(\t\022\020\n\010password\030\002 "
-  "\001(\t\022\020\n\010username\030\003 \001(\t\022\r\n\005email\030\004 \001(\t\"t\n\021"
-  "UpdateUserRequest\022\016\n\006userId\030\001 \001(\t\022\020\n\010pas"
-  "sword\030\002 \001(\t\022\024\n\014toBePassword\030\003 \001(\t\022\024\n\014toB"
-  "eUsername\030\004 \001(\t\022\021\n\ttoBeEmail\030\005 \001(\t\"5\n\021De"
-  "leteUserRequest\022\016\n\006userId\030\001 \001(\t\022\020\n\010passw"
-  "ord\030\002 \001(\t\"0\n\014LoginRequest\022\016\n\006userId\030\001 \001("
-  "\t\022\020\n\010password\030\002 \001(\t*\210\001\n\016UserStatusCode\022\013"
+  "\014\"A\n\016GetUserRequest\022\016\n\006userId\030\001 \001(\014\022\020\n\010u"
+  "sername\030\002 \001(\014\022\r\n\005email\030\003 \001(\014\"V\n\021CreateUs"
+  "erRequest\022\016\n\006userId\030\001 \001(\014\022\020\n\010password\030\002 "
+  "\001(\014\022\020\n\010username\030\003 \001(\014\022\r\n\005email\030\004 \001(\014\"t\n\021"
+  "UpdateUserRequest\022\016\n\006userId\030\001 \001(\014\022\020\n\010pas"
+  "sword\030\002 \001(\014\022\024\n\014toBePassword\030\003 \001(\014\022\024\n\014toB"
+  "eUsername\030\004 \001(\014\022\021\n\ttoBeEmail\030\005 \001(\014\"5\n\021De"
+  "leteUserRequest\022\016\n\006userId\030\001 \001(\014\022\020\n\010passw"
+  "ord\030\002 \001(\014\"0\n\014LoginRequest\022\016\n\006userId\030\001 \001("
+  "\014\022\020\n\010password\030\002 \001(\014*\210\001\n\016UserStatusCode\022\013"
   "\n\007Success\020\000\022\027\n\023UserIdAlreadyExists\020\001\022\021\n\r"
   "UserNotExists\020\002\022\025\n\021DifferentPassword\020\003\022\013"
   "\n\007Failure\020\004\022\010\n\004None\020Z\022\017\n\013ServerError\020cb\006"
@@ -436,12 +436,11 @@ const char* StringValue::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
     CHK_(ptr);
     switch (tag >> 3) {
-      // string value = 1;
+      // bytes value = 1;
       case 1:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 10)) {
           auto str = _internal_mutable_value();
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
-          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "StringValue.value"));
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
@@ -473,13 +472,9 @@ failure:
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
-  // string value = 1;
+  // bytes value = 1;
   if (this->value().size() > 0) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
-      this->_internal_value().data(), static_cast<int>(this->_internal_value().length()),
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
-      "StringValue.value");
-    target = stream->WriteStringMaybeAliased(
+    target = stream->WriteBytesMaybeAliased(
         1, this->_internal_value(), target);
   }
 
@@ -499,10 +494,10 @@ size_t StringValue::ByteSizeLong() const {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  // string value = 1;
+  // bytes value = 1;
   if (this->value().size() > 0) {
     total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::BytesSize(
         this->_internal_value());
   }
 
@@ -658,30 +653,27 @@ const char* GetUserResponse::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPAC
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
     CHK_(ptr);
     switch (tag >> 3) {
-      // string userId = 1;
+      // bytes userId = 1;
       case 1:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 10)) {
           auto str = _internal_mutable_userid();
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
-          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "GetUserResponse.userId"));
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
-      // string username = 2;
+      // bytes username = 2;
       case 2:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 18)) {
           auto str = _internal_mutable_username();
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
-          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "GetUserResponse.username"));
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
-      // string email = 3;
+      // bytes email = 3;
       case 3:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 26)) {
           auto str = _internal_mutable_email();
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
-          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "GetUserResponse.email"));
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
@@ -713,33 +705,21 @@ failure:
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
-  // string userId = 1;
+  // bytes userId = 1;
   if (this->userid().size() > 0) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
-      this->_internal_userid().data(), static_cast<int>(this->_internal_userid().length()),
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
-      "GetUserResponse.userId");
-    target = stream->WriteStringMaybeAliased(
+    target = stream->WriteBytesMaybeAliased(
         1, this->_internal_userid(), target);
   }
 
-  // string username = 2;
+  // bytes username = 2;
   if (this->username().size() > 0) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
-      this->_internal_username().data(), static_cast<int>(this->_internal_username().length()),
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
-      "GetUserResponse.username");
-    target = stream->WriteStringMaybeAliased(
+    target = stream->WriteBytesMaybeAliased(
         2, this->_internal_username(), target);
   }
 
-  // string email = 3;
+  // bytes email = 3;
   if (this->email().size() > 0) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
-      this->_internal_email().data(), static_cast<int>(this->_internal_email().length()),
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
-      "GetUserResponse.email");
-    target = stream->WriteStringMaybeAliased(
+    target = stream->WriteBytesMaybeAliased(
         3, this->_internal_email(), target);
   }
 
@@ -759,24 +739,24 @@ size_t GetUserResponse::ByteSizeLong() const {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  // string userId = 1;
+  // bytes userId = 1;
   if (this->userid().size() > 0) {
     total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::BytesSize(
         this->_internal_userid());
   }
 
-  // string username = 2;
+  // bytes username = 2;
   if (this->username().size() > 0) {
     total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::BytesSize(
         this->_internal_username());
   }
 
-  // string email = 3;
+  // bytes email = 3;
   if (this->email().size() > 0) {
     total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::BytesSize(
         this->_internal_email());
   }
 
@@ -940,30 +920,27 @@ const char* LoginResponse::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
     CHK_(ptr);
     switch (tag >> 3) {
-      // string serverIp = 1;
+      // bytes serverIp = 1;
       case 1:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 10)) {
           auto str = _internal_mutable_serverip();
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
-          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "LoginResponse.serverIp"));
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
-      // string serverPort = 2;
+      // bytes serverPort = 2;
       case 2:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 18)) {
           auto str = _internal_mutable_serverport();
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
-          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "LoginResponse.serverPort"));
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
-      // string sessionId = 3;
+      // bytes sessionId = 3;
       case 3:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 26)) {
           auto str = _internal_mutable_sessionid();
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
-          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "LoginResponse.sessionId"));
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
@@ -995,33 +972,21 @@ failure:
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
-  // string serverIp = 1;
+  // bytes serverIp = 1;
   if (this->serverip().size() > 0) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
-      this->_internal_serverip().data(), static_cast<int>(this->_internal_serverip().length()),
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
-      "LoginResponse.serverIp");
-    target = stream->WriteStringMaybeAliased(
+    target = stream->WriteBytesMaybeAliased(
         1, this->_internal_serverip(), target);
   }
 
-  // string serverPort = 2;
+  // bytes serverPort = 2;
   if (this->serverport().size() > 0) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
-      this->_internal_serverport().data(), static_cast<int>(this->_internal_serverport().length()),
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
-      "LoginResponse.serverPort");
-    target = stream->WriteStringMaybeAliased(
+    target = stream->WriteBytesMaybeAliased(
         2, this->_internal_serverport(), target);
   }
 
-  // string sessionId = 3;
+  // bytes sessionId = 3;
   if (this->sessionid().size() > 0) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
-      this->_internal_sessionid().data(), static_cast<int>(this->_internal_sessionid().length()),
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
-      "LoginResponse.sessionId");
-    target = stream->WriteStringMaybeAliased(
+    target = stream->WriteBytesMaybeAliased(
         3, this->_internal_sessionid(), target);
   }
 
@@ -1041,24 +1006,24 @@ size_t LoginResponse::ByteSizeLong() const {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  // string serverIp = 1;
+  // bytes serverIp = 1;
   if (this->serverip().size() > 0) {
     total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::BytesSize(
         this->_internal_serverip());
   }
 
-  // string serverPort = 2;
+  // bytes serverPort = 2;
   if (this->serverport().size() > 0) {
     total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::BytesSize(
         this->_internal_serverport());
   }
 
-  // string sessionId = 3;
+  // bytes sessionId = 3;
   if (this->sessionid().size() > 0) {
     total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::BytesSize(
         this->_internal_sessionid());
   }
 
@@ -1241,12 +1206,11 @@ const char* UserResponse::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_I
           _internal_set_status(static_cast<::UserStatusCode>(val));
         } else goto handle_unusual;
         continue;
-      // string message = 2;
+      // bytes message = 2;
       case 2:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 18)) {
           auto str = _internal_mutable_message();
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
-          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "UserResponse.message"));
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
@@ -1292,13 +1256,9 @@ failure:
       1, this->_internal_status(), target);
   }
 
-  // string message = 2;
+  // bytes message = 2;
   if (this->message().size() > 0) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
-      this->_internal_message().data(), static_cast<int>(this->_internal_message().length()),
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
-      "UserResponse.message");
-    target = stream->WriteStringMaybeAliased(
+    target = stream->WriteBytesMaybeAliased(
         2, this->_internal_message(), target);
   }
 
@@ -1326,10 +1286,10 @@ size_t UserResponse::ByteSizeLong() const {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  // string message = 2;
+  // bytes message = 2;
   if (this->message().size() > 0) {
     total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::BytesSize(
         this->_internal_message());
   }
 
@@ -1494,12 +1454,11 @@ const char* UserErrorResponse::_InternalParse(const char* ptr, ::PROTOBUF_NAMESP
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
     CHK_(ptr);
     switch (tag >> 3) {
-      // string message = 1;
+      // bytes message = 1;
       case 1:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 10)) {
           auto str = _internal_mutable_message();
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
-          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "UserErrorResponse.message"));
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
@@ -1531,13 +1490,9 @@ failure:
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
-  // string message = 1;
+  // bytes message = 1;
   if (this->message().size() > 0) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
-      this->_internal_message().data(), static_cast<int>(this->_internal_message().length()),
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
-      "UserErrorResponse.message");
-    target = stream->WriteStringMaybeAliased(
+    target = stream->WriteBytesMaybeAliased(
         1, this->_internal_message(), target);
   }
 
@@ -1557,10 +1512,10 @@ size_t UserErrorResponse::ByteSizeLong() const {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  // string message = 1;
+  // bytes message = 1;
   if (this->message().size() > 0) {
     total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::BytesSize(
         this->_internal_message());
   }
 
@@ -1716,30 +1671,27 @@ const char* GetUserRequest::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
     CHK_(ptr);
     switch (tag >> 3) {
-      // string userId = 1;
+      // bytes userId = 1;
       case 1:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 10)) {
           auto str = _internal_mutable_userid();
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
-          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "GetUserRequest.userId"));
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
-      // string username = 2;
+      // bytes username = 2;
       case 2:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 18)) {
           auto str = _internal_mutable_username();
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
-          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "GetUserRequest.username"));
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
-      // string email = 3;
+      // bytes email = 3;
       case 3:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 26)) {
           auto str = _internal_mutable_email();
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
-          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "GetUserRequest.email"));
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
@@ -1771,33 +1723,21 @@ failure:
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
-  // string userId = 1;
+  // bytes userId = 1;
   if (this->userid().size() > 0) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
-      this->_internal_userid().data(), static_cast<int>(this->_internal_userid().length()),
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
-      "GetUserRequest.userId");
-    target = stream->WriteStringMaybeAliased(
+    target = stream->WriteBytesMaybeAliased(
         1, this->_internal_userid(), target);
   }
 
-  // string username = 2;
+  // bytes username = 2;
   if (this->username().size() > 0) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
-      this->_internal_username().data(), static_cast<int>(this->_internal_username().length()),
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
-      "GetUserRequest.username");
-    target = stream->WriteStringMaybeAliased(
+    target = stream->WriteBytesMaybeAliased(
         2, this->_internal_username(), target);
   }
 
-  // string email = 3;
+  // bytes email = 3;
   if (this->email().size() > 0) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
-      this->_internal_email().data(), static_cast<int>(this->_internal_email().length()),
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
-      "GetUserRequest.email");
-    target = stream->WriteStringMaybeAliased(
+    target = stream->WriteBytesMaybeAliased(
         3, this->_internal_email(), target);
   }
 
@@ -1817,24 +1757,24 @@ size_t GetUserRequest::ByteSizeLong() const {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  // string userId = 1;
+  // bytes userId = 1;
   if (this->userid().size() > 0) {
     total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::BytesSize(
         this->_internal_userid());
   }
 
-  // string username = 2;
+  // bytes username = 2;
   if (this->username().size() > 0) {
     total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::BytesSize(
         this->_internal_username());
   }
 
-  // string email = 3;
+  // bytes email = 3;
   if (this->email().size() > 0) {
     total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::BytesSize(
         this->_internal_email());
   }
 
@@ -2006,39 +1946,35 @@ const char* CreateUserRequest::_InternalParse(const char* ptr, ::PROTOBUF_NAMESP
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
     CHK_(ptr);
     switch (tag >> 3) {
-      // string userId = 1;
+      // bytes userId = 1;
       case 1:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 10)) {
           auto str = _internal_mutable_userid();
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
-          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "CreateUserRequest.userId"));
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
-      // string password = 2;
+      // bytes password = 2;
       case 2:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 18)) {
           auto str = _internal_mutable_password();
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
-          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "CreateUserRequest.password"));
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
-      // string username = 3;
+      // bytes username = 3;
       case 3:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 26)) {
           auto str = _internal_mutable_username();
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
-          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "CreateUserRequest.username"));
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
-      // string email = 4;
+      // bytes email = 4;
       case 4:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 34)) {
           auto str = _internal_mutable_email();
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
-          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "CreateUserRequest.email"));
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
@@ -2070,43 +2006,27 @@ failure:
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
-  // string userId = 1;
+  // bytes userId = 1;
   if (this->userid().size() > 0) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
-      this->_internal_userid().data(), static_cast<int>(this->_internal_userid().length()),
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
-      "CreateUserRequest.userId");
-    target = stream->WriteStringMaybeAliased(
+    target = stream->WriteBytesMaybeAliased(
         1, this->_internal_userid(), target);
   }
 
-  // string password = 2;
+  // bytes password = 2;
   if (this->password().size() > 0) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
-      this->_internal_password().data(), static_cast<int>(this->_internal_password().length()),
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
-      "CreateUserRequest.password");
-    target = stream->WriteStringMaybeAliased(
+    target = stream->WriteBytesMaybeAliased(
         2, this->_internal_password(), target);
   }
 
-  // string username = 3;
+  // bytes username = 3;
   if (this->username().size() > 0) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
-      this->_internal_username().data(), static_cast<int>(this->_internal_username().length()),
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
-      "CreateUserRequest.username");
-    target = stream->WriteStringMaybeAliased(
+    target = stream->WriteBytesMaybeAliased(
         3, this->_internal_username(), target);
   }
 
-  // string email = 4;
+  // bytes email = 4;
   if (this->email().size() > 0) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
-      this->_internal_email().data(), static_cast<int>(this->_internal_email().length()),
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
-      "CreateUserRequest.email");
-    target = stream->WriteStringMaybeAliased(
+    target = stream->WriteBytesMaybeAliased(
         4, this->_internal_email(), target);
   }
 
@@ -2126,31 +2046,31 @@ size_t CreateUserRequest::ByteSizeLong() const {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  // string userId = 1;
+  // bytes userId = 1;
   if (this->userid().size() > 0) {
     total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::BytesSize(
         this->_internal_userid());
   }
 
-  // string password = 2;
+  // bytes password = 2;
   if (this->password().size() > 0) {
     total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::BytesSize(
         this->_internal_password());
   }
 
-  // string username = 3;
+  // bytes username = 3;
   if (this->username().size() > 0) {
     total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::BytesSize(
         this->_internal_username());
   }
 
-  // string email = 4;
+  // bytes email = 4;
   if (this->email().size() > 0) {
     total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::BytesSize(
         this->_internal_email());
   }
 
@@ -2334,48 +2254,43 @@ const char* UpdateUserRequest::_InternalParse(const char* ptr, ::PROTOBUF_NAMESP
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
     CHK_(ptr);
     switch (tag >> 3) {
-      // string userId = 1;
+      // bytes userId = 1;
       case 1:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 10)) {
           auto str = _internal_mutable_userid();
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
-          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "UpdateUserRequest.userId"));
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
-      // string password = 2;
+      // bytes password = 2;
       case 2:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 18)) {
           auto str = _internal_mutable_password();
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
-          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "UpdateUserRequest.password"));
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
-      // string toBePassword = 3;
+      // bytes toBePassword = 3;
       case 3:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 26)) {
           auto str = _internal_mutable_tobepassword();
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
-          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "UpdateUserRequest.toBePassword"));
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
-      // string toBeUsername = 4;
+      // bytes toBeUsername = 4;
       case 4:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 34)) {
           auto str = _internal_mutable_tobeusername();
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
-          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "UpdateUserRequest.toBeUsername"));
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
-      // string toBeEmail = 5;
+      // bytes toBeEmail = 5;
       case 5:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 42)) {
           auto str = _internal_mutable_tobeemail();
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
-          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "UpdateUserRequest.toBeEmail"));
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
@@ -2407,53 +2322,33 @@ failure:
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
-  // string userId = 1;
+  // bytes userId = 1;
   if (this->userid().size() > 0) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
-      this->_internal_userid().data(), static_cast<int>(this->_internal_userid().length()),
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
-      "UpdateUserRequest.userId");
-    target = stream->WriteStringMaybeAliased(
+    target = stream->WriteBytesMaybeAliased(
         1, this->_internal_userid(), target);
   }
 
-  // string password = 2;
+  // bytes password = 2;
   if (this->password().size() > 0) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
-      this->_internal_password().data(), static_cast<int>(this->_internal_password().length()),
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
-      "UpdateUserRequest.password");
-    target = stream->WriteStringMaybeAliased(
+    target = stream->WriteBytesMaybeAliased(
         2, this->_internal_password(), target);
   }
 
-  // string toBePassword = 3;
+  // bytes toBePassword = 3;
   if (this->tobepassword().size() > 0) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
-      this->_internal_tobepassword().data(), static_cast<int>(this->_internal_tobepassword().length()),
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
-      "UpdateUserRequest.toBePassword");
-    target = stream->WriteStringMaybeAliased(
+    target = stream->WriteBytesMaybeAliased(
         3, this->_internal_tobepassword(), target);
   }
 
-  // string toBeUsername = 4;
+  // bytes toBeUsername = 4;
   if (this->tobeusername().size() > 0) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
-      this->_internal_tobeusername().data(), static_cast<int>(this->_internal_tobeusername().length()),
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
-      "UpdateUserRequest.toBeUsername");
-    target = stream->WriteStringMaybeAliased(
+    target = stream->WriteBytesMaybeAliased(
         4, this->_internal_tobeusername(), target);
   }
 
-  // string toBeEmail = 5;
+  // bytes toBeEmail = 5;
   if (this->tobeemail().size() > 0) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
-      this->_internal_tobeemail().data(), static_cast<int>(this->_internal_tobeemail().length()),
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
-      "UpdateUserRequest.toBeEmail");
-    target = stream->WriteStringMaybeAliased(
+    target = stream->WriteBytesMaybeAliased(
         5, this->_internal_tobeemail(), target);
   }
 
@@ -2473,38 +2368,38 @@ size_t UpdateUserRequest::ByteSizeLong() const {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  // string userId = 1;
+  // bytes userId = 1;
   if (this->userid().size() > 0) {
     total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::BytesSize(
         this->_internal_userid());
   }
 
-  // string password = 2;
+  // bytes password = 2;
   if (this->password().size() > 0) {
     total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::BytesSize(
         this->_internal_password());
   }
 
-  // string toBePassword = 3;
+  // bytes toBePassword = 3;
   if (this->tobepassword().size() > 0) {
     total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::BytesSize(
         this->_internal_tobepassword());
   }
 
-  // string toBeUsername = 4;
+  // bytes toBeUsername = 4;
   if (this->tobeusername().size() > 0) {
     total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::BytesSize(
         this->_internal_tobeusername());
   }
 
-  // string toBeEmail = 5;
+  // bytes toBeEmail = 5;
   if (this->tobeemail().size() > 0) {
     total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::BytesSize(
         this->_internal_tobeemail());
   }
 
@@ -2668,21 +2563,19 @@ const char* DeleteUserRequest::_InternalParse(const char* ptr, ::PROTOBUF_NAMESP
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
     CHK_(ptr);
     switch (tag >> 3) {
-      // string userId = 1;
+      // bytes userId = 1;
       case 1:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 10)) {
           auto str = _internal_mutable_userid();
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
-          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "DeleteUserRequest.userId"));
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
-      // string password = 2;
+      // bytes password = 2;
       case 2:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 18)) {
           auto str = _internal_mutable_password();
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
-          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "DeleteUserRequest.password"));
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
@@ -2714,23 +2607,15 @@ failure:
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
-  // string userId = 1;
+  // bytes userId = 1;
   if (this->userid().size() > 0) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
-      this->_internal_userid().data(), static_cast<int>(this->_internal_userid().length()),
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
-      "DeleteUserRequest.userId");
-    target = stream->WriteStringMaybeAliased(
+    target = stream->WriteBytesMaybeAliased(
         1, this->_internal_userid(), target);
   }
 
-  // string password = 2;
+  // bytes password = 2;
   if (this->password().size() > 0) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
-      this->_internal_password().data(), static_cast<int>(this->_internal_password().length()),
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
-      "DeleteUserRequest.password");
-    target = stream->WriteStringMaybeAliased(
+    target = stream->WriteBytesMaybeAliased(
         2, this->_internal_password(), target);
   }
 
@@ -2750,17 +2635,17 @@ size_t DeleteUserRequest::ByteSizeLong() const {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  // string userId = 1;
+  // bytes userId = 1;
   if (this->userid().size() > 0) {
     total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::BytesSize(
         this->_internal_userid());
   }
 
-  // string password = 2;
+  // bytes password = 2;
   if (this->password().size() > 0) {
     total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::BytesSize(
         this->_internal_password());
   }
 
@@ -2912,21 +2797,19 @@ const char* LoginRequest::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_I
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
     CHK_(ptr);
     switch (tag >> 3) {
-      // string userId = 1;
+      // bytes userId = 1;
       case 1:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 10)) {
           auto str = _internal_mutable_userid();
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
-          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "LoginRequest.userId"));
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
-      // string password = 2;
+      // bytes password = 2;
       case 2:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 18)) {
           auto str = _internal_mutable_password();
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
-          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "LoginRequest.password"));
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
@@ -2958,23 +2841,15 @@ failure:
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
-  // string userId = 1;
+  // bytes userId = 1;
   if (this->userid().size() > 0) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
-      this->_internal_userid().data(), static_cast<int>(this->_internal_userid().length()),
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
-      "LoginRequest.userId");
-    target = stream->WriteStringMaybeAliased(
+    target = stream->WriteBytesMaybeAliased(
         1, this->_internal_userid(), target);
   }
 
-  // string password = 2;
+  // bytes password = 2;
   if (this->password().size() > 0) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
-      this->_internal_password().data(), static_cast<int>(this->_internal_password().length()),
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
-      "LoginRequest.password");
-    target = stream->WriteStringMaybeAliased(
+    target = stream->WriteBytesMaybeAliased(
         2, this->_internal_password(), target);
   }
 
@@ -2994,17 +2869,17 @@ size_t LoginRequest::ByteSizeLong() const {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  // string userId = 1;
+  // bytes userId = 1;
   if (this->userid().size() > 0) {
     total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::BytesSize(
         this->_internal_userid());
   }
 
-  // string password = 2;
+  // bytes password = 2;
   if (this->password().size() > 0) {
     total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::BytesSize(
         this->_internal_password());
   }
 

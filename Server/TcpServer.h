@@ -10,26 +10,25 @@
 class TcpServer 
 {
 private:
-    boost::asio::io_context&                    m_IoContext;
-    std::thread                                 m_ContextThread;
+    boost::asio::io_context&                    m_IoContext;        // Boost ASIO의 I/O 컨텍스트
+    std::thread                                 m_ContextThread;    // 컨텍스트 실행을 위한 스레드
 
-    boost::asio::ip::tcp::acceptor              m_Acceptor;
-    std::vector<std::shared_ptr<UserSession>>   m_Users;
-    std::queue<std::shared_ptr<UserSession>>    m_NewUsers;
-    std::mutex                                  m_UsersMutex;    
-    std::mutex                                  m_NewUsersMutex;
+    boost::asio::ip::tcp::acceptor              m_Acceptor;         // TCP 연결을 수락하는 객체
+    
+    std::vector<std::shared_ptr<UserSession>>   m_Users;            // 연결된 사용자 세션들
+    std::queue<std::shared_ptr<UserSession>>    m_NewUsers;         // 새로운 사용자 대기열
+    
+    std::mutex                                  m_UsersMutex;       // 사용자 세션 접근을 위한 뮤텍스
+    std::mutex                                  m_NewUsersMutex;    // 새로운 사용자 대기열 접근을 위한 뮤텍스
 
-    std::unique_ptr<PartyManager>               m_PartyManager;
+    std::unique_ptr<PartyManager>               m_PartyManager;     // 파티 관리자 객체
+    std::unique_ptr<CRedisClient>               m_RedisClient;      // Redis 클라이언트 객체    
+    std::unique_ptr<MySQLManager>               m_MySQLConnector;   // MySQL 관리자 객체
+    
+    uint32_t                                    m_MaxUser = 5;      // 최대 사용자 수
+    
+    HSThreadPool&                               m_ThreadPool;       // DB 작업을 처리하는 스레드 풀 객체
 
-    // Redis 관리 클래스
-    std::unique_ptr<CRedisClient>               m_RedisClient;
-    // MySQL 관리 클래스
-    std::unique_ptr<MySQLManager>               m_MySQLConnector;
-    // 동접자 수
-    uint32_t                                    m_MaxUser = 5;
-
-    //DB 작업은 Multi Thread로 진행
-    HSThreadPool&                               m_ThreadPool;
 
 public:
     TcpServer(boost::asio::io_context& io_context, int port, std::unique_ptr<CRedisClient> redisClient, std::unique_ptr<MySQLManager> mysqlManager, HSThreadPool& threadPool);

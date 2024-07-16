@@ -1,5 +1,5 @@
-﻿using Google.Protobuf;
-using LoginApiServer.Utils;
+﻿using ApiServer.CustomException;
+using Google.Protobuf;
 using Microsoft.AspNetCore.Mvc.Formatters;
 
 namespace LoginApiServer.Formatter
@@ -40,7 +40,7 @@ namespace LoginApiServer.Formatter
             catch (Exception ex)
             {
                 // Handle the exception here
-                var failResponse = ProtobufResultHelper.CreateErrorResult(UserStatusCode.ServerError, ex.Message);
+                var failResponse = ProtobufException.CreateErrorResult(UserStatusCode.ServerError, ex.Message);
                 var failureResponseBytes = failResponse.ToByteArray();
                 return await InputFormatterResult.FailureAsync();
             }

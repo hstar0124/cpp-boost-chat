@@ -5,7 +5,6 @@
 #include <vector>
 #include <string>
 #include <stdexcept>
-
 #include "User/include/UserEntity.hpp"
 
 class MySQLManager {

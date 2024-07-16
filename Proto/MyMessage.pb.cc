@@ -59,8 +59,8 @@ static ::PROTOBUF_NAMESPACE_ID::Message const * const file_default_instances[] =
 const char descriptor_table_protodef_MyMessage_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
   "\n\017MyMessage.proto\022\rmyChatMessage\"u\n\013Chat"
   "Message\0223\n\013messageType\030\001 \001(\0162\036.myChatMes"
-  "sage.ChatMessageType\022\016\n\006sender\030\002 \001(\t\022\020\n\010"
-  "receiver\030\003 \001(\t\022\017\n\007content\030\004 \001(\t*\224\002\n\017Chat"
+  "sage.ChatMessageType\022\016\n\006sender\030\002 \001(\014\022\020\n\010"
+  "receiver\030\003 \001(\014\022\017\n\007content\030\004 \001(\014*\224\002\n\017Chat"
   "MessageType\022\017\n\013SERVER_PING\020\000\022\022\n\016SERVER_M"
   "ESSAGE\020\001\022\017\n\013ALL_MESSAGE\020\002\022\023\n\017WHISPER_MES"
   "SAGE\020\003\022\021\n\rPARTY_MESSAGE\020\004\022\020\n\014PARTY_CREAT"
@@ -210,30 +210,27 @@ const char* ChatMessage::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID
           _internal_set_messagetype(static_cast<::myChatMessage::ChatMessageType>(val));
         } else goto handle_unusual;
         continue;
-      // string sender = 2;
+      // bytes sender = 2;
       case 2:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 18)) {
           auto str = _internal_mutable_sender();
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
-          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "myChatMessage.ChatMessage.sender"));
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
-      // string receiver = 3;
+      // bytes receiver = 3;
       case 3:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 26)) {
           auto str = _internal_mutable_receiver();
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
-          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "myChatMessage.ChatMessage.receiver"));
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
-      // string content = 4;
+      // bytes content = 4;
       case 4:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 34)) {
           auto str = _internal_mutable_content();
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
-          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "myChatMessage.ChatMessage.content"));
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
@@ -272,33 +269,21 @@ failure:
       1, this->_internal_messagetype(), target);
   }
 
-  // string sender = 2;
+  // bytes sender = 2;
   if (this->sender().size() > 0) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
-      this->_internal_sender().data(), static_cast<int>(this->_internal_sender().length()),
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
-      "myChatMessage.ChatMessage.sender");
-    target = stream->WriteStringMaybeAliased(
+    target = stream->WriteBytesMaybeAliased(
         2, this->_internal_sender(), target);
   }
 
-  // string receiver = 3;
+  // bytes receiver = 3;
   if (this->receiver().size() > 0) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
-      this->_internal_receiver().data(), static_cast<int>(this->_internal_receiver().length()),
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
-      "myChatMessage.ChatMessage.receiver");
-    target = stream->WriteStringMaybeAliased(
+    target = stream->WriteBytesMaybeAliased(
         3, this->_internal_receiver(), target);
   }
 
-  // string content = 4;
+  // bytes content = 4;
   if (this->content().size() > 0) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
-      this->_internal_content().data(), static_cast<int>(this->_internal_content().length()),
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
-      "myChatMessage.ChatMessage.content");
-    target = stream->WriteStringMaybeAliased(
+    target = stream->WriteBytesMaybeAliased(
         4, this->_internal_content(), target);
   }
 
@@ -318,24 +303,24 @@ size_t ChatMessage::ByteSizeLong() const {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  // string sender = 2;
+  // bytes sender = 2;
   if (this->sender().size() > 0) {
     total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::BytesSize(
         this->_internal_sender());
   }
 
-  // string receiver = 3;
+  // bytes receiver = 3;
   if (this->receiver().size() > 0) {
     total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::BytesSize(
         this->_internal_receiver());
   }
 
-  // string content = 4;
+  // bytes content = 4;
   if (this->content().size() > 0) {
     total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::BytesSize(
         this->_internal_content());
   }
 

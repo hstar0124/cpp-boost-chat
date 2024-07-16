@@ -26,9 +26,10 @@ enum ChatMessageType
     ERROR_MESSAGE = 99;
 }
 
-message ChatMessage {
+message ChatMessage 
+{
     ChatMessageType messageType = 1;
-    string sender = 2;
-    string receiver = 3;
-    string content = 4;    
+    bytes sender = 2;
+    bytes receiver = 3;
+    bytes content = 4;    
 }

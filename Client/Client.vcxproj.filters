@@ -37,17 +37,17 @@
     <ClCompile Include="main.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Message\UserMessage.pb.cc">
-      <Filter>소스 파일\Message</Filter>
-    </ClCompile>
-    <ClCompile Include="Message\MyMessage.pb.cc">
-      <Filter>소스 파일\Message</Filter>
-    </ClCompile>
     <ClCompile Include="Api\src\HttpClient.cpp">
       <Filter>소스 파일\Api\src</Filter>
     </ClCompile>
     <ClCompile Include="Socket\src\ChatClient.cpp">
       <Filter>소스 파일\Socket\src</Filter>
+    </ClCompile>
+    <ClCompile Include="Message\UserMessage.pb.cc">
+      <Filter>소스 파일\Message</Filter>
+    </ClCompile>
+    <ClCompile Include="Message\MyMessage.pb.cc">
+      <Filter>소스 파일\Message</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -56,12 +56,6 @@
     </ClInclude>
     <ClInclude Include="Client.h">
       <Filter>소스 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Message\UserMessage.pb.h">
-      <Filter>소스 파일\Message</Filter>
-    </ClInclude>
-    <ClInclude Include="Message\MyMessage.pb.h">
-      <Filter>소스 파일\Message</Filter>
     </ClInclude>
     <ClInclude Include="Api\include\HttpClient.h">
       <Filter>소스 파일\Api\include</Filter>
@@ -72,18 +66,24 @@
     <ClInclude Include="Util\ThreadSafeQueue.h">
       <Filter>소스 파일\Util</Filter>
     </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Message\MyMessage.proto">
+    <ClInclude Include="Message\UserMessage.pb.h">
       <Filter>소스 파일\Message</Filter>
-    </None>
-    <None Include="Message\UserMessage.proto">
+    </ClInclude>
+    <ClInclude Include="Message\MyMessage.pb.h">
       <Filter>소스 파일\Message</Filter>
-    </None>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ApiUrl.txt">
       <Filter>소스 파일</Filter>
     </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Message\UserMessage.proto">
+      <Filter>소스 파일\Message</Filter>
+    </None>
+    <None Include="Message\MyMessage.proto">
+      <Filter>소스 파일\Message</Filter>
+    </None>
   </ItemGroup>
 </Project>
