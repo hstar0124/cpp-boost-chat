@@ -66,32 +66,32 @@ public:
 		}
 	}
 
-	typename std::vector<T>::iterator Begin() 
+	typename std::vector<T>::iterator Begin()
 	{
 		std::scoped_lock lock(vectorMutex);
 		return vector.begin();
 	}
 
-	typename std::vector<T>::const_iterator Begin() const 
+	typename std::vector<T>::const_iterator Begin() const
 	{
 		std::scoped_lock lock(vectorMutex);
 		return vector.begin();
 	}
 
-	typename std::vector<T>::iterator End() 
+	typename std::vector<T>::iterator End()
 	{
 		std::scoped_lock lock(vectorMutex);
 		return vector.end();
 	}
 
-	typename std::vector<T>::const_iterator End() const 
+	typename std::vector<T>::const_iterator End() const
 	{
 		std::scoped_lock lock(vectorMutex);
 		return vector.end();
 	}
 
 
-	void Erase(const T& value) 
+	void Erase(const T& value)
 	{
 		std::scoped_lock lock(vectorMutex);
 		auto it = std::find(vector.begin(), vector.end(), value);

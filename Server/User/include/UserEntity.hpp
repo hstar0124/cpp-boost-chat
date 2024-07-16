@@ -4,28 +4,28 @@
 class UserEntity
 {
 private:
-    uint32_t        m_Id;       // ì‚¬ìš©ì ID
-    std::string     m_UserId;   // ì‚¬ìš©ì ê³ ìœ  ID
-    std::string     m_Password; // ì‚¬ìš©ì ë¹„ë°€ë²ˆí˜¸
-    std::string     m_Username; // ì‚¬ìš©ì ì´ë¦„
-    std::string     m_Email;    // ì‚¬ìš©ì ì´ë©”ì¼
-    char            m_IsAlive;  // ì‚¬ìš©ì í™œì„± ìƒíƒœ
+    uint32_t        m_Id;       // »ç¿ëÀÚ ID
+    std::string     m_UserId;   // »ç¿ëÀÚ °íÀ¯ ID
+    std::string     m_Password; // »ç¿ëÀÚ ºñ¹Ğ¹øÈ£
+    std::string     m_Username; // »ç¿ëÀÚ ÀÌ¸§
+    std::string     m_Email;    // »ç¿ëÀÚ ÀÌ¸ŞÀÏ
+    char            m_IsAlive;  // »ç¿ëÀÚ È°¼º »óÅÂ
 
 public:
 
     // Getter methods
-    uint32_t GetId() const { return m_Id; } // ID ë°˜í™˜
-    std::string GetUserId() const { return m_UserId; } // ê³ ìœ  ID ë°˜í™˜
-    std::string GetPassword() const { return m_Password; } // ë¹„ë°€ë²ˆí˜¸ ë°˜í™˜
-    std::string GetUsername() const { return m_Username; } // ì´ë¦„ ë°˜í™˜
-    std::string GetEmail() const { return m_Email; } // ì´ë©”ì¼ ë°˜í™˜
-    char GetIsAlive() const { return m_IsAlive; } // í™œì„± ìƒíƒœ ë°˜í™˜
+    uint32_t GetId() const { return m_Id; } // ID ¹İÈ¯
+    std::string GetUserId() const { return m_UserId; } // °íÀ¯ ID ¹İÈ¯
+    std::string GetPassword() const { return m_Password; } // ºñ¹Ğ¹øÈ£ ¹İÈ¯
+    std::string GetUsername() const { return m_Username; } // ÀÌ¸§ ¹İÈ¯
+    std::string GetEmail() const { return m_Email; } // ÀÌ¸ŞÀÏ ¹İÈ¯
+    char GetIsAlive() const { return m_IsAlive; } // È°¼º »óÅÂ ¹İÈ¯
 
     // Setter methods
-    void SetId(uint32_t id) { m_Id = id; } // ID ì„¤ì •
-    void SetUserId(const std::string& userId) { m_UserId = userId; } // ê³ ìœ  ID ì„¤ì •
-    void SetPassword(const std::string& password) { m_Password = password; } // ë¹„ë°€ë²ˆí˜¸ ì„¤ì •
-    void SetUsername(const std::string& username) { m_Username = username; } // ì´ë¦„ ì„¤ì •
-    void SetEmail(const std::string& email) { m_Email = email; } // ì´ë©”ì¼ ì„¤ì •
-    void SetIsAlive(const char& isAlive) { m_IsAlive = isAlive; } // í™œì„± ìƒíƒœ ì„¤ì •
+    void SetId(uint32_t id) { m_Id = id; } // ID ¼³Á¤
+    void SetUserId(const std::string& userId) { m_UserId = userId; } // °íÀ¯ ID ¼³Á¤
+    void SetPassword(const std::string& password) { m_Password = password; } // ºñ¹Ğ¹øÈ£ ¼³Á¤
+    void SetUsername(const std::string& username) { m_Username = username; } // ÀÌ¸§ ¼³Á¤
+    void SetEmail(const std::string& email) { m_Email = email; } // ÀÌ¸ŞÀÏ ¼³Á¤
+    void SetIsAlive(const char& isAlive) { m_IsAlive = isAlive; } // È°¼º »óÅÂ ¼³Á¤
 };

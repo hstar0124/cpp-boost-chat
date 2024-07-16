@@ -9,7 +9,7 @@ class UserSession : public std::enable_shared_from_this<UserSession>
 {
 private:
 	boost::asio::ip::tcp::socket												m_Socket;
-	boost::asio::io_context&													m_IoContext;
+	boost::asio::io_context& m_IoContext;
 
 	uint32_t																	m_Id = 0;
 	std::shared_ptr<UserEntity>													m_UserEntity;
@@ -68,4 +68,3 @@ private:
 
 	void HandleError(const std::string& errorMessage);
 };
-

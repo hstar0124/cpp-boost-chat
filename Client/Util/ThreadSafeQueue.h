@@ -5,37 +5,37 @@ template<typename T>
 class ThreadSafeQueue
 {
 private:
-    std::mutex queueMutex;              // íì— ëŒ€í•œ ë®¤í…ìŠ¤
-    std::queue<T> queue;                // ë°ì´í„°ë¥¼ ë³´ê´€í•˜ëŠ” í
-    std::condition_variable cvBlocking; // ë¸”ë¡œí‚¹ì„ ìœ„í•œ ì¡°ê±´ ë³€ìˆ˜
-    std::mutex muxBlocking;             // ë¸”ë¡œí‚¹ì„ ìœ„í•œ ë®¤í…ìŠ¤
+    std::mutex queueMutex;              // Å¥¿¡ ´ëÇÑ ¹ÂÅØ½º
+    std::queue<T> queue;                // µ¥ÀÌÅÍ¸¦ º¸°üÇÏ´Â Å¥
+    std::condition_variable cvBlocking; // ºí·ÎÅ·À» À§ÇÑ Á¶°Ç º¯¼ö
+    std::mutex muxBlocking;             // ºí·ÎÅ·À» À§ÇÑ ¹ÂÅØ½º
 
 public:
-    // ê¸°ë³¸ ìƒì„±ì
+    // ±âº» »ı¼ºÀÚ
     ThreadSafeQueue() = default;
 
-    // ë³µì‚¬ ìƒì„±ìì™€ ëŒ€ì… ì—°ì‚°ìë¥¼ ì‚­ì œí•˜ì—¬ ë³µì‚¬ë¥¼ ë§‰ìŒ
+    // º¹»ç »ı¼ºÀÚ¿Í ´ëÀÔ ¿¬»êÀÚ¸¦ »èÁ¦ÇÏ¿© º¹»ç¸¦ ¸·À½
     ThreadSafeQueue(const ThreadSafeQueue<T>&) = delete;
     ThreadSafeQueue& operator=(const ThreadSafeQueue<T>&) = delete;
 
-    // ì†Œë©¸ìì—ì„œ ëª¨ë“  ë°ì´í„°ë¥¼ ì œê±°í•¨
+    // ¼Ò¸êÀÚ¿¡¼­ ¸ğµç µ¥ÀÌÅÍ¸¦ Á¦°ÅÇÔ
     ~ThreadSafeQueue() { Clear(); }
 
-    // íì˜ ë§¨ ì• ì›ì†Œë¥¼ ë°˜í™˜
+    // Å¥ÀÇ ¸Ç ¾Õ ¿ø¼Ò¸¦ ¹İÈ¯
     const T& Front()
     {
         std::scoped_lock lock(queueMutex);
         return queue.front();
     }
 
-    // íì˜ ë§¨ ë’¤ ì›ì†Œë¥¼ ë°˜í™˜
+    // Å¥ÀÇ ¸Ç µÚ ¿ø¼Ò¸¦ ¹İÈ¯
     const T& Back()
     {
         std::scoped_lock lock(queueMutex);
         return queue.back();
     }
 
-    // íì—ì„œ ì›ì†Œë¥¼ ì œê±°í•˜ê³  ë°˜í™˜
+    // Å¥¿¡¼­ ¿ø¼Ò¸¦ Á¦°ÅÇÏ°í ¹İÈ¯
     T Pop()
     {
         std::scoped_lock lock(queueMutex);
@@ -44,32 +44,32 @@ public:
         return t;
     }
 
-    // íì— ì›ì†Œë¥¼ ì¶”ê°€
+    // Å¥¿¡ ¿ø¼Ò¸¦ Ãß°¡
     void PushBack(const T& item)
     {
         std::scoped_lock lock(queueMutex);
         queue.push(item);
 
-        // ì›ì†Œê°€ ì¶”ê°€ë˜ë©´ ë¸”ë¡œí‚¹ì„ í•´ì œí•˜ê¸° ìœ„í•´ ì¡°ê±´ ë³€ìˆ˜ë¥¼ í†µì§€
+        // ¿ø¼Ò°¡ Ãß°¡µÇ¸é ºí·ÎÅ·À» ÇØÁ¦ÇÏ±â À§ÇØ Á¶°Ç º¯¼ö¸¦ ÅëÁö
         std::unique_lock<std::mutex> ul(muxBlocking);
         cvBlocking.notify_one();
     }
 
-    // íê°€ ë¹„ì–´ìˆëŠ”ì§€ ì—¬ë¶€ë¥¼ ë°˜í™˜
+    // Å¥°¡ ºñ¾îÀÖ´ÂÁö ¿©ºÎ¸¦ ¹İÈ¯
     bool Empty()
     {
         std::scoped_lock lock(queueMutex);
         return queue.empty();
     }
 
-    // íì— ìˆëŠ” ì›ì†Œì˜ ê°œìˆ˜ë¥¼ ë°˜í™˜
+    // Å¥¿¡ ÀÖ´Â ¿ø¼ÒÀÇ °³¼ö¸¦ ¹İÈ¯
     size_t Count()
     {
         std::scoped_lock lock(queueMutex);
         return queue.size();
     }
 
-    // íì˜ ëª¨ë“  ì›ì†Œë¥¼ ì œê±°
+    // Å¥ÀÇ ¸ğµç ¿ø¼Ò¸¦ Á¦°Å
     void Clear()
     {
         std::scoped_lock lock(queueMutex);
@@ -77,12 +77,12 @@ public:
             queue.pop();
     }
 
-    // íê°€ ë¹„ì–´ìˆì„ ë•Œê¹Œì§€ ê¸°ë‹¤ë¦¼
+    // Å¥°¡ ºñ¾îÀÖÀ» ¶§±îÁö ±â´Ù¸²
     void Wait()
     {
         while (Empty())
         {
-            // íê°€ ë¹„ì–´ìˆì„ ê²½ìš° ë¸”ë¡œí‚¹ ìƒíƒœë¡œ ëŒ€ê¸°í•˜ë©° CPU ìì›ì„ ì ˆì•½í•¨
+            // Å¥°¡ ºñ¾îÀÖÀ» °æ¿ì ºí·ÎÅ· »óÅÂ·Î ´ë±âÇÏ¸ç CPU ÀÚ¿øÀ» Àı¾àÇÔ
             std::unique_lock<std::mutex> ul(muxBlocking);
             cvBlocking.wait(ul);
         }

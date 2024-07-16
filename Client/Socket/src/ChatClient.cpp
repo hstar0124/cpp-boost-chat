@@ -321,7 +321,6 @@ void ChatClient::SetVerificationCallback(const std::function<void()>& callback)
 void ChatClient::AsyncWrite(std::shared_ptr<myChatMessage::ChatMessage> message)
 {
 	int size = static_cast<int>(message->ByteSizeLong());
-	std::cout << "count size : " << size << "\n";		
 
 	m_Writebuf.resize(HEADER_SIZE + size);
 	message->SerializePartialToArray(m_Writebuf.data() + HEADER_SIZE, size);

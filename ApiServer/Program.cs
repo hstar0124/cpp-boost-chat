@@ -12,7 +12,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers(option => option.Filters.Add<GlobalExceptionFilter>())
     .AddProtobufFormatters();
 
-// API ì—”ë“œí¬ì¸íŠ¸ íƒìƒ‰ ë¬¸ì„œí™”ìœ„í•œ ì„œë¹„ìŠ¤ ë“±ë¡
+// API ¿£µåÆ÷ÀÎÆ® Å½»ö ¹®¼­È­À§ÇÑ ¼­ºñ½º µî·Ï
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -24,25 +24,25 @@ builder.Services.AddSingleton<HStarContext, HStarContext>();
 
 var app = builder.Build();
 
-// Swaggerê°€ ê°œë°œ í™˜ê²½ì—ì„œë§Œ í™œì„±í™”
+// Swagger°¡ °³¹ß È¯°æ¿¡¼­¸¸ È°¼ºÈ­
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
-// ëª¨ë“  HTTP ìš”ì²­ì„ HTTPSë¡œ ë¦¬ë””ë ‰ì…˜
+// ¸ğµç HTTP ¿äÃ»À» HTTPS·Î ¸®µğ·º¼Ç
 //app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
-// ì»¨íŠ¸ë¡¤ëŸ¬ë¥¼ ì—”ë“œí¬ì¸íŠ¸ë¡œ ë§¤í•‘
+// ÄÁÆ®·Ñ·¯¸¦ ¿£µåÆ÷ÀÎÆ®·Î ¸ÅÇÎ
 app.MapControllers();
 
 app.Run();
 
 
-// í™•ì¥ ë©”ì„œë“œ ì •ì˜
+// È®Àå ¸Ş¼­µå Á¤ÀÇ
 public static class MvcBuilderExtensions
 {
     public static IMvcBuilder AddProtobufFormatters(this IMvcBuilder builder)

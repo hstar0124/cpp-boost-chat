@@ -8,22 +8,22 @@
 class ConfigParser
 {
 private:
-    std::string filename;               // ì„¤ì • íŒŒì¼ì˜ ì´ë¦„ì„ ì €ì¥í•˜ëŠ” ë³€ìˆ˜
-    std::map<std::string, std::string> configMap;  // ì„¤ì • í•­ëª©ì„ ì €ì¥í•˜ëŠ” ë§µ
+    std::string filename;               // ¼³Á¤ ÆÄÀÏÀÇ ÀÌ¸§À» ÀúÀåÇÏ´Â º¯¼ö
+    std::map<std::string, std::string> configMap;  // ¼³Á¤ Ç×¸ñÀ» ÀúÀåÇÏ´Â ¸Ê
 
 public:
-    // ìƒì„±ì: ì„¤ì • íŒŒì¼ ì´ë¦„ì„ ë°›ì•„ ì´ˆê¸°í™”í•©ë‹ˆë‹¤.
+    // »ı¼ºÀÚ: ¼³Á¤ ÆÄÀÏ ÀÌ¸§À» ¹Ş¾Æ ÃÊ±âÈ­ÇÕ´Ï´Ù.
     ConfigParser(const std::string& filename) : filename(filename)
     {}
 
-    // ì„¤ì • íŒŒì¼ì„ ì½ì–´ì„œ ë§µì— ì €ì¥í•˜ëŠ” í•¨ìˆ˜
+    // ¼³Á¤ ÆÄÀÏÀ» ÀĞ¾î¼­ ¸Ê¿¡ ÀúÀåÇÏ´Â ÇÔ¼ö
     bool readConfig()
     {
-        std::ifstream inputFile(filename);  // íŒŒì¼ ìŠ¤íŠ¸ë¦¼ ìƒì„±
+        std::ifstream inputFile(filename);  // ÆÄÀÏ ½ºÆ®¸² »ı¼º
 
         if (!inputFile.is_open())
         {
-            // íŒŒì¼ ì—´ê¸° ì‹¤íŒ¨ ì‹œ ì—ëŸ¬ ë©”ì‹œì§€ ì¶œë ¥ í›„ false ë°˜í™˜
+            // ÆÄÀÏ ¿­±â ½ÇÆĞ ½Ã ¿¡·¯ ¸Ş½ÃÁö Ãâ·Â ÈÄ false ¹İÈ¯
             std::cerr << "Error: Cannot open file: " << filename << std::endl;
             return false;
         }
@@ -31,7 +31,7 @@ public:
         std::string line;
         while (std::getline(inputFile, line))
         {
-            // '=' ê¸°í˜¸ë¥¼ ê¸°ì¤€ìœ¼ë¡œ í‚¤ì™€ ê°’ì„ êµ¬ë¶„í•˜ì—¬ ë§µì— ì €ì¥
+            // '=' ±âÈ£¸¦ ±âÁØÀ¸·Î Å°¿Í °ªÀ» ±¸ºĞÇÏ¿© ¸Ê¿¡ ÀúÀå
             size_t delimiterPos = line.find('=');
             if (delimiterPos != std::string::npos)
             {
@@ -41,13 +41,13 @@ public:
             }
         }
 
-        inputFile.close();  // íŒŒì¼ ë‹«ê¸°
+        inputFile.close();  // ÆÄÀÏ ´İ±â
         return true;
     }
 
-    // ì„¤ì • ê°’ì„ ë°˜í™˜í•˜ëŠ” í•¨ìˆ˜
+    // ¼³Á¤ °ªÀ» ¹İÈ¯ÇÏ´Â ÇÔ¼ö
     const std::map<std::string, std::string>& getConfig() const
     {
-        return configMap;  // ì„¤ì • ë§µì„ ë°˜í™˜
+        return configMap;  // ¼³Á¤ ¸ÊÀ» ¹İÈ¯
     }
 };

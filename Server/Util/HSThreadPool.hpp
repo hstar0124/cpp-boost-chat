@@ -4,53 +4,53 @@
 class HSThreadPool
 {
 private:
-    // ìŠ¤ë ˆë“œ í’€ì˜ ìŠ¤ë ˆë“œ ê°œìˆ˜
+    // ½º·¹µå Ç®ÀÇ ½º·¹µå °³¼ö
     size_t m_Threads;
-    // ìŠ¤ë ˆë“œ í’€ì˜ ì›Œì»¤ ìŠ¤ë ˆë“œë“¤
+    // ½º·¹µå Ç®ÀÇ ¿öÄ¿ ½º·¹µåµé
     std::vector<std::thread> m_Workers;
 
-    // ìž‘ì—… í
+    // ÀÛ¾÷ Å¥
     std::queue<std::function<void()>> m_Jobs;
-    // ìž‘ì—…ì„ ì¡°ì •í•˜ê¸° ìœ„í•œ ì¡°ê±´ ë³€ìˆ˜ì™€ ë®¤í…ìŠ¤
+    // ÀÛ¾÷À» Á¶Á¤ÇÏ±â À§ÇÑ Á¶°Ç º¯¼ö¿Í ¹ÂÅØ½º
     std::condition_variable m_CVJob;
     std::mutex m_JobMutex;
 
-    // ìŠ¤ë ˆë“œ í’€ì„ ë©ˆì¶”ê¸° ìœ„í•œ í”Œëž˜ê·¸
+    // ½º·¹µå Ç®À» ¸ØÃß±â À§ÇÑ ÇÃ·¡±×
     bool m_StopAll;
 
 public:
-    // ìƒì„±ìž: ì£¼ì–´ì§„ ìŠ¤ë ˆë“œ ê°œìˆ˜ë§Œí¼ì˜ ì›Œì»¤ ìŠ¤ë ˆë“œë¥¼ ìƒì„±í•©ë‹ˆë‹¤.
+    // »ý¼ºÀÚ: ÁÖ¾îÁø ½º·¹µå °³¼ö¸¸Å­ÀÇ ¿öÄ¿ ½º·¹µå¸¦ »ý¼ºÇÕ´Ï´Ù.
     HSThreadPool(size_t num_threads)
         : m_Threads(num_threads), m_StopAll(false)
     {
         m_Workers.reserve(m_Threads);
 
-        // ê° ìŠ¤ë ˆë“œì— ëŒ€í•´ Start() í•¨ìˆ˜ë¥¼ ì‹¤í–‰í•˜ëŠ” ëžŒë‹¤ í•¨ìˆ˜ë¥¼ ìƒì„±í•˜ì—¬ ìŠ¤ë ˆë“œë¥¼ ìƒì„±í•©ë‹ˆë‹¤.
+        // °¢ ½º·¹µå¿¡ ´ëÇØ Start() ÇÔ¼ö¸¦ ½ÇÇàÇÏ´Â ¶÷´Ù ÇÔ¼ö¸¦ »ý¼ºÇÏ¿© ½º·¹µå¸¦ »ý¼ºÇÕ´Ï´Ù.
         for (size_t i = 0; i < m_Threads; ++i)
         {
             m_Workers.emplace_back([this]() { this->Start(); });
         }
     }
 
-    // ì†Œë©¸ìž: ìŠ¤ë ˆë“œ í’€ì„ ì •ë¦¬í•©ë‹ˆë‹¤.
+    // ¼Ò¸êÀÚ: ½º·¹µå Ç®À» Á¤¸®ÇÕ´Ï´Ù.
     ~HSThreadPool()
     {
-        // ëª¨ë“  ì›Œì»¤ ìŠ¤ë ˆë“œì—ê²Œ ì¢…ë£Œ ì‹ í˜¸ë¥¼ ë³´ëƒ…ë‹ˆë‹¤.
+        // ¸ðµç ¿öÄ¿ ½º·¹µå¿¡°Ô Á¾·á ½ÅÈ£¸¦ º¸³À´Ï´Ù.
         m_StopAll = true;
 
-        // ëª¨ë“  ìŠ¤ë ˆë“œì—ê²Œ ìž‘ì—…ì´ ì—†ìŒì„ ì•Œë¦¬ê³  ê¹¨ì›ë‹ˆë‹¤.
+        // ¸ðµç ½º·¹µå¿¡°Ô ÀÛ¾÷ÀÌ ¾øÀ½À» ¾Ë¸®°í ±ú¿ó´Ï´Ù.
         m_CVJob.notify_all();
 
-        // ëª¨ë“  ì›Œì»¤ ìŠ¤ë ˆë“œê°€ ì¢…ë£Œë  ë•Œê¹Œì§€ ëŒ€ê¸°í•©ë‹ˆë‹¤.
+        // ¸ðµç ¿öÄ¿ ½º·¹µå°¡ Á¾·áµÉ ¶§±îÁö ´ë±âÇÕ´Ï´Ù.
         for (auto& t : m_Workers)
         {
             t.join();
         }
     }
 
-    // ìž‘ì—…ì„ íì— ì¶”ê°€í•˜ê³ , í•´ë‹¹ ìž‘ì—…ì˜ ê²°ê³¼ë¥¼ ë°˜í™˜í•˜ëŠ” í•¨ìˆ˜ìž…ë‹ˆë‹¤.
+    // ÀÛ¾÷À» Å¥¿¡ Ãß°¡ÇÏ°í, ÇØ´ç ÀÛ¾÷ÀÇ °á°ú¸¦ ¹ÝÈ¯ÇÏ´Â ÇÔ¼öÀÔ´Ï´Ù.
     template <class F, class... Args>
-    auto EnqueueJob(F&& f, Args&&... args) -> std::future<typename std::invoke_result<F, Args...>::type> 
+    auto EnqueueJob(F&& f, Args&&... args) -> std::future<typename std::invoke_result<F, Args...>::type>
     {
         if (m_StopAll)
         {
@@ -71,28 +71,28 @@ public:
     }
 
 private:
-    // ì›Œì»¤ ìŠ¤ë ˆë“œê°€ ì‹¤ì œë¡œ ì‹¤í–‰í•˜ëŠ” í•¨ìˆ˜ìž…ë‹ˆë‹¤.
+    // ¿öÄ¿ ½º·¹µå°¡ ½ÇÁ¦·Î ½ÇÇàÇÏ´Â ÇÔ¼öÀÔ´Ï´Ù.
     void Start()
     {
         while (true)
         {
             std::unique_lock<std::mutex> lock(m_JobMutex);
 
-            // ìž‘ì—…ì´ ì—†ê³  ìŠ¤ë ˆë“œ í’€ì´ ì¢…ë£Œë˜ì—ˆìœ¼ë©´ ëŒ€ê¸°í•©ë‹ˆë‹¤.
+            // ÀÛ¾÷ÀÌ ¾ø°í ½º·¹µå Ç®ÀÌ Á¾·áµÇ¾úÀ¸¸é ´ë±âÇÕ´Ï´Ù.
             m_CVJob.wait(lock, [this]() { return !this->m_Jobs.empty() || m_StopAll; });
 
-            // ìŠ¤ë ˆë“œ í’€ì´ ì¢…ë£Œë˜ê³  ìž‘ì—…ì´ ì—†ìœ¼ë©´ ì¢…ë£Œí•©ë‹ˆë‹¤.
+            // ½º·¹µå Ç®ÀÌ Á¾·áµÇ°í ÀÛ¾÷ÀÌ ¾øÀ¸¸é Á¾·áÇÕ´Ï´Ù.
             if (m_StopAll && this->m_Jobs.empty())
             {
                 return;
             }
 
-            // ìž‘ì—…ì„ êº¼ë‚´ì˜µë‹ˆë‹¤.
+            // ÀÛ¾÷À» ²¨³»¿É´Ï´Ù.
             std::function<void()> job = std::move(m_Jobs.front());
             m_Jobs.pop();
             lock.unlock();
 
-            // ìž‘ì—…ì„ ì‹¤í–‰í•©ë‹ˆë‹¤.
+            // ÀÛ¾÷À» ½ÇÇàÇÕ´Ï´Ù.
             std::cout << "Worker pop() : threadID -> " << std::this_thread::get_id() << std::endl;
             job();
         }

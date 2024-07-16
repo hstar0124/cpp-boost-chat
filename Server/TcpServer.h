@@ -7,27 +7,27 @@
 #include "DB/include/MySQLManager.h"
 #include "Util/HSThreadPool.hpp"
 
-class TcpServer 
+class TcpServer
 {
 private:
-    boost::asio::io_context&                    m_IoContext;        // Boost ASIOì˜ I/O ì»¨í…ìŠ¤íŠ¸
-    std::thread                                 m_ContextThread;    // ì»¨í…ìŠ¤íŠ¸ ì‹¤í–‰ì„ ìœ„í•œ ìŠ¤ë ˆë“œ
+    boost::asio::io_context& m_IoContext;        // Boost ASIOÀÇ I/O ÄÁÅØ½ºÆ®
+    std::thread                                 m_ContextThread;    // ÄÁÅØ½ºÆ® ½ÇÇàÀ» À§ÇÑ ½º·¹µå
 
-    boost::asio::ip::tcp::acceptor              m_Acceptor;         // TCP ì—°ê²°ì„ ìˆ˜ë½í•˜ëŠ” ê°ì²´
-    
-    std::vector<std::shared_ptr<UserSession>>   m_Users;            // ì—°ê²°ëœ ì‚¬ìš©ì ì„¸ì…˜ë“¤
-    std::queue<std::shared_ptr<UserSession>>    m_NewUsers;         // ìƒˆë¡œìš´ ì‚¬ìš©ì ëŒ€ê¸°ì—´
-    
-    std::mutex                                  m_UsersMutex;       // ì‚¬ìš©ì ì„¸ì…˜ ì ‘ê·¼ì„ ìœ„í•œ ë®¤í…ìŠ¤
-    std::mutex                                  m_NewUsersMutex;    // ìƒˆë¡œìš´ ì‚¬ìš©ì ëŒ€ê¸°ì—´ ì ‘ê·¼ì„ ìœ„í•œ ë®¤í…ìŠ¤
+    boost::asio::ip::tcp::acceptor              m_Acceptor;         // TCP ¿¬°áÀ» ¼ö¶ôÇÏ´Â °´Ã¼
 
-    std::unique_ptr<PartyManager>               m_PartyManager;     // íŒŒí‹° ê´€ë¦¬ì ê°ì²´
-    std::unique_ptr<CRedisClient>               m_RedisClient;      // Redis í´ë¼ì´ì–¸íŠ¸ ê°ì²´    
-    std::unique_ptr<MySQLManager>               m_MySQLConnector;   // MySQL ê´€ë¦¬ì ê°ì²´
-    
-    uint32_t                                    m_MaxUser = 5;      // ìµœëŒ€ ì‚¬ìš©ì ìˆ˜
-    
-    HSThreadPool&                               m_ThreadPool;       // DB ì‘ì—…ì„ ì²˜ë¦¬í•˜ëŠ” ìŠ¤ë ˆë“œ í’€ ê°ì²´
+    std::vector<std::shared_ptr<UserSession>>   m_Users;            // ¿¬°áµÈ »ç¿ëÀÚ ¼¼¼Çµé
+    std::queue<std::shared_ptr<UserSession>>    m_NewUsers;         // »õ·Î¿î »ç¿ëÀÚ ´ë±â¿­
+
+    std::mutex                                  m_UsersMutex;       // »ç¿ëÀÚ ¼¼¼Ç Á¢±ÙÀ» À§ÇÑ ¹ÂÅØ½º
+    std::mutex                                  m_NewUsersMutex;    // »õ·Î¿î »ç¿ëÀÚ ´ë±â¿­ Á¢±ÙÀ» À§ÇÑ ¹ÂÅØ½º
+
+    std::unique_ptr<PartyManager>               m_PartyManager;     // ÆÄÆ¼ °ü¸®ÀÚ °´Ã¼
+    std::unique_ptr<CRedisClient>               m_RedisClient;      // Redis Å¬¶óÀÌ¾ğÆ® °´Ã¼    
+    std::unique_ptr<MySQLManager>               m_MySQLConnector;   // MySQL °ü¸®ÀÚ °´Ã¼
+
+    uint32_t                                    m_MaxUser = 5;      // ÃÖ´ë »ç¿ëÀÚ ¼ö
+
+    HSThreadPool& m_ThreadPool;       // DB ÀÛ¾÷À» Ã³¸®ÇÏ´Â ½º·¹µå Ç® °´Ã¼
 
 
 public:
@@ -35,7 +35,7 @@ public:
     ~TcpServer();
     bool Start(uint32_t maxUser);
     void Update();
-    
+
     std::shared_ptr<UserSession> GetUserById(uint32_t userId);
     std::shared_ptr<UserSession> GetUserByUserId(const std::string& userId);
 

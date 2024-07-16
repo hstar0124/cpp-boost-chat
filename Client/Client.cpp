@@ -2,33 +2,33 @@
 
 Client::Client()
 {
-    Init(); // í´ë¼ì´ì–¸íŠ¸ ì´ˆê¸°í™”
+    Init(); // Å¬¶óÀÌ¾ğÆ® ÃÊ±âÈ­
 }
 
 Client::~Client()
 {
-    m_IoContext.stop(); // IO ì»¨í…ìŠ¤íŠ¸ ì •ì§€
+    m_IoContext.stop(); // IO ÄÁÅØ½ºÆ® Á¤Áö
 
     if (m_Thread.joinable())
     {
-        m_Thread.join(); // ìŠ¤ë ˆë“œ ì¢…ë£Œ ëŒ€ê¸°
+        m_Thread.join(); // ½º·¹µå Á¾·á ´ë±â
     }
 }
 
 void Client::Init()
 {
     std::cout << "Initializing Start......" << std::endl;
-    m_ApiUrls = LoadConfig("apiurl.txt"); // ì„¤ì • íŒŒì¼ë¡œë¶€í„° API URL ë¡œë“œ
+    m_ApiUrls = LoadConfig("apiurl.txt"); // ¼³Á¤ ÆÄÀÏ·ÎºÎÅÍ API URL ·Îµå
 
     try
     {
-        m_HttpClient = std::make_unique<HttpClient>(m_IoContext, m_ApiUrls["host"], m_ApiUrls["port"]); // HTTP í´ë¼ì´ì–¸íŠ¸ ì´ˆê¸°í™”        
-        m_ChatClient = std::make_unique<ChatClient>(m_IoContext); // ì±„íŒ… í´ë¼ì´ì–¸íŠ¸ ì´ˆê¸°í™”
+        m_HttpClient = std::make_unique<HttpClient>(m_IoContext, m_ApiUrls["host"], m_ApiUrls["port"]); // HTTP Å¬¶óÀÌ¾ğÆ® ÃÊ±âÈ­        
+        m_ChatClient = std::make_unique<ChatClient>(m_IoContext); // Ã¤ÆÃ Å¬¶óÀÌ¾ğÆ® ÃÊ±âÈ­
     }
     catch (const std::exception& ex)
     {
-        std::cerr << "Error initializing clients: " << ex.what() << std::endl; // í´ë¼ì´ì–¸íŠ¸ ì´ˆê¸°í™” ì˜¤ë¥˜ ë©”ì‹œì§€ ì¶œë ¥
-        exit(1);  // í”„ë¡œê·¸ë¨ ì¢…ë£Œ
+        std::cerr << "Error initializing clients: " << ex.what() << std::endl; // Å¬¶óÀÌ¾ğÆ® ÃÊ±âÈ­ ¿À·ù ¸Ş½ÃÁö Ãâ·Â
+        exit(1);  // ÇÁ·Î±×·¥ Á¾·á
     }
 }
 
@@ -37,22 +37,22 @@ void Client::Start()
     std::cout << "Initializing Success!!!" << std::endl;
     while (true)
     {
-        DisplayCommand(); // ë©”ë‰´ í‘œì‹œ
+        DisplayCommand(); // ¸Ş´º Ç¥½Ã
 
         int choice;
-        std::cin >> choice; // ì‚¬ìš©ì ì…ë ¥ ë°›ê¸°
+        std::cin >> choice; // »ç¿ëÀÚ ÀÔ·Â ¹Ş±â
 
         if (std::cin.fail())
         {
-            std::cin.clear(); // ì…ë ¥ ì˜¤ë¥˜ ì´ˆê¸°í™”
-            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // ì…ë ¥ ë²„í¼ ë¹„ìš°ê¸°
-            std::cout << "Invalid input. Please enter a number between 1 and 5." << std::endl; // ì˜ëª»ëœ ì…ë ¥ ë©”ì‹œì§€ ì¶œë ¥
+            std::cin.clear(); // ÀÔ·Â ¿À·ù ÃÊ±âÈ­
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // ÀÔ·Â ¹öÆÛ ºñ¿ì±â
+            std::cout << "Invalid input. Please enter a number between 1 and 5." << std::endl; // Àß¸øµÈ ÀÔ·Â ¸Ş½ÃÁö Ãâ·Â
             continue;
         }
 
-        if (choice == 6) break; // ì¢…ë£Œ ì˜µì…˜ ì„ íƒ ì‹œ ë°˜ë³µë¬¸ ì¢…ë£Œ
+        if (choice == 6) break; // Á¾·á ¿É¼Ç ¼±ÅÃ ½Ã ¹İº¹¹® Á¾·á
 
-        HandleMenuChoice(choice); // ë©”ë‰´ ì„ íƒ ì²˜ë¦¬
+        HandleMenuChoice(choice); // ¸Ş´º ¼±ÅÃ Ã³¸®
     }
 }
 
@@ -61,15 +61,15 @@ void Client::DisplayCommand()
     std::cout << std::endl;
     std::cout << std::endl;
     std::cout << "====================================" << std::endl;
-    std::cout << "ë©”ë‰´ë¥¼ ì„ íƒí•˜ì„¸ìš”" << std::endl;
+    std::cout << "¸Ş´º¸¦ ¼±ÅÃÇÏ¼¼¿ä" << std::endl;
     std::cout << "====================================" << std::endl;
-    std::cout << "1. ë¡œê·¸ì¸" << std::endl;
-    std::cout << "2. ì‚¬ìš©ì ì •ë³´ ê°€ì ¸ì˜¤ê¸°" << std::endl;
-    std::cout << "3. ì‚¬ìš©ì ìƒì„±" << std::endl;
-    std::cout << "4. ì‚¬ìš©ì ì—…ë°ì´íŠ¸" << std::endl;
-    std::cout << "5. ì‚¬ìš©ì ì‚­ì œ" << std::endl;
-    std::cout << "6. ì¢…ë£Œ" << std::endl;
-    std::cout << "ì˜µì…˜ì„ ì„ íƒí•˜ì„¸ìš”: ";
+    std::cout << "1. ·Î±×ÀÎ" << std::endl;
+    std::cout << "2. »ç¿ëÀÚ Á¤º¸ °¡Á®¿À±â" << std::endl;
+    std::cout << "3. »ç¿ëÀÚ »ı¼º" << std::endl;
+    std::cout << "4. »ç¿ëÀÚ ¾÷µ¥ÀÌÆ®" << std::endl;
+    std::cout << "5. »ç¿ëÀÚ »èÁ¦" << std::endl;
+    std::cout << "6. Á¾·á" << std::endl;
+    std::cout << "¿É¼ÇÀ» ¼±ÅÃÇÏ¼¼¿ä: ";
 }
 
 void Client::HandleMenuChoice(int choice)
@@ -78,10 +78,10 @@ void Client::HandleMenuChoice(int choice)
     {
     case 1:
     {
-        auto response = ProcessLoginUser(); // ë¡œê·¸ì¸ ì²˜ë¦¬
+        auto response = ProcessLoginUser(); // ·Î±×ÀÎ Ã³¸®
         if (response.status() != UserStatusCode::Success)
         {
-            std::cout << "Login Failed!!" << std::endl; // ë¡œê·¸ì¸ ì‹¤íŒ¨ ë©”ì‹œì§€ ì¶œë ¥
+            std::cout << "Login Failed!!" << std::endl; // ·Î±×ÀÎ ½ÇÆĞ ¸Ş½ÃÁö Ãâ·Â
             break;
         }
 
@@ -91,28 +91,28 @@ void Client::HandleMenuChoice(int choice)
             if (response.content().UnpackTo(&loginResponse))
             {
                 StartChatClient(
-                      loginResponse.serverip()
+                    loginResponse.serverip()
                     , loginResponse.serverport()
-                    , loginResponse.sessionid()); // ì±„íŒ… í´ë¼ì´ì–¸íŠ¸ ì‹œì‘
+                    , loginResponse.sessionid()); // Ã¤ÆÃ Å¬¶óÀÌ¾ğÆ® ½ÃÀÛ
             }
         }
 
         break;
     }
     case 2:
-        ProcessGetUser(); // ì‚¬ìš©ì ì •ë³´ ì¡°íšŒ
+        ProcessGetUser(); // »ç¿ëÀÚ Á¤º¸ Á¶È¸
         break;
     case 3:
-        ProcessCreateUser(); // ì‚¬ìš©ì ìƒì„±
+        ProcessCreateUser(); // »ç¿ëÀÚ »ı¼º
         break;
     case 4:
-        ProcessUpdateUser(); // ì‚¬ìš©ì ì—…ë°ì´íŠ¸
+        ProcessUpdateUser(); // »ç¿ëÀÚ ¾÷µ¥ÀÌÆ®
         break;
     case 5:
-        ProcessDeleteUser(); // ì‚¬ìš©ì ì‚­ì œ
+        ProcessDeleteUser(); // »ç¿ëÀÚ »èÁ¦
         break;
     default:
-        std::cout << "Invalid choice. Please try again." << std::endl; // ì˜ëª»ëœ ì„ íƒ ë©”ì‹œì§€ ì¶œë ¥
+        std::cout << "Invalid choice. Please try again." << std::endl; // Àß¸øµÈ ¼±ÅÃ ¸Ş½ÃÁö Ãâ·Â
         break;
     }
 }
@@ -123,104 +123,104 @@ void Client::StartChatClient(const std::string& ip, const std::string& port, con
     std::cout << "PORT : " << port << std::endl;
     std::cout << "SessionID : " << sessionId << std::endl;
 
-    m_ChatClient->Connect(ip, std::stoi(port)); // ì±„íŒ… ì„œë²„ì— ì—°ê²°
-    m_ChatClient->SendSessionId(sessionId); // ì„¸ì…˜ ID ì „ì†¡
+    m_ChatClient->Connect(ip, std::stoi(port)); // Ã¤ÆÃ ¼­¹ö¿¡ ¿¬°á
+    m_ChatClient->SendSessionId(sessionId); // ¼¼¼Ç ID Àü¼Û
 
-    m_Thread = std::thread([ this ] ()
+    m_Thread = std::thread([this]()
         {
-            m_IoContext.run(); // IO ì»¨í…ìŠ¤íŠ¸ ì‹¤í–‰ 
+            m_IoContext.run(); // IO ÄÁÅØ½ºÆ® ½ÇÇà 
         });
 
-    // í´ë¼ì´ì–¸íŠ¸ í™•ì¸ ì½œë°± ì„¤ì •
-    m_ChatClient->SetVerificationCallback([ this ] ()
+    // Å¬¶óÀÌ¾ğÆ® È®ÀÎ Äİ¹é ¼³Á¤
+    m_ChatClient->SetVerificationCallback([this]()
         {
             std::unique_lock<std::mutex> lock(m_Mutex);
-            m_IsVerified = true; // í™•ì¸ ì™„ë£Œ ìƒíƒœ ì„¤ì •
-            m_Condition.notify_one(); // ì¡°ê±´ ë³€ìˆ˜ ì‹ í˜¸ ì „ì†¡
+            m_IsVerified = true; // È®ÀÎ ¿Ï·á »óÅÂ ¼³Á¤
+            m_Condition.notify_one(); // Á¶°Ç º¯¼ö ½ÅÈ£ Àü¼Û
         });
 
     {
         std::unique_lock<std::mutex> lock(m_Mutex);
-        m_Condition.wait(lock, [ this ]
+        m_Condition.wait(lock, [this]
             {
-                return m_IsVerified; // í™•ì¸ ì™„ë£Œ ì‹œê¹Œì§€ ëŒ€ê¸°
+                return m_IsVerified; // È®ÀÎ ¿Ï·á ½Ã±îÁö ´ë±â
             });
     }
 
-    // ì±„íŒ… ë£¨í”„ ì‹œì‘
+    // Ã¤ÆÃ ·çÇÁ ½ÃÀÛ
     ChatLoop();
 
-    m_Thread.join(); // ìŠ¤ë ˆë“œ ì¢…ë£Œ ëŒ€ê¸°
+    m_Thread.join(); // ½º·¹µå Á¾·á ´ë±â
 }
 
 UserResponse Client::ProcessLoginUser()
 {
     LoginRequest loginRequest;
-    GetUserInput("Enter User ID: ", loginRequest.mutable_userid()); // ì‚¬ìš©ì ID ì…ë ¥ ìš”ì²­
-    GetUserInput("Enter Password: ", loginRequest.mutable_password()); // ë¹„ë°€ë²ˆí˜¸ ì…ë ¥ ìš”ì²­
+    GetUserInput("Enter User ID: ", loginRequest.mutable_userid()); // »ç¿ëÀÚ ID ÀÔ·Â ¿äÃ»
+    GetUserInput("Enter Password: ", loginRequest.mutable_password()); // ºñ¹Ğ¹øÈ£ ÀÔ·Â ¿äÃ»
 
-    return ProcessUserPostRequest("login", loginRequest); // ë¡œê·¸ì¸ ìš”ì²­ ì²˜ë¦¬
+    return ProcessUserPostRequest("login", loginRequest); // ·Î±×ÀÎ ¿äÃ» Ã³¸®
 }
 
 UserResponse Client::ProcessGetUser()
 {
     GetUserRequest getUserRequest;
-    GetUserInput("Enter User ID: ", getUserRequest.mutable_userid()); // ì‚¬ìš©ì ID ì…ë ¥ ìš”ì²­
+    GetUserInput("Enter User ID: ", getUserRequest.mutable_userid()); // »ç¿ëÀÚ ID ÀÔ·Â ¿äÃ»
 
-    const std::string endpoint = m_ApiUrls["get_user_by_user_id"] + getUserRequest.userid(); // ì—”ë“œí¬ì¸íŠ¸ ì„¤ì •
+    const std::string endpoint = m_ApiUrls["get_user_by_user_id"] + getUserRequest.userid(); // ¿£µåÆ÷ÀÎÆ® ¼³Á¤
 
-    std::cout << endpoint << "\n"; // ì—”ë“œí¬ì¸íŠ¸ ì¶œë ¥
+    std::cout << endpoint << "\n"; // ¿£µåÆ÷ÀÎÆ® Ãâ·Â
 
-    return ProcessUserGetRequest(endpoint); // ì‚¬ìš©ì ì •ë³´ ì¡°íšŒ ìš”ì²­ ì²˜ë¦¬
+    return ProcessUserGetRequest(endpoint); // »ç¿ëÀÚ Á¤º¸ Á¶È¸ ¿äÃ» Ã³¸®
 }
 
 UserResponse Client::ProcessCreateUser()
 {
     CreateUserRequest createUserRequest;
-    GetUserInput("Enter User ID: ", createUserRequest.mutable_userid()); // ì‚¬ìš©ì ID ì…ë ¥ ìš”ì²­
-    GetUserInput("Enter Password: ", createUserRequest.mutable_password()); // ë¹„ë°€ë²ˆí˜¸ ì…ë ¥ ìš”ì²­
-    GetUserInput("Enter Username: ", createUserRequest.mutable_username()); // ì‚¬ìš©ì ì´ë¦„ ì…ë ¥ ìš”ì²­
-    GetUserInput("Enter Email: ", createUserRequest.mutable_email()); // ì´ë©”ì¼ ì…ë ¥ ìš”ì²­
-    return ProcessUserPostRequest("create_user", createUserRequest); // ì‚¬ìš©ì ìƒì„± ìš”ì²­ ì²˜ë¦¬
+    GetUserInput("Enter User ID: ", createUserRequest.mutable_userid()); // »ç¿ëÀÚ ID ÀÔ·Â ¿äÃ»
+    GetUserInput("Enter Password: ", createUserRequest.mutable_password()); // ºñ¹Ğ¹øÈ£ ÀÔ·Â ¿äÃ»
+    GetUserInput("Enter Username: ", createUserRequest.mutable_username()); // »ç¿ëÀÚ ÀÌ¸§ ÀÔ·Â ¿äÃ»
+    GetUserInput("Enter Email: ", createUserRequest.mutable_email()); // ÀÌ¸ŞÀÏ ÀÔ·Â ¿äÃ»
+    return ProcessUserPostRequest("create_user", createUserRequest); // »ç¿ëÀÚ »ı¼º ¿äÃ» Ã³¸®
 }
 
 UserResponse Client::ProcessUpdateUser()
 {
     UpdateUserRequest updateUserRequest;
-    GetUserInput("Enter User ID: ", updateUserRequest.mutable_userid()); // ì‚¬ìš©ì ID ì…ë ¥ ìš”ì²­
-    GetUserInput("Enter Current Password: ", updateUserRequest.mutable_password()); // í˜„ì¬ ë¹„ë°€ë²ˆí˜¸ ì…ë ¥ ìš”ì²­
-    GetUserInput("Enter New Password: ", updateUserRequest.mutable_tobepassword()); // ìƒˆë¡œìš´ ë¹„ë°€ë²ˆí˜¸ ì…ë ¥ ìš”ì²­
-    GetUserInput("Enter New Username: ", updateUserRequest.mutable_tobeusername()); // ìƒˆë¡œìš´ ì‚¬ìš©ì ì´ë¦„ ì…ë ¥ ìš”ì²­
-    GetUserInput("Enter New Email: ", updateUserRequest.mutable_tobeemail()); // ìƒˆë¡œìš´ ì´ë©”ì¼ ì…ë ¥ ìš”ì²­
-    return ProcessUserPostRequest("update_user", updateUserRequest); // ì‚¬ìš©ì ì—…ë°ì´íŠ¸ ìš”ì²­ ì²˜ë¦¬
+    GetUserInput("Enter User ID: ", updateUserRequest.mutable_userid()); // »ç¿ëÀÚ ID ÀÔ·Â ¿äÃ»
+    GetUserInput("Enter Current Password: ", updateUserRequest.mutable_password()); // ÇöÀç ºñ¹Ğ¹øÈ£ ÀÔ·Â ¿äÃ»
+    GetUserInput("Enter New Password: ", updateUserRequest.mutable_tobepassword()); // »õ·Î¿î ºñ¹Ğ¹øÈ£ ÀÔ·Â ¿äÃ»
+    GetUserInput("Enter New Username: ", updateUserRequest.mutable_tobeusername()); // »õ·Î¿î »ç¿ëÀÚ ÀÌ¸§ ÀÔ·Â ¿äÃ»
+    GetUserInput("Enter New Email: ", updateUserRequest.mutable_tobeemail()); // »õ·Î¿î ÀÌ¸ŞÀÏ ÀÔ·Â ¿äÃ»
+    return ProcessUserPostRequest("update_user", updateUserRequest); // »ç¿ëÀÚ ¾÷µ¥ÀÌÆ® ¿äÃ» Ã³¸®
 }
 
 UserResponse Client::ProcessDeleteUser()
 {
     DeleteUserRequest deleteUserRequest;
-    GetUserInput("Enter User ID: ", deleteUserRequest.mutable_userid()); // ì‚¬ìš©ì ID ì…ë ¥ ìš”ì²­
-    GetUserInput("Enter Password: ", deleteUserRequest.mutable_password()); // ë¹„ë°€ë²ˆí˜¸ ì…ë ¥ ìš”ì²­
-    return ProcessUserPostRequest("delete_user", deleteUserRequest); // ì‚¬ìš©ì ì‚­ì œ ìš”ì²­ ì²˜ë¦¬
+    GetUserInput("Enter User ID: ", deleteUserRequest.mutable_userid()); // »ç¿ëÀÚ ID ÀÔ·Â ¿äÃ»
+    GetUserInput("Enter Password: ", deleteUserRequest.mutable_password()); // ºñ¹Ğ¹øÈ£ ÀÔ·Â ¿äÃ»
+    return ProcessUserPostRequest("delete_user", deleteUserRequest); // »ç¿ëÀÚ »èÁ¦ ¿äÃ» Ã³¸®
 }
 
 template <typename RequestType>
 UserResponse Client::ProcessUserPostRequest(const std::string& endpoint, const RequestType& request)
 {
-    UserResponse response = m_HttpClient->Post(m_ApiUrls[endpoint], request); // POST ìš”ì²­ ì „ì†¡
-    std::cout << "Response Status: " << response.status() << std::endl; // ì‘ë‹µ ìƒíƒœ ì¶œë ¥
-    std::cout << "Response Message: " << response.message() << std::endl; // ì‘ë‹µ ë©”ì‹œì§€ ì¶œë ¥
+    UserResponse response = m_HttpClient->Post(m_ApiUrls[endpoint], request); // POST ¿äÃ» Àü¼Û
+    std::cout << "Response Status: " << response.status() << std::endl; // ÀÀ´ä »óÅÂ Ãâ·Â
+    std::cout << "Response Message: " << response.message() << std::endl; // ÀÀ´ä ¸Ş½ÃÁö Ãâ·Â
 
-    return response; // ì‘ë‹µ ë°˜í™˜
+    return response; // ÀÀ´ä ¹İÈ¯
 }
 
 UserResponse Client::ProcessUserGetRequest(const std::string& endpoint)
 {
-    UserResponse response = m_HttpClient->Get(endpoint); // GET ìš”ì²­ ì „ì†¡
+    UserResponse response = m_HttpClient->Get(endpoint); // GET ¿äÃ» Àü¼Û
 
-    std::cout << "Response Status: " << response.status() << std::endl; // ì‘ë‹µ ìƒíƒœ ì¶œë ¥
-    std::cout << "Response Message: " << response.message() << std::endl; // ì‘ë‹µ ë©”ì‹œì§€ ì¶œë ¥
+    std::cout << "Response Status: " << response.status() << std::endl; // ÀÀ´ä »óÅÂ Ãâ·Â
+    std::cout << "Response Message: " << response.message() << std::endl; // ÀÀ´ä ¸Ş½ÃÁö Ãâ·Â
 
-    return response; // ì‘ë‹µ ë°˜í™˜
+    return response; // ÀÀ´ä ¹İÈ¯
 }
 
 std::unordered_map<std::string, std::string> Client::LoadConfig(const std::string& filename)
@@ -232,18 +232,18 @@ std::unordered_map<std::string, std::string> Client::LoadConfig(const std::strin
     {
         std::istringstream iss(line);
         std::string key, value;
-        std::getline(iss, key, '='); // '=' ë¬¸ì ê¸°ì¤€ìœ¼ë¡œ í‚¤ ì¶”ì¶œ
-        std::getline(iss, value); // ê°’ ì¶”ì¶œ
-        config[key] = value; // ì„¤ì • ë§µì— ì¶”ê°€
+        std::getline(iss, key, '='); // '=' ¹®ÀÚ ±âÁØÀ¸·Î Å° ÃßÃâ
+        std::getline(iss, value); // °ª ÃßÃâ
+        config[key] = value; // ¼³Á¤ ¸Ê¿¡ Ãß°¡
     }
-    return config; // ì„¤ì • ë§µ ë°˜í™˜
+    return config; // ¼³Á¤ ¸Ê ¹İÈ¯
 }
 
 
 void Client::GetUserInput(const std::string& prompt, std::string* input)
 {
-    std::cout << prompt; // í”„ë¡¬í”„íŠ¸ ì¶œë ¥
-    std::cin >> *input; // ì‚¬ìš©ì ì…ë ¥ ë°›ê¸°
+    std::cout << prompt; // ÇÁ·ÒÇÁÆ® Ãâ·Â
+    std::cin >> *input; // »ç¿ëÀÚ ÀÔ·Â ¹Ş±â
 }
 
 
@@ -256,11 +256,11 @@ void Client::ChatLoop()
 
         while (getline(std::cin, userInput))
         {
-            m_ChatClient->Send(userInput); // ì±„íŒ… ë©”ì‹œì§€ ì „ì†¡
+            m_ChatClient->Send(userInput); // Ã¤ÆÃ ¸Ş½ÃÁö Àü¼Û
         }
     }
     else
     {
-        std::cout << "Waiting for verification. Please wait..." << std::endl; // í™•ì¸ ëŒ€ê¸° ë©”ì‹œì§€ ì¶œë ¥
+        std::cout << "Waiting for verification. Please wait..." << std::endl; // È®ÀÎ ´ë±â ¸Ş½ÃÁö Ãâ·Â
     }
 }

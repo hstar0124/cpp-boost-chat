@@ -6,13 +6,13 @@ template <typename T>
 class MessageConverter
 {
 public:
-    // ë°”ì´íŠ¸ ë²„í¼ì—ì„œ í”„ë¡œí† ì½œ ë²„í¼ ë©”ì‹œì§€ë¡œ ì—­ì§ë ¬í™”í•˜ëŠ” í•¨ìˆ˜
+    // ¹ÙÀÌÆ® ¹öÆÛ¿¡¼­ ÇÁ·ÎÅäÄİ ¹öÆÛ ¸Ş½ÃÁö·Î ¿ªÁ÷·ÄÈ­ÇÏ´Â ÇÔ¼ö
     static bool DeserializeMessage(std::vector<uint8_t>& buffer, std::shared_ptr<T>& message)
     {
         return message->ParseFromArray(buffer.data(), buffer.size());
     }
 
-    // í”„ë¡œí† ì½œ ë²„í¼ ë©”ì‹œì§€ë¥¼ ë°”ì´íŠ¸ ë²„í¼ë¡œ ì§ë ¬í™”í•˜ëŠ” í•¨ìˆ˜
+    // ÇÁ·ÎÅäÄİ ¹öÆÛ ¸Ş½ÃÁö¸¦ ¹ÙÀÌÆ® ¹öÆÛ·Î Á÷·ÄÈ­ÇÏ´Â ÇÔ¼ö
     static bool SerializeMessage(std::shared_ptr<T>& message, std::vector<uint8_t>& buffer)
     {
         size_t size = GetMessageSize(message);
@@ -21,15 +21,15 @@ public:
         return message->SerializePartialToArray(buffer.data() + HEADER_SIZE, size);
     }
 
-    // ë°”ì´íŠ¸ ë²„í¼ì˜ í—¤ë”ì— ë©”ì‹œì§€ í¬ê¸°ë¥¼ ì„¤ì •í•˜ëŠ” í•¨ìˆ˜
+    // ¹ÙÀÌÆ® ¹öÆÛÀÇ Çì´õ¿¡ ¸Ş½ÃÁö Å©±â¸¦ ¼³Á¤ÇÏ´Â ÇÔ¼ö
     static bool SetSizeToBufferHeader(std::vector<uint8_t>& buffer)
     {
         if (buffer.size() < HEADER_SIZE)
         {
-            return false; // í—¤ë” í¬ê¸°ê°€ ë¶€ì¡±í•˜ì—¬ ì„¤ì •í•  ìˆ˜ ì—†ìŠµë‹ˆë‹¤
+            return false; // Çì´õ Å©±â°¡ ºÎÁ·ÇÏ¿© ¼³Á¤ÇÒ ¼ö ¾ø½À´Ï´Ù
         }
 
-        // í˜ì´ë¡œë“œ í¬ê¸°ë¥¼ ê³„ì‚°í•˜ì—¬ ë²„í¼ì˜ í—¤ë”ì— ì„¤ì •í•©ë‹ˆë‹¤
+        // ÆäÀÌ·Îµå Å©±â¸¦ °è»êÇÏ¿© ¹öÆÛÀÇ Çì´õ¿¡ ¼³Á¤ÇÕ´Ï´Ù
         size_t size = static_cast<size_t>(buffer.size()) - HEADER_SIZE;
         buffer[0] = static_cast<uint8_t>((size >> 24) & 0xFF);
         buffer[1] = static_cast<uint8_t>((size >> 16) & 0xFF);
@@ -39,13 +39,13 @@ public:
         return true;
     }
 
-    // í”„ë¡œí† ì½œ ë²„í¼ ë©”ì‹œì§€ì˜ ì§ë ¬í™”ëœ í¬ê¸°ë¥¼ ë°˜í™˜í•˜ëŠ” í•¨ìˆ˜
+    // ÇÁ·ÎÅäÄİ ¹öÆÛ ¸Ş½ÃÁöÀÇ Á÷·ÄÈ­µÈ Å©±â¸¦ ¹İÈ¯ÇÏ´Â ÇÔ¼ö
     static size_t GetMessageSize(const std::shared_ptr<T>& message)
     {
         return message->ByteSizeLong();
     }
 
-    // ë°”ì´íŠ¸ ë²„í¼ì—ì„œ ì¶”ì¶œí•œ ë©”ì‹œì§€ ë°”ë””ì˜ í¬ê¸°ë¥¼ ë°˜í™˜í•˜ëŠ” í•¨ìˆ˜
+    // ¹ÙÀÌÆ® ¹öÆÛ¿¡¼­ ÃßÃâÇÑ ¸Ş½ÃÁö ¹ÙµğÀÇ Å©±â¸¦ ¹İÈ¯ÇÏ´Â ÇÔ¼ö
     static size_t GetMessageBodySize(const std::vector<uint8_t>& buffer)
     {
         size_t size = 0;

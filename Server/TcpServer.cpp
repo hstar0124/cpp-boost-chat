@@ -1,6 +1,6 @@
 #include "TcpServer.h"
 
-// TcpServer í´ë˜ìŠ¤ ìƒì„±ì ì •ì˜
+// TcpServer Å¬·¡½º »ı¼ºÀÚ Á¤ÀÇ
 TcpServer::TcpServer(boost::asio::io_context& io_context, int port, std::unique_ptr<CRedisClient> redisClient, std::unique_ptr<MySQLManager> mysqlManager, HSThreadPool& threadPool)
 	: m_Acceptor(io_context, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), port))
 	, m_IoContext(io_context)
@@ -11,105 +11,105 @@ TcpServer::TcpServer(boost::asio::io_context& io_context, int port, std::unique_
 {
 }
 
-// TcpServer í´ë˜ìŠ¤ ì†Œë©¸ì ì •ì˜
+// TcpServer Å¬·¡½º ¼Ò¸êÀÚ Á¤ÀÇ
 TcpServer::~TcpServer()
 {
 	try
 	{
-		// Acceptorì™€ IoContext ì •ë¦¬
+		// Acceptor¿Í IoContext Á¤¸®
 		m_Acceptor.close();
 		m_IoContext.stop();
 
-		// ContextThreadê°€ join ê°€ëŠ¥í•œ ìƒíƒœì¼ ê²½ìš° ìŠ¤ë ˆë“œë¥¼ join
+		// ContextThread°¡ join °¡´ÉÇÑ »óÅÂÀÏ °æ¿ì ½º·¹µå¸¦ join
 		if (m_ContextThread.joinable())
 		{
 			m_ContextThread.join();
 		}
 
-		// ì‚¬ìš©ì ì„¸ì…˜ë“¤ì„ ì •ë¦¬
+		// »ç¿ëÀÚ ¼¼¼ÇµéÀ» Á¤¸®
 		RemoveUserSessions();
 		RemoveNewUserSessions();
 	}
 	catch (const std::exception& e)
 	{
-		// ì†Œë©¸ìì—ì„œ ì˜ˆì™¸ê°€ ë°œìƒí•˜ë©´ ë©”ì‹œì§€ ì¶œë ¥
+		// ¼Ò¸êÀÚ¿¡¼­ ¿¹¿Ü°¡ ¹ß»ıÇÏ¸é ¸Ş½ÃÁö Ãâ·Â
 		std::cerr << "[SERVER] Exception in destructor: " << e.what() << "\n";
 	}
 
-	// ì„œë²„ ì¢…ë£Œ ë©”ì‹œì§€ ì¶œë ¥
+	// ¼­¹ö Á¾·á ¸Ş½ÃÁö Ãâ·Â
 	std::cout << "[SERVER] Shutdown complete.\n";
 }
 
-// ì„œë²„ ì‹œì‘ í•¨ìˆ˜
+// ¼­¹ö ½ÃÀÛ ÇÔ¼ö
 bool TcpServer::Start(uint32_t maxUser /* = 3 */)
 {
 	try
 	{
 		m_MaxUser = maxUser;
-		// í´ë¼ì´ì–¸íŠ¸ ì—°ê²°ì„ ê¸°ë‹¤ë¦¬ëŠ” í•¨ìˆ˜ í˜¸ì¶œ
+		// Å¬¶óÀÌ¾ğÆ® ¿¬°áÀ» ±â´Ù¸®´Â ÇÔ¼ö È£Ãâ
 		WaitForClientConnection();
-		// IoContextë¥¼ ì‹¤í–‰í•˜ëŠ” ìŠ¤ë ˆë“œ ì‹œì‘
-		m_ContextThread = std::thread([ this ] () { m_IoContext.run(); });
+		// IoContext¸¦ ½ÇÇàÇÏ´Â ½º·¹µå ½ÃÀÛ
+		m_ContextThread = std::thread([this]() { m_IoContext.run(); });
 	}
 	catch (std::exception& e)
 	{
-		// ì˜ˆì™¸ ë°œìƒ ì‹œ ì—ëŸ¬ ë©”ì‹œì§€ ì¶œë ¥
+		// ¿¹¿Ü ¹ß»ı ½Ã ¿¡·¯ ¸Ş½ÃÁö Ãâ·Â
 		std::cerr << "[SERVER] Exception: " << e.what() << "\n";
 		return false;
 	}
 
-	// ì„œë²„ ì‹œì‘ ì™„ë£Œ ë©”ì‹œì§€ ì¶œë ¥
+	// ¼­¹ö ½ÃÀÛ ¿Ï·á ¸Ş½ÃÁö Ãâ·Â
 	std::cout << "[SERVER] Started!\n";
 	return true;
 }
 
-// ì‘ì—…ì„ ìŠ¤ë ˆë“œ í’€ì— ì¶”ê°€í•˜ëŠ” í•¨ìˆ˜
+// ÀÛ¾÷À» ½º·¹µå Ç®¿¡ Ãß°¡ÇÏ´Â ÇÔ¼ö
 void TcpServer::EnqueueJob(std::function<void()>&& task)
 {
-	// ThreadPoolì˜ EnqueueJob í•¨ìˆ˜ í˜¸ì¶œ
+	// ThreadPoolÀÇ EnqueueJob ÇÔ¼ö È£Ãâ
 	m_ThreadPool.EnqueueJob(std::move(task));
 }
 
-// í´ë¼ì´ì–¸íŠ¸ ì—°ê²°ì„ ê¸°ë‹¤ë¦¬ëŠ” í•¨ìˆ˜
+// Å¬¶óÀÌ¾ğÆ® ¿¬°áÀ» ±â´Ù¸®´Â ÇÔ¼ö
 void TcpServer::WaitForClientConnection()
 {
-	// UserSession ê°ì²´ë¥¼ shared_ptrë¡œ ìƒì„±
+	// UserSession °´Ã¼¸¦ shared_ptr·Î »ı¼º
 	auto user = std::make_shared<UserSession>(m_IoContext);
-	// Acceptorë¥¼ ì´ìš©í•˜ì—¬ ë¹„ë™ê¸°ì ìœ¼ë¡œ í´ë¼ì´ì–¸íŠ¸ ì—°ê²°ì„ ë°›ìŒ
+	// Acceptor¸¦ ÀÌ¿ëÇÏ¿© ºñµ¿±âÀûÀ¸·Î Å¬¶óÀÌ¾ğÆ® ¿¬°áÀ» ¹ŞÀ½
 	m_Acceptor.async_accept(user->GetSocket(),
-		[ this, user ] (const boost::system::error_code& err)
+		[this, user](const boost::system::error_code& err)
 		{
 			this->OnAccept(user, err);
 		});
 }
 
-// í´ë¼ì´ì–¸íŠ¸ ì—°ê²° ì²˜ë¦¬ ì½œë°± í•¨ìˆ˜
+// Å¬¶óÀÌ¾ğÆ® ¿¬°á Ã³¸® Äİ¹é ÇÔ¼ö
 void TcpServer::OnAccept(std::shared_ptr<UserSession> user, const boost::system::error_code& err)
 {
 	if (!err)
 	{
-		// ìƒˆë¡œ ì—°ê²°ëœ ì‚¬ìš©ì ì„¸ì…˜ì„ íì— ì¶”ê°€í•˜ê³  ì‹œì‘
+		// »õ·Î ¿¬°áµÈ »ç¿ëÀÚ ¼¼¼ÇÀ» Å¥¿¡ Ãß°¡ÇÏ°í ½ÃÀÛ
 		std::scoped_lock lock(m_NewUsersMutex);
 		m_NewUsers.push(std::move(user));
 		m_NewUsers.back()->Start();
 	}
 	else
 	{
-		// ì—ëŸ¬ ë°œìƒ ì‹œ ì—ëŸ¬ ë©”ì‹œì§€ ì¶œë ¥
+		// ¿¡·¯ ¹ß»ı ½Ã ¿¡·¯ ¸Ş½ÃÁö Ãâ·Â
 		std::cout << "[SERVER] Error " << err.message() << std::endl;
 	}
 
-	// ë‹¤ìŒ í´ë¼ì´ì–¸íŠ¸ ì—°ê²°ì„ ê¸°ë‹¤ë¦¼
+	// ´ÙÀ½ Å¬¶óÀÌ¾ğÆ® ¿¬°áÀ» ±â´Ù¸²
 	WaitForClientConnection();
 }
 
-// ì‚¬ìš©ì ì„¸ì…˜ì„ ì—…ë°ì´íŠ¸í•˜ëŠ” í•¨ìˆ˜
+// »ç¿ëÀÚ ¼¼¼ÇÀ» ¾÷µ¥ÀÌÆ®ÇÏ´Â ÇÔ¼ö
 void TcpServer::UpdateUsers()
 {
 	std::scoped_lock lock(m_UsersMutex, m_NewUsersMutex);
 
-	// ì—°ê²°ë˜ì§€ ì•Šì€ ì‚¬ìš©ì ì„¸ì…˜ì„ ì œê±°
-	m_Users.erase(std::remove_if(m_Users.begin(), m_Users.end(), [] (auto& user)
+	// ¿¬°áµÇÁö ¾ÊÀº »ç¿ëÀÚ ¼¼¼ÇÀ» Á¦°Å
+	m_Users.erase(std::remove_if(m_Users.begin(), m_Users.end(), [](auto& user)
 		{
 			if (!user->IsConnected())
 			{
@@ -119,7 +119,7 @@ void TcpServer::UpdateUsers()
 			return false;
 		}), m_Users.end());
 
-	// ìƒˆë¡œìš´ ì‚¬ìš©ì ì„¸ì…˜ì„ ê¸°ì¡´ ì‚¬ìš©ì ëª©ë¡ì— ì¶”ê°€
+	// »õ·Î¿î »ç¿ëÀÚ ¼¼¼ÇÀ» ±âÁ¸ »ç¿ëÀÚ ¸ñ·Ï¿¡ Ãß°¡
 	while (!m_NewUsers.empty() && m_Users.size() < m_MaxUser)
 	{
 		auto user = m_NewUsers.front();
@@ -130,27 +130,27 @@ void TcpServer::UpdateUsers()
 		if (msg && VerifyUser(user, msg->content()))
 		{
 			auto userID = user->GetId();
-			// ì¤‘ë³µ ë¡œê·¸ì¸ ì²´í¬ í›„ ì²˜ë¦¬
-			auto it = std::find_if(m_Users.begin(), m_Users.end(), [ & ] (const auto& existingUser)
+			// Áßº¹ ·Î±×ÀÎ Ã¼Å© ÈÄ Ã³¸®
+			auto it = std::find_if(m_Users.begin(), m_Users.end(), [&](const auto& existingUser)
 				{
 					return existingUser->GetId() == userID;
 				});
 
 			if (it != m_Users.end())
 			{
-				// ì¤‘ë³µ ë¡œê·¸ì¸ ì‹œ ê¸°ì¡´ ì‚¬ìš©ì ì²˜ë¦¬
+				// Áßº¹ ·Î±×ÀÎ ½Ã ±âÁ¸ »ç¿ëÀÚ Ã³¸®
 				SendServerMessage(*it, "Logged out due to duplicate login.");
 				(*it)->Close();
 				m_Users.erase(it);
 			}
 
-			// ìƒˆë¡œìš´ ì‚¬ìš©ì ì„¸ì…˜ì„ ëª©ë¡ì— ì¶”ê°€í•˜ê³  ë¡œê·¸ì¸ ë©”ì‹œì§€ ì „ì†¡
+			// »õ·Î¿î »ç¿ëÀÚ ¼¼¼ÇÀ» ¸ñ·Ï¿¡ Ãß°¡ÇÏ°í ·Î±×ÀÎ ¸Ş½ÃÁö Àü¼Û
 			m_Users.push_back(std::move(user));
 			SendLoginMessage(m_Users.back());
 		}
 		else
 		{
-			// ìœ íš¨í•˜ì§€ ì•Šì€ ì‚¬ìš©ì ì„¸ì…˜ì€ ë‹¤ì‹œ íì— ì¶”ê°€
+			// À¯È¿ÇÏÁö ¾ÊÀº »ç¿ëÀÚ ¼¼¼ÇÀº ´Ù½Ã Å¥¿¡ Ãß°¡
 			m_NewUsers.push(std::move(user));
 		}
 	}
@@ -163,22 +163,22 @@ bool TcpServer::VerifyUser(std::shared_ptr<UserSession>& user, const std::string
 
 	try
 	{
-		// Redisì—ì„œ ì„¸ì…˜ ì •ë³´ ì¡°íšŒ
+		// Redis¿¡¼­ ¼¼¼Ç Á¤º¸ Á¶È¸
 		if (m_RedisClient->Get(sessionKey, &sessionValue) != RC_SUCCESS)
 		{
-			// ì„¸ì…˜ IDê°€ ì¡´ì¬í•˜ì§€ ì•ŠëŠ” ê²½ìš° ì²˜ë¦¬
+			// ¼¼¼Ç ID°¡ Á¸ÀçÇÏÁö ¾Ê´Â °æ¿ì Ã³¸®
 			std::cout << "Not Found Session ID!!" << std::endl;
 			return false;
 		}
 
-		// ì„¸ì…˜ ì •ë³´ ë¡œê¹…
+		// ¼¼¼Ç Á¤º¸ ·Î±ë
 		std::cout << sessionKey << " : " << sessionValue << std::endl;
 
-		// UserSession ê°ì²´ì˜ ID ì„¤ì • ë° ì¸ì¦ ìƒíƒœ ì„¤ì •
+		// UserSession °´Ã¼ÀÇ ID ¼³Á¤ ¹× ÀÎÁõ »óÅÂ ¼³Á¤
 		user->SetID(StringToUint32(sessionValue));
 		user->SetVerified(true);
 
-		// MySQLì—ì„œ í•´ë‹¹ ì‚¬ìš©ì ì •ë³´ ì¡°íšŒ
+		// MySQL¿¡¼­ ÇØ´ç »ç¿ëÀÚ Á¤º¸ Á¶È¸
 		std::shared_ptr<UserEntity> userEntity = m_MySQLConnector->GetUserById(sessionValue);
 		user->SetUserEntity(userEntity);
 
@@ -186,7 +186,7 @@ bool TcpServer::VerifyUser(std::shared_ptr<UserSession>& user, const std::string
 	}
 	catch (const std::exception& e)
 	{
-		// ì˜ˆì™¸ ë°œìƒ ì‹œ ì²˜ë¦¬
+		// ¿¹¿Ü ¹ß»ı ½Ã Ã³¸®
 		std::cout << "Exception occurred: " << e.what() << std::endl;
 		return false;
 	}
@@ -198,7 +198,7 @@ void TcpServer::RemoveUserSessions()
 {
 	std::scoped_lock lock(m_UsersMutex);
 
-	// ëª¨ë“  ì—°ê²°ëœ ì‚¬ìš©ì ì„¸ì…˜ì„ ë‹«ê³ , m_Users ì»¨í…Œì´ë„ˆë¥¼ ë¹„ì›ë‹ˆë‹¤.
+	// ¸ğµç ¿¬°áµÈ »ç¿ëÀÚ ¼¼¼ÇÀ» ´İ°í, m_Users ÄÁÅ×ÀÌ³Ê¸¦ ºñ¿ó´Ï´Ù.
 	for (auto& user : m_Users)
 	{
 		if (user && user->IsConnected())
@@ -215,7 +215,7 @@ void TcpServer::RemoveNewUserSessions()
 {
 	std::scoped_lock lock(m_NewUsersMutex);
 
-	// ìƒˆë¡œ ì¶”ê°€ëœ ì‚¬ìš©ì ì„¸ì…˜ íë¥¼ ë¹„ì›ë‹ˆë‹¤.
+	// »õ·Î Ãß°¡µÈ »ç¿ëÀÚ ¼¼¼Ç Å¥¸¦ ºñ¿ó´Ï´Ù.
 	while (!m_NewUsers.empty())
 	{
 		m_NewUsers.pop();
@@ -226,7 +226,7 @@ void TcpServer::Update()
 {
 	while (1)
 	{
-		// ì‚¬ìš©ì ì„¸ì…˜ ì—…ë°ì´íŠ¸
+		// »ç¿ëÀÚ ¼¼¼Ç ¾÷µ¥ÀÌÆ®
 		UpdateUsers();
 
 		if (m_Users.empty())
@@ -234,7 +234,7 @@ void TcpServer::Update()
 			continue;
 		}
 
-		// ëª¨ë“  ì—°ê²°ëœ ì‚¬ìš©ì ì„¸ì…˜ì— ëŒ€í•´ ë©”ì‹œì§€ ì²˜ë¦¬
+		// ¸ğµç ¿¬°áµÈ »ç¿ëÀÚ ¼¼¼Ç¿¡ ´ëÇØ ¸Ş½ÃÁö Ã³¸®
 		for (auto u : m_Users)
 		{
 			if (u == nullptr || !u->IsConnected())
@@ -242,7 +242,7 @@ void TcpServer::Update()
 				continue;
 			}
 
-			// ì‚¬ìš©ìë¡œë¶€í„° ìˆ˜ì‹ ëœ ë©”ì‹œì§€ ì²˜ë¦¬
+			// »ç¿ëÀÚ·ÎºÎÅÍ ¼ö½ÅµÈ ¸Ş½ÃÁö Ã³¸®
 			while (true)
 			{
 				auto msg = u->GetMessageInUserQueue();
@@ -306,48 +306,48 @@ void TcpServer::OnMessage(std::shared_ptr<UserSession> user, std::shared_ptr<myC
 
 void TcpServer::HandleServerPing(std::shared_ptr<UserSession> user, std::shared_ptr<myChatMessage::ChatMessage> msg)
 {
-	// í´ë¼ì´ì–¸íŠ¸ê°€ ë³´ë‚¸ ì‹œê°„ì„ millisecondë¡œ ë³€í™˜
+	// Å¬¶óÀÌ¾ğÆ®°¡ º¸³½ ½Ã°£À» millisecond·Î º¯È¯
 	auto sentTimeMs = std::stoll(msg->content());
 	auto sentTime = std::chrono::milliseconds(sentTimeMs);
 
-	// í˜„ì¬ ì‹œê°„ê³¼ì˜ ì°¨ì´ ê³„ì‚°
+	// ÇöÀç ½Ã°£°úÀÇ Â÷ÀÌ °è»ê
 	auto currentTime = std::chrono::system_clock::now().time_since_epoch();
 	auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - sentTime);
 
-	// ì—¬ê¸°ì„œ elapsedTime ë³€ìˆ˜ì—ëŠ” í´ë¼ì´ì–¸íŠ¸ì™€ ì„œë²„ ê°„ì˜ ì‹œê°„ ì°¨ì´ê°€ millisecondsë¡œ ë“¤ì–´ìˆìŒ
-	// ì´ ê°’ì„ ì‚¬ìš©í•˜ì—¬ ë„¤íŠ¸ì›Œí¬ ì§€ì—° ë“±ì„ ê³„ì‚°í•˜ê±°ë‚˜ ì¸¡ì •í•  ìˆ˜ ìˆìŒ
+	// ¿©±â¼­ elapsedTime º¯¼ö¿¡´Â Å¬¶óÀÌ¾ğÆ®¿Í ¼­¹ö °£ÀÇ ½Ã°£ Â÷ÀÌ°¡ milliseconds·Î µé¾îÀÖÀ½
+	// ÀÌ °ªÀ» »ç¿ëÇÏ¿© ³×Æ®¿öÅ© Áö¿¬ µîÀ» °è»êÇÏ°Å³ª ÃøÁ¤ÇÒ ¼ö ÀÖÀ½
 }
 
 
 void TcpServer::HandleAllMessage(std::shared_ptr<UserSession> user, std::shared_ptr<myChatMessage::ChatMessage> msg)
 {
-	// ë©”ì‹œì§€ ë‚´ìš©ì´ ë¹„ì–´ ìˆìœ¼ë©´ ì²˜ë¦¬í•˜ì§€ ì•ŠìŒ
+	// ¸Ş½ÃÁö ³»¿ëÀÌ ºñ¾î ÀÖÀ¸¸é Ã³¸®ÇÏÁö ¾ÊÀ½
 	if (msg->content().empty())
 	{
 		return;
 	}
 
-	// ì„œë²„ì—ì„œ ëª¨ë“  í´ë¼ì´ì–¸íŠ¸ì—ê²Œ ë©”ì‹œì§€ ì „ì†¡
+	// ¼­¹ö¿¡¼­ ¸ğµç Å¬¶óÀÌ¾ğÆ®¿¡°Ô ¸Ş½ÃÁö Àü¼Û
 	std::cout << "[SERVER] Send message to all clients\n";
 
-	// ë©”ì‹œì§€ íƒ€ì… ì„¤ì •
+	// ¸Ş½ÃÁö Å¸ÀÔ ¼³Á¤
 	msg->set_messagetype(myChatMessage::ChatMessageType::ALL_MESSAGE);
 
-	// ëª¨ë“  ì‚¬ìš©ìì—ê²Œ ë©”ì‹œì§€ ì „ì†¡
+	// ¸ğµç »ç¿ëÀÚ¿¡°Ô ¸Ş½ÃÁö Àü¼Û
 	SendAllUsers(msg);
 }
 
 
 void TcpServer::HandlePartyCreate(std::shared_ptr<UserSession> user, std::shared_ptr<myChatMessage::ChatMessage> msg)
 {
-	// íŒŒí‹° ì´ë¦„ì´ ë¹„ì–´ ìˆìœ¼ë©´ ì—ëŸ¬ ë©”ì‹œì§€ ì „ì†¡ í›„ ì¢…ë£Œ
+	// ÆÄÆ¼ ÀÌ¸§ÀÌ ºñ¾î ÀÖÀ¸¸é ¿¡·¯ ¸Ş½ÃÁö Àü¼Û ÈÄ Á¾·á
 	if (msg->content().empty())
 	{
 		SendErrorMessage(user, "The party name is empty.");
 		return;
 	}
 
-	// ì´ë¯¸ íŒŒí‹°ì— ì°¸ì—¬ ì¤‘ì¸ ê²½ìš° ì—ëŸ¬ ë©”ì‹œì§€ ì „ì†¡ í›„ ì¢…ë£Œ
+	// ÀÌ¹Ì ÆÄÆ¼¿¡ Âü¿© ÁßÀÎ °æ¿ì ¿¡·¯ ¸Ş½ÃÁö Àü¼Û ÈÄ Á¾·á
 	if (user->GetPartyId() != 0)
 	{
 		SendErrorMessage(user, "Already in a party.");
@@ -356,14 +356,14 @@ void TcpServer::HandlePartyCreate(std::shared_ptr<UserSession> user, std::shared
 
 	std::cout << "[SERVER] Create party\n";
 
-	// íŒŒí‹° ì´ë¦„ì´ ì´ë¯¸ ì‚¬ìš© ì¤‘ì¸ ê²½ìš° ì—ëŸ¬ ë©”ì‹œì§€ ì „ì†¡ í›„ ì¢…ë£Œ
+	// ÆÄÆ¼ ÀÌ¸§ÀÌ ÀÌ¹Ì »ç¿ë ÁßÀÎ °æ¿ì ¿¡·¯ ¸Ş½ÃÁö Àü¼Û ÈÄ Á¾·á
 	if (m_PartyManager->IsPartyNameTaken(msg->content()))
 	{
 		SendErrorMessage(user, "The party name already exists.");
 		return;
 	}
 
-	// íŒŒí‹° ìƒì„± ë° ì‚¬ìš©ìì—ê²Œ íŒŒí‹° ID ì„¤ì •
+	// ÆÄÆ¼ »ı¼º ¹× »ç¿ëÀÚ¿¡°Ô ÆÄÆ¼ ID ¼³Á¤
 	auto createdParty = m_PartyManager->CreateParty(user, msg->content());
 	if (!createdParty)
 	{
@@ -372,28 +372,28 @@ void TcpServer::HandlePartyCreate(std::shared_ptr<UserSession> user, std::shared
 	}
 	user->SetPartyId(createdParty->GetId());
 
-	// íŒŒí‹° ìƒì„± ì„±ê³µ ë©”ì‹œì§€ ì „ì†¡
+	// ÆÄÆ¼ »ı¼º ¼º°ø ¸Ş½ÃÁö Àü¼Û
 	SendServerMessage(user, "Party creation successful");
 }
 
 
 void TcpServer::HandlePartyJoin(std::shared_ptr<UserSession> user, std::shared_ptr<myChatMessage::ChatMessage> msg)
 {
-	// íŒŒí‹° ì´ë¦„ì´ ë¹„ì–´ ìˆìœ¼ë©´ ì—ëŸ¬ ë©”ì‹œì§€ ì „ì†¡ í›„ ì¢…ë£Œ
+	// ÆÄÆ¼ ÀÌ¸§ÀÌ ºñ¾î ÀÖÀ¸¸é ¿¡·¯ ¸Ş½ÃÁö Àü¼Û ÈÄ Á¾·á
 	if (msg->content().empty())
 	{
 		SendErrorMessage(user, "The party name is empty.");
 		return;
 	}
 
-	// ì´ë¯¸ íŒŒí‹°ì— ì°¸ì—¬ ì¤‘ì¸ ê²½ìš° ì—ëŸ¬ ë©”ì‹œì§€ ì „ì†¡ í›„ ì¢…ë£Œ
+	// ÀÌ¹Ì ÆÄÆ¼¿¡ Âü¿© ÁßÀÎ °æ¿ì ¿¡·¯ ¸Ş½ÃÁö Àü¼Û ÈÄ Á¾·á
 	if (user->GetPartyId() != 0)
 	{
 		SendErrorMessage(user, "Already in a party.");
 		return;
 	}
 
-	// íŒŒí‹°ì— ì°¸ì—¬í•˜ê³ , ì„±ê³µì ìœ¼ë¡œ ì°¸ì—¬í•œ ê²½ìš° ì‚¬ìš©ìì˜ íŒŒí‹° ID ì„¤ì • ë° ì„±ê³µ ë©”ì‹œì§€ ì „ì†¡
+	// ÆÄÆ¼¿¡ Âü¿©ÇÏ°í, ¼º°øÀûÀ¸·Î Âü¿©ÇÑ °æ¿ì »ç¿ëÀÚÀÇ ÆÄÆ¼ ID ¼³Á¤ ¹× ¼º°ø ¸Ş½ÃÁö Àü¼Û
 	auto joinedParty = m_PartyManager->JoinParty(user, msg->content());
 	if (!joinedParty)
 	{
@@ -409,7 +409,7 @@ void TcpServer::HandlePartyJoin(std::shared_ptr<UserSession> user, std::shared_p
 
 void TcpServer::HandlePartyDelete(std::shared_ptr<UserSession> user, std::shared_ptr<myChatMessage::ChatMessage> msg)
 {
-	// íŒŒí‹° ì´ë¦„ì´ ë¹„ì–´ ìˆìœ¼ë©´ ì—ëŸ¬ ë©”ì‹œì§€ ì „ì†¡ í›„ ì¢…ë£Œ
+	// ÆÄÆ¼ ÀÌ¸§ÀÌ ºñ¾î ÀÖÀ¸¸é ¿¡·¯ ¸Ş½ÃÁö Àü¼Û ÈÄ Á¾·á
 	if (msg->content().empty())
 	{
 		SendErrorMessage(user, "The party name is empty.");
@@ -418,7 +418,7 @@ void TcpServer::HandlePartyDelete(std::shared_ptr<UserSession> user, std::shared
 
 	std::cout << "[SERVER] Delete party\n";
 
-	// íŒŒí‹° ì‚­ì œ ì‹œë„ ë° ì‹¤íŒ¨ ì‹œ ì—ëŸ¬ ë©”ì‹œì§€ ì „ì†¡ í›„ ì¢…ë£Œ
+	// ÆÄÆ¼ »èÁ¦ ½Ãµµ ¹× ½ÇÆĞ ½Ã ¿¡·¯ ¸Ş½ÃÁö Àü¼Û ÈÄ Á¾·á
 	auto partyId = m_PartyManager->DeleteParty(user, msg->content());
 	if (!partyId)
 	{
@@ -426,7 +426,7 @@ void TcpServer::HandlePartyDelete(std::shared_ptr<UserSession> user, std::shared
 		return;
 	}
 
-	// í•´ë‹¹ íŒŒí‹°ì— ì†í•œ ëª¨ë“  ì‚¬ìš©ìì˜ íŒŒí‹° IDë¥¼ ì´ˆê¸°í™”
+	// ÇØ´ç ÆÄÆ¼¿¡ ¼ÓÇÑ ¸ğµç »ç¿ëÀÚÀÇ ÆÄÆ¼ ID¸¦ ÃÊ±âÈ­
 	for (auto& u : m_Users)
 	{
 		if (u->GetPartyId() == partyId)
@@ -435,21 +435,21 @@ void TcpServer::HandlePartyDelete(std::shared_ptr<UserSession> user, std::shared
 		}
 	}
 
-	// íŒŒí‹° ì‚­ì œ ì„±ê³µ ë©”ì‹œì§€ ì „ì†¡
+	// ÆÄÆ¼ »èÁ¦ ¼º°ø ¸Ş½ÃÁö Àü¼Û
 	SendServerMessage(user, "Party delete successful");
 }
 
 
 void TcpServer::HandlePartyLeave(std::shared_ptr<UserSession> user, std::shared_ptr<myChatMessage::ChatMessage> msg)
 {
-	// íŒŒí‹° ì´ë¦„ì´ ë¹„ì–´ ìˆìœ¼ë©´ ì—ëŸ¬ ë©”ì‹œì§€ ì „ì†¡ í›„ ì¢…ë£Œ
+	// ÆÄÆ¼ ÀÌ¸§ÀÌ ºñ¾î ÀÖÀ¸¸é ¿¡·¯ ¸Ş½ÃÁö Àü¼Û ÈÄ Á¾·á
 	if (msg->content().empty())
 	{
 		SendErrorMessage(user, "The party name is empty.");
 		return;
 	}
 
-	// í˜„ì¬ ì‚¬ìš©ìê°€ ì–´ë–¤ íŒŒí‹°ì—ë„ ì†í•´ ìˆì§€ ì•Šì€ ê²½ìš° ì—ëŸ¬ ë©”ì‹œì§€ ì „ì†¡ í›„ ì¢…ë£Œ
+	// ÇöÀç »ç¿ëÀÚ°¡ ¾î¶² ÆÄÆ¼¿¡µµ ¼ÓÇØ ÀÖÁö ¾ÊÀº °æ¿ì ¿¡·¯ ¸Ş½ÃÁö Àü¼Û ÈÄ Á¾·á
 	if (user->GetPartyId() == 0)
 	{
 		SendErrorMessage(user, "Not in a party.");
@@ -458,14 +458,14 @@ void TcpServer::HandlePartyLeave(std::shared_ptr<UserSession> user, std::shared_
 
 	std::cout << "[SERVER] Leave party\n";
 
-	// ì‚¬ìš©ìê°€ íŒŒí‹°ë¥¼ íƒˆí‡´í•  ìˆ˜ ì—†ëŠ” ê²½ìš°(íŒŒí‹° ë¦¬ë”ì¸ ê²½ìš°) ì—ëŸ¬ ë©”ì‹œì§€ ì „ì†¡ í›„ ì¢…ë£Œ
+	// »ç¿ëÀÚ°¡ ÆÄÆ¼¸¦ Å»ÅğÇÒ ¼ö ¾ø´Â °æ¿ì(ÆÄÆ¼ ¸®´õÀÎ °æ¿ì) ¿¡·¯ ¸Ş½ÃÁö Àü¼Û ÈÄ Á¾·á
 	if (!m_PartyManager->LeaveParty(user, msg->content()))
 	{
 		SendErrorMessage(user, "Sorry, as the party leader, you cannot leave the party. Deletion is the only option.");
 		return;
 	}
 
-	// ì‚¬ìš©ìì˜ íŒŒí‹° IDë¥¼ ì´ˆê¸°í™”í•˜ê³ , ì„±ê³µ ë©”ì‹œì§€ ì „ì†¡
+	// »ç¿ëÀÚÀÇ ÆÄÆ¼ ID¸¦ ÃÊ±âÈ­ÇÏ°í, ¼º°ø ¸Ş½ÃÁö Àü¼Û
 	user->SetPartyId(0);
 	SendServerMessage(user, "Party leave successful");
 }
@@ -473,14 +473,14 @@ void TcpServer::HandlePartyLeave(std::shared_ptr<UserSession> user, std::shared_
 
 void TcpServer::HandlePartyMessage(std::shared_ptr<UserSession> user, std::shared_ptr<myChatMessage::ChatMessage> msg)
 {
-	// íŒŒí‹° ë©”ì‹œì§€ì˜ ë‚´ìš©ì´ ë¹„ì–´ ìˆìœ¼ë©´ ì—ëŸ¬ ë©”ì‹œì§€ ì „ì†¡ í›„ ì¢…ë£Œ
+	// ÆÄÆ¼ ¸Ş½ÃÁöÀÇ ³»¿ëÀÌ ºñ¾î ÀÖÀ¸¸é ¿¡·¯ ¸Ş½ÃÁö Àü¼Û ÈÄ Á¾·á
 	if (msg->content().empty())
 	{
 		SendErrorMessage(user, "The content of the party message is empty.");
 		return;
 	}
 
-	// ì‚¬ìš©ìê°€ ì°¸ì—¬ ì¤‘ì¸ íŒŒí‹°ë¥¼ ì°¾ì•„ì„œ ë©”ì‹œì§€ ì „ì†¡
+	// »ç¿ëÀÚ°¡ Âü¿© ÁßÀÎ ÆÄÆ¼¸¦ Ã£¾Æ¼­ ¸Ş½ÃÁö Àü¼Û
 	auto party = m_PartyManager->FindPartyById(user->GetPartyId());
 	if (!party)
 	{
@@ -488,114 +488,114 @@ void TcpServer::HandlePartyMessage(std::shared_ptr<UserSession> user, std::share
 		return;
 	}
 
-	// í•´ë‹¹ íŒŒí‹°ì— ë©”ì‹œì§€ ì „ì†¡
+	// ÇØ´ç ÆÄÆ¼¿¡ ¸Ş½ÃÁö Àü¼Û
 	SendPartyMessage(party, msg);
 }
 
 
 void TcpServer::HandleWhisperMessage(std::shared_ptr<UserSession> user, std::shared_ptr<myChatMessage::ChatMessage> msg)
 {
-	// ìˆ˜ì‹ ìë‚˜ ë‚´ìš©ì´ ë¹„ì–´ ìˆìœ¼ë©´ ì—ëŸ¬ ë©”ì‹œì§€ë¥¼ ì „ì†¡í•˜ê³  í•¨ìˆ˜ ì¢…ë£Œ
+	// ¼ö½ÅÀÚ³ª ³»¿ëÀÌ ºñ¾î ÀÖÀ¸¸é ¿¡·¯ ¸Ş½ÃÁö¸¦ Àü¼ÛÇÏ°í ÇÔ¼ö Á¾·á
 	if (msg->receiver().empty() || msg->content().empty())
 	{
 		SendErrorMessage(user, "Recipient or content is empty.");
 		return;
 	}
 
-	// ìˆ˜ì‹ ìì—ê²Œ ê·“ì†ë§ ë©”ì‹œì§€ë¥¼ ì „ì†¡
+	// ¼ö½ÅÀÚ¿¡°Ô ±Ó¼Ó¸» ¸Ş½ÃÁö¸¦ Àü¼Û
 	SendWhisperMessage(user, msg->receiver(), msg);
 }
 
 
 void TcpServer::HandleFriendRequest(std::shared_ptr<UserSession> user, std::shared_ptr<myChatMessage::ChatMessage> msg) {
 	try {
-		// ìš”ì²­ ìœ íš¨ì„± ê²€ì‚¬ë¥¼ ë¹„ë™ê¸°ì ìœ¼ë¡œ ì‹¤í–‰
+		// ¿äÃ» À¯È¿¼º °Ë»ç¸¦ ºñµ¿±âÀûÀ¸·Î ½ÇÇà
 		auto validateFuture = ValidateRequest(user, msg);
 		validateFuture.get();
 
-		// ì‚¬ìš©ìì˜ ì¡´ì¬ ì—¬ë¶€ë¥¼ ë¹„ë™ê¸°ì ìœ¼ë¡œ í™•ì¸
+		// »ç¿ëÀÚÀÇ Á¸Àç ¿©ºÎ¸¦ ºñµ¿±âÀûÀ¸·Î È®ÀÎ
 		auto checkUserExistenceFuture = CheckUserExistence(msg->content());
 		auto receiveUser = checkUserExistenceFuture.get();
 
-		// ì¹œêµ¬ ìš”ì²­ ìƒíƒœë¥¼ ë¹„ë™ê¸°ì ìœ¼ë¡œ í™•ì¸
+		// Ä£±¸ ¿äÃ» »óÅÂ¸¦ ºñµ¿±âÀûÀ¸·Î È®ÀÎ
 		auto checkFriendRequestStatusFuture = CheckFriendRequestStatus(user, receiveUser);
 		checkFriendRequestStatusFuture.get();
 
-		// ì¹œêµ¬ ìš”ì²­ì„ ì¶”ê°€í•˜ëŠ” ì‘ì—…ì„ ë¹„ë™ê¸°ì ìœ¼ë¡œ ì‹¤í–‰
+		// Ä£±¸ ¿äÃ»À» Ãß°¡ÇÏ´Â ÀÛ¾÷À» ºñµ¿±âÀûÀ¸·Î ½ÇÇà
 		auto addFriendRequestFuture = AddFriendRequest(user, receiveUser);
 		addFriendRequestFuture.get();
 
-		// ì‚¬ìš©ìë“¤ì—ê²Œ ì•Œë¦¼ì„ ë³´ëƒ„
+		// »ç¿ëÀÚµé¿¡°Ô ¾Ë¸²À» º¸³¿
 		NotifyUsers(user, receiveUser);
 	}
 	catch (const std::exception& e) {
-		// ì˜ˆì™¸ ë°œìƒ ì‹œ ì—ëŸ¬ ë©”ì‹œì§€ë¥¼ ì „ì†¡
+		// ¿¹¿Ü ¹ß»ı ½Ã ¿¡·¯ ¸Ş½ÃÁö¸¦ Àü¼Û
 		SendErrorMessage(user, e.what());
 	}
 }
 
 
 std::future<void> TcpServer::ValidateRequest(std::shared_ptr<UserSession> user, std::shared_ptr<myChatMessage::ChatMessage> msg) {
-	return m_ThreadPool.EnqueueJob([ this, user, msg ] ()
-	{
-		// ìš”ì²­ ë‚´ìš©ì´ ë¹„ì–´ ìˆìœ¼ë©´ ì˜ˆì™¸ë¥¼ ë°œìƒì‹œí‚´
-		if (msg->content().empty())
+	return m_ThreadPool.EnqueueJob([this, user, msg]()
 		{
-			throw std::runtime_error("The content of is empty.");
-		}
-		// ìê¸° ìì‹ ì—ê²Œ ìš”ì²­ì„ ë³´ë‚´ëŠ” ê²½ìš° ì˜ˆì™¸ë¥¼ ë°œìƒì‹œí‚´
-		if (user->GetUserEntity()->GetUserId() == msg->content())
-		{
-			throw std::runtime_error("You cannot send request to yourself.");
-		}
-	});
+			// ¿äÃ» ³»¿ëÀÌ ºñ¾î ÀÖÀ¸¸é ¿¹¿Ü¸¦ ¹ß»ı½ÃÅ´
+			if (msg->content().empty())
+			{
+				throw std::runtime_error("The content of is empty.");
+			}
+			// ÀÚ±â ÀÚ½Å¿¡°Ô ¿äÃ»À» º¸³»´Â °æ¿ì ¿¹¿Ü¸¦ ¹ß»ı½ÃÅ´
+			if (user->GetUserEntity()->GetUserId() == msg->content())
+			{
+				throw std::runtime_error("You cannot send request to yourself.");
+			}
+		});
 }
 
 std::future<std::shared_ptr<UserEntity>> TcpServer::CheckUserExistence(const std::string& userId)
 {
-	return m_ThreadPool.EnqueueJob([ this, userId ] () -> std::shared_ptr<UserEntity>
-	{
-		// ì£¼ì–´ì§„ ì‚¬ìš©ì IDë¡œ ì‚¬ìš©ìë¥¼ ê²€ìƒ‰í•˜ê³ , ì¡´ì¬í•˜ì§€ ì•Šìœ¼ë©´ ì˜ˆì™¸ë¥¼ ë°œìƒì‹œí‚´
-		std::vector<MySQLManager::Condition> conditions = { {"user_id", userId} };
-		auto receiveUser = m_MySQLConnector->GetUserByConditions(conditions);
-		if (!receiveUser)
+	return m_ThreadPool.EnqueueJob([this, userId]() -> std::shared_ptr<UserEntity>
 		{
-			throw std::runtime_error("User not found.");
-		}
+			// ÁÖ¾îÁø »ç¿ëÀÚ ID·Î »ç¿ëÀÚ¸¦ °Ë»öÇÏ°í, Á¸ÀçÇÏÁö ¾ÊÀ¸¸é ¿¹¿Ü¸¦ ¹ß»ı½ÃÅ´
+			std::vector<MySQLManager::Condition> conditions = { {"user_id", userId} };
+			auto receiveUser = m_MySQLConnector->GetUserByConditions(conditions);
+			if (!receiveUser)
+			{
+				throw std::runtime_error("User not found.");
+			}
 
-		return receiveUser;
-	});
+			return receiveUser;
+		});
 }
 
 
 std::future<void> TcpServer::CheckFriendRequestStatus(std::shared_ptr<UserSession> user, std::shared_ptr<UserEntity> receiveUser) {
-	return m_ThreadPool.EnqueueJob([ this, user, receiveUser ] ()
-	{
-		// ìš”ì²­ìì™€ ìˆ˜ì‹ ì ê°„ì— ì´ë¯¸ ì¹œêµ¬ ìš”ì²­ì´ ìˆëŠ”ì§€ í™•ì¸í•˜ê³ , ìˆìœ¼ë©´ ì˜ˆì™¸ë¥¼ ë°œìƒì‹œí‚´
-		auto requestId = std::to_string(user->GetId());
-		auto receiveId = std::to_string(receiveUser->GetId());
+	return m_ThreadPool.EnqueueJob([this, user, receiveUser]()
+		{
+			// ¿äÃ»ÀÚ¿Í ¼ö½ÅÀÚ °£¿¡ ÀÌ¹Ì Ä£±¸ ¿äÃ»ÀÌ ÀÖ´ÂÁö È®ÀÎÇÏ°í, ÀÖÀ¸¸é ¿¹¿Ü¸¦ ¹ß»ı½ÃÅ´
+			auto requestId = std::to_string(user->GetId());
+			auto receiveId = std::to_string(receiveUser->GetId());
 
-		if (m_MySQLConnector->HasFriendRequest(requestId, receiveId))
-		{
-			throw std::runtime_error("You have already sent a friend request to this user.");
-		}
-		if (m_MySQLConnector->HasFriendRequest(receiveId, requestId))
-		{
-			throw std::runtime_error("This user has already sent you a friend request.");
-		}
-	});
+			if (m_MySQLConnector->HasFriendRequest(requestId, receiveId))
+			{
+				throw std::runtime_error("You have already sent a friend request to this user.");
+			}
+			if (m_MySQLConnector->HasFriendRequest(receiveId, requestId))
+			{
+				throw std::runtime_error("This user has already sent you a friend request.");
+			}
+		});
 }
 
 
 std::future<void> TcpServer::AddFriendRequest(std::shared_ptr<UserSession> user, std::shared_ptr<UserEntity> receiveUser) {
-	return m_ThreadPool.EnqueueJob([ this, user, receiveUser ] ()
-	{
-		// ì¹œêµ¬ ìš”ì²­ì„ ë°ì´í„°ë² ì´ìŠ¤ì— ì¶”ê°€í•˜ê³ , ì‹¤íŒ¨í•œ ê²½ìš° ì˜ˆì™¸ë¥¼ ë°œìƒì‹œí‚´
-		if (!m_MySQLConnector->AddFriendRequest(std::to_string(user->GetId()), std::to_string(receiveUser->GetId())))
+	return m_ThreadPool.EnqueueJob([this, user, receiveUser]()
 		{
-			throw std::runtime_error("Failed to create friend request.");
-		}
-	});
+			// Ä£±¸ ¿äÃ»À» µ¥ÀÌÅÍº£ÀÌ½º¿¡ Ãß°¡ÇÏ°í, ½ÇÆĞÇÑ °æ¿ì ¿¹¿Ü¸¦ ¹ß»ı½ÃÅ´
+			if (!m_MySQLConnector->AddFriendRequest(std::to_string(user->GetId()), std::to_string(receiveUser->GetId())))
+			{
+				throw std::runtime_error("Failed to create friend request.");
+			}
+		});
 }
 
 
@@ -605,23 +605,23 @@ void TcpServer::HandleFriendAccept(std::shared_ptr<UserSession> user, std::share
 {
 	try
 	{
-		// ìš”ì²­ ìœ íš¨ì„± ê²€ì‚¬ë¥¼ ë¹„ë™ê¸°ì ìœ¼ë¡œ ì‹¤í–‰
+		// ¿äÃ» À¯È¿¼º °Ë»ç¸¦ ºñµ¿±âÀûÀ¸·Î ½ÇÇà
 		auto validateFuture = ValidateRequest(user, msg);
 		validateFuture.get();
 
-		// ìš”ì²­ì„ ë³´ë‚¸ ì‚¬ìš©ìì˜ ì¡´ì¬ ì—¬ë¶€ë¥¼ ë¹„ë™ê¸°ì ìœ¼ë¡œ í™•ì¸
+		// ¿äÃ»À» º¸³½ »ç¿ëÀÚÀÇ Á¸Àç ¿©ºÎ¸¦ ºñµ¿±âÀûÀ¸·Î È®ÀÎ
 		auto checkUserExistenceFuture = CheckUserExistence(msg->content());
 		auto sender = checkUserExistenceFuture.get();
 
-		// ì¹œêµ¬ ìš”ì²­ ìˆ˜ë½ ì‘ì—…ì„ ë¹„ë™ê¸°ì ìœ¼ë¡œ ì‹¤í–‰
+		// Ä£±¸ ¿äÃ» ¼ö¶ô ÀÛ¾÷À» ºñµ¿±âÀûÀ¸·Î ½ÇÇà
 		auto processFriendAcceptFuture = ProcessFriendAccept(user, sender);
 		processFriendAcceptFuture.get();
 
-		// ìˆ˜ë½ëœ ì¹œêµ¬ì—ê²Œ ì•Œë¦¼ì„ ë³´ëƒ„
+		// ¼ö¶ôµÈ Ä£±¸¿¡°Ô ¾Ë¸²À» º¸³¿
 		NotifyAcceptUsers(user, sender);
 	}
 	catch (const std::exception& e) {
-		// ì˜ˆì™¸ ë°œìƒ ì‹œ ì—ëŸ¬ ë©”ì‹œì§€ë¥¼ ì „ì†¡
+		// ¿¹¿Ü ¹ß»ı ½Ã ¿¡·¯ ¸Ş½ÃÁö¸¦ Àü¼Û
 		SendErrorMessage(user, e.what());
 	}
 }
@@ -630,25 +630,25 @@ void TcpServer::HandleFriendAccept(std::shared_ptr<UserSession> user, std::share
 
 std::future<void> TcpServer::ProcessFriendAccept(std::shared_ptr<UserSession> user, std::shared_ptr<UserEntity> sender)
 {
-	return m_ThreadPool.EnqueueJob([ this, user, sender ] ()
-	{
-		try
+	return m_ThreadPool.EnqueueJob([this, user, sender]()
 		{
-			// íŠ¸ëœì­ì…˜ ì‹œì‘
-			m_MySQLConnector->BeginTransaction();
-			// ì¹œêµ¬ ê´€ê³„ë¥¼ ì—…ë°ì´íŠ¸í•˜ê³ , ì¹œêµ¬ ëª©ë¡ì— ì¶”ê°€
-			m_MySQLConnector->UpdateFriend(std::to_string(sender->GetId()), std::to_string(user->GetId()), "A");
-			m_MySQLConnector->AddFriendship(std::to_string(sender->GetId()), std::to_string(user->GetId()));
-			// íŠ¸ëœì­ì…˜ ì»¤ë°‹
-			m_MySQLConnector->CommitTransaction();
-		}
-		catch (const std::exception&)
-		{
-			// ì˜¤ë¥˜ ë°œìƒ ì‹œ íŠ¸ëœì­ì…˜ ë¡¤ë°±í•˜ê³  ì˜ˆì™¸ ë°œìƒ
-			m_MySQLConnector->RollbackTransaction();
-			throw std::runtime_error("Failed to process friend accept.");
-		}
-	});
+			try
+			{
+				// Æ®·£Àè¼Ç ½ÃÀÛ
+				m_MySQLConnector->BeginTransaction();
+				// Ä£±¸ °ü°è¸¦ ¾÷µ¥ÀÌÆ®ÇÏ°í, Ä£±¸ ¸ñ·Ï¿¡ Ãß°¡
+				m_MySQLConnector->UpdateFriend(std::to_string(sender->GetId()), std::to_string(user->GetId()), "A");
+				m_MySQLConnector->AddFriendship(std::to_string(sender->GetId()), std::to_string(user->GetId()));
+				// Æ®·£Àè¼Ç Ä¿¹Ô
+				m_MySQLConnector->CommitTransaction();
+			}
+			catch (const std::exception&)
+			{
+				// ¿À·ù ¹ß»ı ½Ã Æ®·£Àè¼Ç ·Ñ¹éÇÏ°í ¿¹¿Ü ¹ß»ı
+				m_MySQLConnector->RollbackTransaction();
+				throw std::runtime_error("Failed to process friend accept.");
+			}
+		});
 }
 
 
@@ -657,23 +657,23 @@ std::future<void> TcpServer::ProcessFriendAccept(std::shared_ptr<UserSession> us
 void TcpServer::HandleFriendReject(std::shared_ptr<UserSession> user, std::shared_ptr<myChatMessage::ChatMessage> msg)
 {
 	try {
-		// ìš”ì²­ ìœ íš¨ì„± ê²€ì‚¬ë¥¼ ë¹„ë™ê¸°ì ìœ¼ë¡œ ì‹¤í–‰
+		// ¿äÃ» À¯È¿¼º °Ë»ç¸¦ ºñµ¿±âÀûÀ¸·Î ½ÇÇà
 		auto validateFuture = ValidateRequest(user, msg);
 		validateFuture.get();
 
-		// ìš”ì²­ì„ ë³´ë‚¸ ì‚¬ìš©ìì˜ ì¡´ì¬ ì—¬ë¶€ë¥¼ ë¹„ë™ê¸°ì ìœ¼ë¡œ í™•ì¸
+		// ¿äÃ»À» º¸³½ »ç¿ëÀÚÀÇ Á¸Àç ¿©ºÎ¸¦ ºñµ¿±âÀûÀ¸·Î È®ÀÎ
 		auto checkUserExistenceFuture = CheckUserExistence(msg->content());
 		auto sender = checkUserExistenceFuture.get();
 
-		// ì¹œêµ¬ ìš”ì²­ ê±°ì ˆ ì‘ì—…ì„ ë¹„ë™ê¸°ì ìœ¼ë¡œ ì‹¤í–‰
+		// Ä£±¸ ¿äÃ» °ÅÀı ÀÛ¾÷À» ºñµ¿±âÀûÀ¸·Î ½ÇÇà
 		auto processFriendRejectFuture = ProcessFriendReject(user, sender);
 		processFriendRejectFuture.get();
 
-		// ê±°ì ˆëœ ì¹œêµ¬ì—ê²Œ ì•Œë¦¼ì„ ë³´ëƒ„
+		// °ÅÀıµÈ Ä£±¸¿¡°Ô ¾Ë¸²À» º¸³¿
 		NotifyRejectUsers(user, sender);
 	}
 	catch (const std::exception& e) {
-		// ì˜ˆì™¸ ë°œìƒ ì‹œ ì—ëŸ¬ ë©”ì‹œì§€ë¥¼ ì „ì†¡
+		// ¿¹¿Ü ¹ß»ı ½Ã ¿¡·¯ ¸Ş½ÃÁö¸¦ Àü¼Û
 		SendErrorMessage(user, e.what());
 	}
 }
@@ -681,40 +681,40 @@ void TcpServer::HandleFriendReject(std::shared_ptr<UserSession> user, std::share
 
 std::future<void> TcpServer::ProcessFriendReject(std::shared_ptr<UserSession> user, std::shared_ptr<UserEntity> sender)
 {
-	return m_ThreadPool.EnqueueJob([ this, user, sender ] ()
-	{
-		try
+	return m_ThreadPool.EnqueueJob([this, user, sender]()
 		{
-			// íŠ¸ëœì­ì…˜ ì‹œì‘
-			m_MySQLConnector->BeginTransaction();
-			// ì¹œêµ¬ ìš”ì²­ì„ ì‚­ì œí•˜ê³ , íŠ¸ëœì­ì…˜ ì»¤ë°‹
-			m_MySQLConnector->DeleteFriendRequest(std::to_string(sender->GetId()), std::to_string(user->GetId()));
-			m_MySQLConnector->CommitTransaction();
-		}
-		catch (const std::exception&)
-		{
-			// ì˜¤ë¥˜ ë°œìƒ ì‹œ íŠ¸ëœì­ì…˜ ë¡¤ë°±í•˜ê³  ì˜ˆì™¸ ë°œìƒ
-			m_MySQLConnector->RollbackTransaction();
-			throw std::runtime_error("Failed to process friend reject.");
-		}
-	});
+			try
+			{
+				// Æ®·£Àè¼Ç ½ÃÀÛ
+				m_MySQLConnector->BeginTransaction();
+				// Ä£±¸ ¿äÃ»À» »èÁ¦ÇÏ°í, Æ®·£Àè¼Ç Ä¿¹Ô
+				m_MySQLConnector->DeleteFriendRequest(std::to_string(sender->GetId()), std::to_string(user->GetId()));
+				m_MySQLConnector->CommitTransaction();
+			}
+			catch (const std::exception&)
+			{
+				// ¿À·ù ¹ß»ı ½Ã Æ®·£Àè¼Ç ·Ñ¹éÇÏ°í ¿¹¿Ü ¹ß»ı
+				m_MySQLConnector->RollbackTransaction();
+				throw std::runtime_error("Failed to process friend reject.");
+			}
+		});
 }
 
 
 void TcpServer::NotifyUsers(std::shared_ptr<UserSession> user, std::shared_ptr<UserEntity> receiveUser) {
-	// ìš”ì²­í•œ ì‚¬ìš©ìì˜ IDë¥¼ ê°€ì ¸ì˜´
+	// ¿äÃ»ÇÑ »ç¿ëÀÚÀÇ ID¸¦ °¡Á®¿È
 	auto requestUserId = user->GetUserEntity()->GetUserId();
-	// ì¹œêµ¬ ìš”ì²­ ë©”ì‹œì§€ ìƒì„±
+	// Ä£±¸ ¿äÃ» ¸Ş½ÃÁö »ı¼º
 	std::string inviteMessage = "Friend Request Received From [" + requestUserId + "]. To accept, /fa " + requestUserId;
 
-	// ìˆ˜ì‹ ìì˜ ì„¸ì…˜ì„ ì°¾ì•„ ë©”ì‹œì§€ë¥¼ ì „ì†¡
+	// ¼ö½ÅÀÚÀÇ ¼¼¼ÇÀ» Ã£¾Æ ¸Ş½ÃÁö¸¦ Àü¼Û
 	auto receiveUserSession = GetUserByUserId(receiveUser->GetUserId());
 	if (receiveUserSession)
 	{
 		SendServerMessage(receiveUserSession, inviteMessage);
 	}
 
-	// ìš”ì²­ ì‚¬ìš©ìì—ê²Œ ì„±ê³µ ë©”ì‹œì§€ ì „ì†¡
+	// ¿äÃ» »ç¿ëÀÚ¿¡°Ô ¼º°ø ¸Ş½ÃÁö Àü¼Û
 	SendServerMessage(user, "Success friend request message!");
 }
 
@@ -722,14 +722,14 @@ void TcpServer::NotifyUsers(std::shared_ptr<UserSession> user, std::shared_ptr<U
 
 void TcpServer::NotifyAcceptUsers(std::shared_ptr<UserSession> user, std::shared_ptr<UserEntity> sender)
 {
-	// ìš”ì²­ì„ ë³´ë‚¸ ì‚¬ìš©ìì˜ ì„¸ì…˜ì„ ì°¾ì•„ ì•Œë¦¼ ë©”ì‹œì§€ë¥¼ ì „ì†¡
+	// ¿äÃ»À» º¸³½ »ç¿ëÀÚÀÇ ¼¼¼ÇÀ» Ã£¾Æ ¾Ë¸² ¸Ş½ÃÁö¸¦ Àü¼Û
 	auto senderUserSession = GetUserByUserId(sender->GetUserId());
 	if (senderUserSession)
 	{
 		SendServerMessage(senderUserSession, "Your friend request to [" + user->GetUserEntity()->GetUserId() + "] has been accepted.");
 	}
 
-	// ìˆ˜ë½ëœ ì‚¬ìš©ìì—ê²Œ ì„±ê³µ ë©”ì‹œì§€ë¥¼ ì „ì†¡
+	// ¼ö¶ôµÈ »ç¿ëÀÚ¿¡°Ô ¼º°ø ¸Ş½ÃÁö¸¦ Àü¼Û
 	SendServerMessage(user, "You have accepted the friend request from [" + sender->GetUserId() + "].");
 }
 
@@ -737,14 +737,14 @@ void TcpServer::NotifyAcceptUsers(std::shared_ptr<UserSession> user, std::shared
 
 void TcpServer::NotifyRejectUsers(std::shared_ptr<UserSession> user, std::shared_ptr<UserEntity> sender)
 {
-	// ìš”ì²­ì„ ë³´ë‚¸ ì‚¬ìš©ìì˜ ì„¸ì…˜ì„ ì°¾ì•„ ì•Œë¦¼ ë©”ì‹œì§€ë¥¼ ì „ì†¡
+	// ¿äÃ»À» º¸³½ »ç¿ëÀÚÀÇ ¼¼¼ÇÀ» Ã£¾Æ ¾Ë¸² ¸Ş½ÃÁö¸¦ Àü¼Û
 	auto senderUserSession = GetUserByUserId(sender->GetUserId());
 	if (senderUserSession)
 	{
 		SendServerMessage(senderUserSession, "Your friend request to [" + user->GetUserEntity()->GetUserId() + "] has been rejected.");
 	}
 
-	// ê±°ì ˆëœ ì‚¬ìš©ìì—ê²Œ ì„±ê³µ ë©”ì‹œì§€ë¥¼ ì „ì†¡
+	// °ÅÀıµÈ »ç¿ëÀÚ¿¡°Ô ¼º°ø ¸Ş½ÃÁö¸¦ Àü¼Û
 	SendServerMessage(user, "You have rejected the friend request from [" + sender->GetUserId() + "].");
 }
 
@@ -752,9 +752,9 @@ void TcpServer::NotifyRejectUsers(std::shared_ptr<UserSession> user, std::shared
 
 void TcpServer::SendAllUsers(std::shared_ptr<myChatMessage::ChatMessage> msg)
 {
-	bool hasDisconnectedClient = false; // ì—°ê²°ì´ ëŠê¸´ í´ë¼ì´ì–¸íŠ¸ ì—¬ë¶€ë¥¼ í‘œì‹œ
+	bool hasDisconnectedClient = false; // ¿¬°áÀÌ ²÷±ä Å¬¶óÀÌ¾ğÆ® ¿©ºÎ¸¦ Ç¥½Ã
 
-	// ëª¨ë“  ì‚¬ìš©ìì—ê²Œ ë©”ì‹œì§€ë¥¼ ì „ì†¡
+	// ¸ğµç »ç¿ëÀÚ¿¡°Ô ¸Ş½ÃÁö¸¦ Àü¼Û
 	for (auto user : m_Users)
 	{
 		if (user && user->IsConnected())
@@ -767,11 +767,11 @@ void TcpServer::SendAllUsers(std::shared_ptr<myChatMessage::ChatMessage> msg)
 		}
 	}
 
-	// ì—°ê²°ì´ ëŠê¸´ í´ë¼ì´ì–¸íŠ¸ë¥¼ ë²¡í„°ì—ì„œ ì œê±°
+	// ¿¬°áÀÌ ²÷±ä Å¬¶óÀÌ¾ğÆ®¸¦ º¤ÅÍ¿¡¼­ Á¦°Å
 	if (hasDisconnectedClient)
 	{
 		m_Users.erase(std::remove_if(m_Users.begin(), m_Users.end(),
-			[] (const std::shared_ptr<UserSession>& u)
+			[](const std::shared_ptr<UserSession>& u)
 			{
 				return !u || !u->IsConnected();
 			}), m_Users.end());
@@ -781,14 +781,14 @@ void TcpServer::SendAllUsers(std::shared_ptr<myChatMessage::ChatMessage> msg)
 
 void TcpServer::SendWhisperMessage(std::shared_ptr<UserSession>& sender, const std::string& receiver, std::shared_ptr<myChatMessage::ChatMessage> msg)
 {
-	// ìê¸° ìì‹ ì—ê²ŒëŠ” ê·“ì†ë§ì„ ë³´ë‚¼ ìˆ˜ ì—†ìŒ
+	// ÀÚ±â ÀÚ½Å¿¡°Ô´Â ±Ó¼Ó¸»À» º¸³¾ ¼ö ¾øÀ½
 	if (sender->GetUserEntity()->GetUserId() == receiver)
 	{
 		SendErrorMessage(sender, "You cannot whisper to yourself.");
 		return;
 	}
 
-	// ìˆ˜ì‹ ìê°€ ì¡´ì¬í•˜ê³  ì—°ê²°ë˜ì–´ ìˆëŠ” ê²½ìš° ë©”ì‹œì§€ë¥¼ ì „ì†¡
+	// ¼ö½ÅÀÚ°¡ Á¸ÀçÇÏ°í ¿¬°áµÇ¾î ÀÖ´Â °æ¿ì ¸Ş½ÃÁö¸¦ Àü¼Û
 	for (auto& user : m_Users)
 	{
 		if (user->GetUserEntity()->GetUserId() == receiver && user->IsConnected())
@@ -799,14 +799,14 @@ void TcpServer::SendWhisperMessage(std::shared_ptr<UserSession>& sender, const s
 		}
 	}
 
-	// ìˆ˜ì‹ ìë¥¼ ì°¾ì§€ ëª»í•œ ê²½ìš° ì—ëŸ¬ ë©”ì‹œì§€ ì „ì†¡
+	// ¼ö½ÅÀÚ¸¦ Ã£Áö ¸øÇÑ °æ¿ì ¿¡·¯ ¸Ş½ÃÁö Àü¼Û
 	SendErrorMessage(sender, "Receiver not found.");
 }
 
 
 void TcpServer::SendPartyMessage(std::shared_ptr<Party>& party, std::shared_ptr<myChatMessage::ChatMessage> msg)
 {
-	// íŒŒí‹°ê°€ ìœ íš¨í•œ ê²½ìš° íŒŒí‹° ë©¤ë²„ì—ê²Œ ë©”ì‹œì§€ë¥¼ ì „ì†¡
+	// ÆÄÆ¼°¡ À¯È¿ÇÑ °æ¿ì ÆÄÆ¼ ¸â¹ö¿¡°Ô ¸Ş½ÃÁö¸¦ Àü¼Û
 	if (party != nullptr)
 	{
 		auto partyMembers = party->GetMembers();
@@ -825,43 +825,43 @@ void TcpServer::SendPartyMessage(std::shared_ptr<Party>& party, std::shared_ptr<
 
 void TcpServer::SendErrorMessage(std::shared_ptr<UserSession>& user, const std::string& errorMessage)
 {
-	// ì—ëŸ¬ ë©”ì‹œì§€ë¥¼ ì„œë²„ ì½˜ì†”ì— ì¶œë ¥
+	// ¿¡·¯ ¸Ş½ÃÁö¸¦ ¼­¹ö ÄÜ¼Ö¿¡ Ãâ·Â
 	std::cout << "[SERVER] " << user->GetUserEntity()->GetUserId() << " : " << errorMessage << "\n";
-	// í´ë¼ì´ì–¸íŠ¸ì—ê²Œ ì „ì†¡í•  ì—ëŸ¬ ë©”ì‹œì§€ ìƒì„±
+	// Å¬¶óÀÌ¾ğÆ®¿¡°Ô Àü¼ÛÇÒ ¿¡·¯ ¸Ş½ÃÁö »ı¼º
 	auto errMsg = std::make_shared<myChatMessage::ChatMessage>();
 	errMsg->set_messagetype(myChatMessage::ChatMessageType::ERROR_MESSAGE);
 	errMsg->set_content(errorMessage);
 
-	// ì‚¬ìš©ìì—ê²Œ ì—ëŸ¬ ë©”ì‹œì§€ ì „ì†¡
+	// »ç¿ëÀÚ¿¡°Ô ¿¡·¯ ¸Ş½ÃÁö Àü¼Û
 	user->Send(errMsg);
 }
 
 void TcpServer::SendServerMessage(std::shared_ptr<UserSession>& user, const std::string& serverMessage)
 {
-	// ì„œë²„ ë©”ì‹œì§€ë¥¼ ì„œë²„ ì½˜ì†”ì— ì¶œë ¥
+	// ¼­¹ö ¸Ş½ÃÁö¸¦ ¼­¹ö ÄÜ¼Ö¿¡ Ãâ·Â
 	std::cout << "[SERVER] " << user->GetUserEntity()->GetUserId() << " : " << serverMessage << "\n";
 
-	// ì„œë²„ ë©”ì‹œì§€ ìƒì„±
+	// ¼­¹ö ¸Ş½ÃÁö »ı¼º
 	auto serverMsg = std::make_shared<myChatMessage::ChatMessage>();
 	serverMsg->set_messagetype(myChatMessage::ChatMessageType::SERVER_MESSAGE);
 	serverMsg->set_content(serverMessage);
 
-	// ì‚¬ìš©ìì—ê²Œ ì„œë²„ ë©”ì‹œì§€ ì „ì†¡
+	// »ç¿ëÀÚ¿¡°Ô ¼­¹ö ¸Ş½ÃÁö Àü¼Û
 	user->Send(serverMsg);
 }
 
 
 void TcpServer::SendLoginMessage(std::shared_ptr<UserSession>& user)
 {
-	// ë¡œê·¸ì¸ ì„±ê³µ ë©”ì‹œì§€ë¥¼ ì„œë²„ ì½˜ì†”ì— ì¶œë ¥
+	// ·Î±×ÀÎ ¼º°ø ¸Ş½ÃÁö¸¦ ¼­¹ö ÄÜ¼Ö¿¡ Ãâ·Â
 	std::cout << "[SERVER] " << user->GetUserEntity()->GetUserId() << " : Login Success!!" << "\n";
 
-	// ë¡œê·¸ì¸ ì„±ê³µ ë©”ì‹œì§€ ìƒì„±
+	// ·Î±×ÀÎ ¼º°ø ¸Ş½ÃÁö »ı¼º
 	auto serverMsg = std::make_shared<myChatMessage::ChatMessage>();
 	serverMsg->set_messagetype(myChatMessage::ChatMessageType::LOGIN_MESSAGE);
 	serverMsg->set_content("Login Success!!");
 
-	// ì‚¬ìš©ìì—ê²Œ ë¡œê·¸ì¸ ì„±ê³µ ë©”ì‹œì§€ ì „ì†¡
+	// »ç¿ëÀÚ¿¡°Ô ·Î±×ÀÎ ¼º°ø ¸Ş½ÃÁö Àü¼Û
 	user->Send(serverMsg);
 }
 
@@ -870,9 +870,9 @@ uint32_t TcpServer::StringToUint32(const std::string& str)
 {
 	try
 	{
-		// ë¬¸ìì—´ì„ ìˆ«ìë¡œ ë³€í™˜
+		// ¹®ÀÚ¿­À» ¼ıÀÚ·Î º¯È¯
 		unsigned long result = std::stoul(str);
-		// ë³€í™˜ëœ ìˆ«ìê°€ uint32_tì˜ ë²”ìœ„ë¥¼ ì´ˆê³¼í•˜ë©´ ì˜ˆì™¸ ì²˜ë¦¬
+		// º¯È¯µÈ ¼ıÀÚ°¡ uint32_tÀÇ ¹üÀ§¸¦ ÃÊ°úÇÏ¸é ¿¹¿Ü Ã³¸®
 		if (result > std::numeric_limits<uint32_t>::max())
 		{
 			throw std::out_of_range("Converted number is out of range for uint32_t");
@@ -894,7 +894,7 @@ uint32_t TcpServer::StringToUint32(const std::string& str)
 
 std::shared_ptr<UserSession> TcpServer::GetUserById(uint32_t userId)
 {
-	// ì‚¬ìš©ì IDì— í•´ë‹¹í•˜ëŠ” ì„¸ì…˜ì„ ì°¾ì•„ ë°˜í™˜
+	// »ç¿ëÀÚ ID¿¡ ÇØ´çÇÏ´Â ¼¼¼ÇÀ» Ã£¾Æ ¹İÈ¯
 	for (auto user : m_Users)
 	{
 		if (user->GetId() == userId)
@@ -909,7 +909,7 @@ std::shared_ptr<UserSession> TcpServer::GetUserById(uint32_t userId)
 
 std::shared_ptr<UserSession> TcpServer::GetUserByUserId(const std::string& userId)
 {
-	// ì‚¬ìš©ì IDì— í•´ë‹¹í•˜ëŠ” ì„¸ì…˜ì„ ì°¾ì•„ ë°˜í™˜
+	// »ç¿ëÀÚ ID¿¡ ÇØ´çÇÏ´Â ¼¼¼ÇÀ» Ã£¾Æ ¹İÈ¯
 	for (auto user : m_Users)
 	{
 		if (user->GetUserEntity()->GetUserId() == userId)

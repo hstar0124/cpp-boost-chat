@@ -18,7 +18,7 @@ UserSession::~UserSession()
 {
 	Close();
 	m_PingTimer.cancel();
-	
+
 	std::cout << "[SERVER] User {" << m_Id << "} is being destroyed. Cleaning up resources." << std::endl;
 	m_Socket.close();
 }
@@ -82,142 +82,142 @@ void UserSession::SetUserEntity(std::shared_ptr<UserEntity> userEntity)
 
 std::shared_ptr<myChatMessage::ChatMessage> UserSession::GetMessageInUserQueue()
 {
-	if (m_OutputQueue->empty() && !SwapQueues()) // ì¶œë ¥ íê°€ ë¹„ì–´ ìˆê³ , ì…ë ¥ íì™€ êµì²´í•  ìˆ˜ ì—†ëŠ” ê²½ìš°
+	if (m_OutputQueue->empty() && !SwapQueues()) // Ãâ·Â Å¥°¡ ºñ¾î ÀÖ°í, ÀÔ·Â Å¥¿Í ±³Ã¼ÇÒ ¼ö ¾ø´Â °æ¿ì
 	{
-		return nullptr; // ë©”ì‹œì§€ ì—†ìŒ
+		return nullptr; // ¸Ş½ÃÁö ¾øÀ½
 	}
 
-	auto msg = m_OutputQueue->front(); // ì¶œë ¥ íì˜ ë§¨ ì• ë©”ì‹œì§€ ê°€ì ¸ì˜¤ê¸°
+	auto msg = m_OutputQueue->front(); // Ãâ·Â Å¥ÀÇ ¸Ç ¾Õ ¸Ş½ÃÁö °¡Á®¿À±â
 	if (!msg)
 	{
-		return nullptr; // ë©”ì‹œì§€ ì—†ìŒ
+		return nullptr; // ¸Ş½ÃÁö ¾øÀ½
 	}
 
-	m_OutputQueue->pop(); // íì—ì„œ ë©”ì‹œì§€ ì œê±°
-	return msg; // ë©”ì‹œì§€ ë°˜í™˜
+	m_OutputQueue->pop(); // Å¥¿¡¼­ ¸Ş½ÃÁö Á¦°Å
+	return msg; // ¸Ş½ÃÁö ¹İÈ¯
 }
 
 boost::asio::ip::tcp::socket& UserSession::GetSocket()
 {
-	return m_Socket; // ì†Œì¼“ ê°ì²´ ë°˜í™˜
+	return m_Socket; // ¼ÒÄÏ °´Ã¼ ¹İÈ¯
 }
 
 bool UserSession::SwapQueues()
 {
-	std::lock_guard<std::mutex> lock(m_QueueMutex); // í ë®¤í…ìŠ¤ë¡œ ì ê¸ˆ
-	if (m_OutputQueue->empty() && !m_InputQueue->empty()) // ì¶œë ¥ íê°€ ë¹„ì–´ ìˆê³ , ì…ë ¥ íê°€ ë¹„ì–´ ìˆì§€ ì•Šì€ ê²½ìš°
+	std::lock_guard<std::mutex> lock(m_QueueMutex); // Å¥ ¹ÂÅØ½º·Î Àá±İ
+	if (m_OutputQueue->empty() && !m_InputQueue->empty()) // Ãâ·Â Å¥°¡ ºñ¾î ÀÖ°í, ÀÔ·Â Å¥°¡ ºñ¾î ÀÖÁö ¾ÊÀº °æ¿ì
 	{
-		std::swap(m_InputQueue, m_OutputQueue); // ì…ë ¥ íì™€ ì¶œë ¥ í êµì²´
-		return true; // êµì²´ ì„±ê³µ
+		std::swap(m_InputQueue, m_OutputQueue); // ÀÔ·Â Å¥¿Í Ãâ·Â Å¥ ±³Ã¼
+		return true; // ±³Ã¼ ¼º°ø
 	}
 
-	return false; // êµì²´ ì‹¤íŒ¨
+	return false; // ±³Ã¼ ½ÇÆĞ
 }
 
 void UserSession::StartPingTimer()
 {
-	m_PingTimer.expires_after(std::chrono::seconds(5)); // 5ì´ˆ í›„ì— ping íƒ€ì´ë¨¸ ë§Œë£Œ
-	m_PingTimer.async_wait([ this ] (const boost::system::error_code& ec)
-	{
-		if (!ec)
+	m_PingTimer.expires_after(std::chrono::seconds(5)); // 5ÃÊ ÈÄ¿¡ ping Å¸ÀÌ¸Ó ¸¸·á
+	m_PingTimer.async_wait([this](const boost::system::error_code& ec)
 		{
-			if (IsConnected()) // ì—°ê²° ìƒíƒœ í™•ì¸
+			if (!ec)
 			{
-				SendPing(); // ping ë©”ì‹œì§€ ì „ì†¡
-				StartPingTimer(); // íƒ€ì´ë¨¸ ì¬ì‹œì‘
+				if (IsConnected()) // ¿¬°á »óÅÂ È®ÀÎ
+				{
+					SendPing(); // ping ¸Ş½ÃÁö Àü¼Û
+					StartPingTimer(); // Å¸ÀÌ¸Ó Àç½ÃÀÛ
+				}
 			}
-		}
-		else
-		{
-			HandleError("[SERVER] DisConnected Client"); // ì˜¤ë¥˜ ì²˜ë¦¬: í´ë¼ì´ì–¸íŠ¸ ì—°ê²° ëŠê¹€
-		}
-	});
+			else
+			{
+				HandleError("[SERVER] DisConnected Client"); // ¿À·ù Ã³¸®: Å¬¶óÀÌ¾ğÆ® ¿¬°á ²÷±è
+			}
+		});
 }
 
 void UserSession::SendPing()
 {
-	auto pingMsg = std::make_shared<myChatMessage::ChatMessage>(); // ping ë©”ì‹œì§€ ìƒì„±
-	pingMsg->set_messagetype(myChatMessage::ChatMessageType::SERVER_PING); // ë©”ì‹œì§€ íƒ€ì… ì„¤ì •
-	pingMsg->set_content(GetCurrentTimeMilliseconds()); // í˜„ì¬ ì‹œê°„ ë°€ë¦¬ì´ˆë¡œ ì„¤ì •
-	Send(pingMsg); // ë©”ì‹œì§€ ì „ì†¡
+	auto pingMsg = std::make_shared<myChatMessage::ChatMessage>(); // ping ¸Ş½ÃÁö »ı¼º
+	pingMsg->set_messagetype(myChatMessage::ChatMessageType::SERVER_PING); // ¸Ş½ÃÁö Å¸ÀÔ ¼³Á¤
+	pingMsg->set_content(GetCurrentTimeMilliseconds()); // ÇöÀç ½Ã°£ ¹Ğ¸®ÃÊ·Î ¼³Á¤
+	Send(pingMsg); // ¸Ş½ÃÁö Àü¼Û
 }
 
 std::string UserSession::GetCurrentTimeMilliseconds()
 {
-	auto now = std::chrono::system_clock::now(); // í˜„ì¬ ì‹œê°„ ê°€ì ¸ì˜¤ê¸°
-	auto now_ms = std::chrono::time_point_cast<std::chrono::milliseconds>(now); // ë°€ë¦¬ì´ˆ ë‹¨ìœ„ë¡œ ë³€í™˜
-	return std::to_string(now_ms.time_since_epoch().count()); // í˜„ì¬ ì‹œê°„ì„ ë¬¸ìì—´ë¡œ ë°˜í™˜
+	auto now = std::chrono::system_clock::now(); // ÇöÀç ½Ã°£ °¡Á®¿À±â
+	auto now_ms = std::chrono::time_point_cast<std::chrono::milliseconds>(now); // ¹Ğ¸®ÃÊ ´ÜÀ§·Î º¯È¯
+	return std::to_string(now_ms.time_since_epoch().count()); // ÇöÀç ½Ã°£À» ¹®ÀÚ¿­·Î ¹İÈ¯
 }
 
 void UserSession::Send(std::shared_ptr<myChatMessage::ChatMessage> msg)
 {
 	boost::asio::post(m_IoContext,
-	[ this, msg ] ()
-	{
-		AsyncWrite(msg); // ë¹„ë™ê¸°ë¡œ ë©”ì‹œì§€ ì“°ê¸° í˜¸ì¶œ
-	});
+		[this, msg]()
+		{
+			AsyncWrite(msg); // ºñµ¿±â·Î ¸Ş½ÃÁö ¾²±â È£Ãâ
+		});
 }
 
 void UserSession::AsyncWrite(std::shared_ptr<myChatMessage::ChatMessage> msg)
 {
-	MessageConverter<myChatMessage::ChatMessage>::SerializeMessage(msg, m_Writebuf); // ë©”ì‹œì§€ ì§ë ¬í™”
-	MessageConverter<myChatMessage::ChatMessage>::SetSizeToBufferHeader(m_Writebuf); // ë²„í¼ í—¤ë”ì— ì‚¬ì´ì¦ˆ ì„¤ì •
+	MessageConverter<myChatMessage::ChatMessage>::SerializeMessage(msg, m_Writebuf); // ¸Ş½ÃÁö Á÷·ÄÈ­
+	MessageConverter<myChatMessage::ChatMessage>::SetSizeToBufferHeader(m_Writebuf); // ¹öÆÛ Çì´õ¿¡ »çÀÌÁî ¼³Á¤
 
 	boost::asio::async_write(m_Socket, boost::asio::buffer(m_Writebuf.data(), m_Writebuf.size()),
-		[ this ] (const boost::system::error_code& err, const size_t transferred)
+		[this](const boost::system::error_code& err, const size_t transferred)
 		{
 			if (err)
 			{
-				HandleError("[SERVER] Write Error!!"); // ì˜¤ë¥˜ ì²˜ë¦¬: ì“°ê¸° ì˜¤ë¥˜
+				HandleError("[SERVER] Write Error!!"); // ¿À·ù Ã³¸®: ¾²±â ¿À·ù
 			}
 		});
 }
 
 void UserSession::HandleError(const std::string& errorMessage)
 {
-	std::cout << errorMessage << "\n"; // ì˜¤ë¥˜ ë©”ì‹œì§€ ì¶œë ¥
-	Close(); // ì„¸ì…˜ ì¢…ë£Œ
+	std::cout << errorMessage << "\n"; // ¿À·ù ¸Ş½ÃÁö Ãâ·Â
+	Close(); // ¼¼¼Ç Á¾·á
 }
 
 void UserSession::ReadHeader()
 {
-	m_Readbuf.clear(); // ë²„í¼ ì´ˆê¸°í™”
-	m_Readbuf.resize(HEADER_SIZE); // í—¤ë” í¬ê¸°ë¡œ ë¦¬ì‚¬ì´ì¦ˆ
+	m_Readbuf.clear(); // ¹öÆÛ ÃÊ±âÈ­
+	m_Readbuf.resize(HEADER_SIZE); // Çì´õ Å©±â·Î ¸®»çÀÌÁî
 
 	boost::asio::async_read(m_Socket,
 		boost::asio::buffer(m_Readbuf),
-		[ this ] (const boost::system::error_code& err, const size_t size) {
+		[this](const boost::system::error_code& err, const size_t size) {
 			if (!err) {
 				size_t bodySize = 0;
 				for (int i = 0; i < 4; ++i) {
-					bodySize += (m_Readbuf[3 - i] << (8 * i)); // ë°”ë”” ì‚¬ì´ì¦ˆ ê³„ì‚°
+					bodySize += (m_Readbuf[3 - i] << (8 * i)); // ¹Ùµğ »çÀÌÁî °è»ê
 				}
-				ReadBody(bodySize); // ë°”ë”” ì½ê¸° í˜¸ì¶œ
+				ReadBody(bodySize); // ¹Ùµğ ÀĞ±â È£Ãâ
 			}
 			else {
-				HandleError("[SERVER] Read Header Error!!\n" + err.message()); // ì˜¤ë¥˜ ì²˜ë¦¬: í—¤ë” ì½ê¸° ì˜¤ë¥˜
+				HandleError("[SERVER] Read Header Error!!\n" + err.message()); // ¿À·ù Ã³¸®: Çì´õ ÀĞ±â ¿À·ù
 			}
 		});
 }
 
 void UserSession::ReadBody(size_t bodySize)
 {
-	m_Readbuf.clear(); // ë²„í¼ ì´ˆê¸°í™”
-	m_Readbuf.resize(bodySize); // ë°”ë”” í¬ê¸°ë¡œ ë¦¬ì‚¬ì´ì¦ˆ
-	std::cout << "Server Body Size : " << bodySize << "\n"; // ì„œë²„ ë°”ë”” ì‚¬ì´ì¦ˆ ì¶œë ¥
+	m_Readbuf.clear(); // ¹öÆÛ ÃÊ±âÈ­
+	m_Readbuf.resize(bodySize); // ¹Ùµğ Å©±â·Î ¸®»çÀÌÁî
+
 	boost::asio::async_read(m_Socket,
 		boost::asio::buffer(m_Readbuf),
-		[ this ] (std::error_code ec, std::size_t size) {
+		[this](std::error_code ec, std::size_t size) {
 			if (!ec) {
-				std::shared_ptr<myChatMessage::ChatMessage> chatMessage = std::make_shared<myChatMessage::ChatMessage>(); // ì±„íŒ… ë©”ì‹œì§€ ìƒì„±
-				if (chatMessage->ParseFromArray(m_Readbuf.data(), static_cast<int>(size))) { // ë°°ì—´ì—ì„œ íŒŒì‹±
-					chatMessage->set_sender(m_UserEntity->GetUserId()); // ë°œì‹ ì ì„¤ì •
-					m_InputQueue->push(chatMessage); // ì…ë ¥ íì— ì‚½ì…
+				std::shared_ptr<myChatMessage::ChatMessage> chatMessage = std::make_shared<myChatMessage::ChatMessage>(); // Ã¤ÆÃ ¸Ş½ÃÁö »ı¼º
+				if (chatMessage->ParseFromArray(m_Readbuf.data(), static_cast<int>(size))) { // ¹è¿­¿¡¼­ ÆÄ½Ì
+					chatMessage->set_sender(m_UserEntity->GetUserId()); // ¹ß½ÅÀÚ ¼³Á¤
+					m_InputQueue->push(chatMessage); // ÀÔ·Â Å¥¿¡ »ğÀÔ
 				}
-				ReadHeader(); // í—¤ë” ì½ê¸° í˜¸ì¶œ
+				ReadHeader(); // Çì´õ ÀĞ±â È£Ãâ
 			}
 			else {
-				HandleError("[SERVER] Read Body Error!!"); // ì˜¤ë¥˜ ì²˜ë¦¬: ë°”ë”” ì½ê¸° ì˜¤ë¥˜
+				HandleError("[SERVER] Read Body Error!!"); // ¿À·ù Ã³¸®: ¹Ùµğ ÀĞ±â ¿À·ù
 			}
 		});
 }

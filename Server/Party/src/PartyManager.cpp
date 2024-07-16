@@ -7,7 +7,7 @@ PartyManager::PartyManager()
 
 PartyManager::~PartyManager()
 {
-    m_MapParties.clear(); // ëª¨ë“  íŒŒí‹° ë§µ ì´ˆê¸°í™”
+    m_MapParties.clear(); // ¸ğµç ÆÄÆ¼ ¸Ê ÃÊ±âÈ­
 }
 
 std::shared_ptr<Party> PartyManager::CreateParty(std::shared_ptr<UserSession> user, const std::string& partyName)
@@ -18,9 +18,9 @@ std::shared_ptr<Party> PartyManager::CreateParty(std::shared_ptr<UserSession> us
         return nullptr;
     }
 
-    auto party = std::make_shared<Party>(m_PartyIdCounter++, user->GetId(), partyName); // íŒŒí‹° ìƒì„±
-    party->AddMember(user->GetId());                                                    // íŒŒí‹° ìƒì„±ìë¥¼ íŒŒí‹° ë©¤ë²„ë¡œ ì¶”ê°€
-    m_MapParties[party->GetId()] = party;                                               // íŒŒí‹°ë¥¼ ë§µì— ì¶”ê°€
+    auto party = std::make_shared<Party>(m_PartyIdCounter++, user->GetId(), partyName); // ÆÄÆ¼ »ı¼º
+    party->AddMember(user->GetId());                                                    // ÆÄÆ¼ »ı¼ºÀÚ¸¦ ÆÄÆ¼ ¸â¹ö·Î Ãß°¡
+    m_MapParties[party->GetId()] = party;                                               // ÆÄÆ¼¸¦ ¸Ê¿¡ Ãß°¡
 
     std::cout << "Party Count : " << m_MapParties.size() << "\n";
     return party;
@@ -35,13 +35,13 @@ std::shared_ptr<Party> PartyManager::JoinParty(std::shared_ptr<UserSession> user
         return nullptr;
     }
 
-    party->AddMember(user->GetId()); // íŒŒí‹°ì— ì‚¬ìš©ì ì¶”ê°€
+    party->AddMember(user->GetId()); // ÆÄÆ¼¿¡ »ç¿ëÀÚ Ãß°¡
     return party;
 }
 
 uint32_t PartyManager::DeleteParty(std::shared_ptr<UserSession> user, const std::string& partyName)
 {
-    // íŒŒí‹° ì´ë¦„ìœ¼ë¡œ íŒŒí‹°ë¥¼ ì°¾ìŒ
+    // ÆÄÆ¼ ÀÌ¸§À¸·Î ÆÄÆ¼¸¦ Ã£À½
     auto party = FindPartyByName(partyName);
     if (!party)
     {
@@ -51,7 +51,7 @@ uint32_t PartyManager::DeleteParty(std::shared_ptr<UserSession> user, const std:
 
     auto partyId = party->GetId();
 
-    // íŒŒí‹° ìƒì„±ìì¸ ê²½ìš°ì—ë§Œ íŒŒí‹° ì‚­ì œ ê°€ëŠ¥
+    // ÆÄÆ¼ »ı¼ºÀÚÀÎ °æ¿ì¿¡¸¸ ÆÄÆ¼ »èÁ¦ °¡´É
     if (party->GetPartyCreator() == user->GetId())
     {
         std::cout << "Attempting to delete party with ID: " << partyId << std::endl;
@@ -86,14 +86,14 @@ bool PartyManager::LeaveParty(std::shared_ptr<UserSession> user, const std::stri
         return false;
     }
 
-    // íŒŒí‹° ìƒì„±ìëŠ” íŒŒí‹°ë¥¼ ë– ë‚  ìˆ˜ ì—†ìŒ
+    // ÆÄÆ¼ »ı¼ºÀÚ´Â ÆÄÆ¼¸¦ ¶°³¯ ¼ö ¾øÀ½
     if (party->GetPartyCreator() == user->GetId())
     {
         std::cout << "[SERVER] Sorry, as the party leader, you cannot leave the party. Deletion is the only option." << std::endl;
         return false;
     }
 
-    party->RemoveMember(user->GetId()); // íŒŒí‹° ë©¤ë²„ì—ì„œ ì‚¬ìš©ì ì œê±°
+    party->RemoveMember(user->GetId()); // ÆÄÆ¼ ¸â¹ö¿¡¼­ »ç¿ëÀÚ Á¦°Å
     return true;
 }
 
