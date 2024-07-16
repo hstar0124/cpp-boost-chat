@@ -17,12 +17,12 @@ void HttpClient::Connect()
     try
     {
         std::cout << "Http Client Connect! " << "\n";
-        auto const results = m_Resolver.resolve(m_Host, m_Port); // í˜¸ìŠ¤íŠ¸ì™€ í¬íŠ¸ë¥¼ í•´ê²°í•©ë‹ˆë‹¤.
-        boost::asio::connect(m_Socket, results.begin(), results.end()); // ì†Œì¼“ì„ í˜¸ìŠ¤íŠ¸ì— ì—°ê²°í•©ë‹ˆë‹¤.
+        auto const results = m_Resolver.resolve(m_Host, m_Port); // È£½ºÆ®¿Í Æ÷Æ®¸¦ ÇØ°áÇÕ´Ï´Ù.
+        boost::asio::connect(m_Socket, results.begin(), results.end()); // ¼ÒÄÏÀ» È£½ºÆ®¿¡ ¿¬°áÇÕ´Ï´Ù.
     }
     catch (const std::exception& ex)
     {
-        std::cerr << "Connection failed: " << ex.what() << std::endl; // ì—°ê²° ì‹¤íŒ¨ ì‹œ ì˜ˆì™¸ ë©”ì‹œì§€ë¥¼ ì¶œë ¥í•©ë‹ˆë‹¤.
+        std::cerr << "Connection failed: " << ex.what() << std::endl; // ¿¬°á ½ÇÆĞ ½Ã ¿¹¿Ü ¸Ş½ÃÁö¸¦ Ãâ·ÂÇÕ´Ï´Ù.
         exit(1);
     }
 }
@@ -30,68 +30,68 @@ void HttpClient::Connect()
 void HttpClient::Shutdown()
 {
     boost::beast::error_code ec;
-    m_Socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both, ec); // ì†Œì¼“ì„ ì¢…ë£Œí•©ë‹ˆë‹¤.
+    m_Socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both, ec); // ¼ÒÄÏÀ» Á¾·áÇÕ´Ï´Ù.
 }
 
 UserResponse HttpClient::Post(const std::string& target, const google::protobuf::Message& message)
 {
-    Connect(); // ì—°ê²°ì„ ì‹œë„í•©ë‹ˆë‹¤.
+    Connect(); // ¿¬°áÀ» ½ÃµµÇÕ´Ï´Ù.
 
-    std::cout << "target : " << target << "\n"; // ëª©í‘œ URLì„ ì¶œë ¥í•©ë‹ˆë‹¤.
+    std::cout << "target : " << target << "\n"; // ¸ñÇ¥ URLÀ» Ãâ·ÂÇÕ´Ï´Ù.
     std::string body;
-    if (!message.SerializeToString(&body)) // ë©”ì‹œì§€ë¥¼ ì§ë ¬í™”í•˜ì—¬ ë°”ë””ë¡œ ì„¤ì •í•©ë‹ˆë‹¤.
+    if (!message.SerializeToString(&body)) // ¸Ş½ÃÁö¸¦ Á÷·ÄÈ­ÇÏ¿© ¹Ùµğ·Î ¼³Á¤ÇÕ´Ï´Ù.
     {
-        throw std::runtime_error("Failed to serialize message."); // ì§ë ¬í™” ì‹¤íŒ¨ ì‹œ ì˜ˆì™¸ë¥¼ ë˜ì§‘ë‹ˆë‹¤.
+        throw std::runtime_error("Failed to serialize message."); // Á÷·ÄÈ­ ½ÇÆĞ ½Ã ¿¹¿Ü¸¦ ´øÁı´Ï´Ù.
     }
 
     boost::beast::http::request<boost::beast::http::string_body> req{ boost::beast::http::verb::post, target, 11 };
 
-    req.set(boost::beast::http::field::host, m_Host); // ìš”ì²­ í—¤ë”ì— í˜¸ìŠ¤íŠ¸ ì •ë³´ë¥¼ ì„¤ì •í•©ë‹ˆë‹¤.
-    req.set(boost::beast::http::field::user_agent, BOOST_BEAST_VERSION_STRING); // ì‚¬ìš©ì ì—ì´ì „íŠ¸ ì •ë³´ë¥¼ ì„¤ì •í•©ë‹ˆë‹¤.
-    req.set(boost::beast::http::field::content_type, "application/x-protobuf"); // ì»¨í…ì¸  íƒ€ì…ì„ ì„¤ì •í•©ë‹ˆë‹¤.
+    req.set(boost::beast::http::field::host, m_Host); // ¿äÃ» Çì´õ¿¡ È£½ºÆ® Á¤º¸¸¦ ¼³Á¤ÇÕ´Ï´Ù.
+    req.set(boost::beast::http::field::user_agent, BOOST_BEAST_VERSION_STRING); // »ç¿ëÀÚ ¿¡ÀÌÀüÆ® Á¤º¸¸¦ ¼³Á¤ÇÕ´Ï´Ù.
+    req.set(boost::beast::http::field::content_type, "application/x-protobuf"); // ÄÁÅÙÃ÷ Å¸ÀÔÀ» ¼³Á¤ÇÕ´Ï´Ù.
 
-    req.body() = body; // ìš”ì²­ ë°”ë””ë¥¼ ì„¤ì •í•©ë‹ˆë‹¤.
+    req.body() = body; // ¿äÃ» ¹Ùµğ¸¦ ¼³Á¤ÇÕ´Ï´Ù.
 
-    req.prepare_payload(); // í˜ì´ë¡œë“œë¥¼ ì¤€ë¹„í•©ë‹ˆë‹¤.
+    req.prepare_payload(); // ÆäÀÌ·Îµå¸¦ ÁØºñÇÕ´Ï´Ù.
 
-    boost::beast::http::write(m_Socket, req); // ì†Œì¼“ì„ í†µí•´ ìš”ì²­ì„ ë³´ëƒ…ë‹ˆë‹¤.
+    boost::beast::http::write(m_Socket, req); // ¼ÒÄÏÀ» ÅëÇØ ¿äÃ»À» º¸³À´Ï´Ù.
 
     boost::beast::flat_buffer buffer;
     boost::beast::http::response<boost::beast::http::dynamic_body> res;
-    boost::beast::http::read(m_Socket, buffer, res); // ì†Œì¼“ì„ í†µí•´ ì‘ë‹µì„ ì½ì–´ì˜µë‹ˆë‹¤.
+    boost::beast::http::read(m_Socket, buffer, res); // ¼ÒÄÏÀ» ÅëÇØ ÀÀ´äÀ» ÀĞ¾î¿É´Ï´Ù.
 
-    return ParseResponse(res); // ì‘ë‹µì„ íŒŒì‹±í•˜ì—¬ ë°˜í™˜í•©ë‹ˆë‹¤.
+    return ParseResponse(res); // ÀÀ´äÀ» ÆÄ½ÌÇÏ¿© ¹İÈ¯ÇÕ´Ï´Ù.
 }
 
 UserResponse HttpClient::Get(const std::string& target)
 {
-    Connect(); // ì—°ê²°ì„ ì‹œë„í•©ë‹ˆë‹¤.
+    Connect(); // ¿¬°áÀ» ½ÃµµÇÕ´Ï´Ù.
 
-    std::cout << "target : " << target << "\n"; // ëª©í‘œ URLì„ ì¶œë ¥í•©ë‹ˆë‹¤.
+    std::cout << "target : " << target << "\n"; // ¸ñÇ¥ URLÀ» Ãâ·ÂÇÕ´Ï´Ù.
     boost::beast::http::request<boost::beast::http::empty_body> req{ boost::beast::http::verb::get, target, 11 };
-    req.set(boost::beast::http::field::host, m_Host); // ìš”ì²­ í—¤ë”ì— í˜¸ìŠ¤íŠ¸ ì •ë³´ë¥¼ ì„¤ì •í•©ë‹ˆë‹¤.
-    req.set(boost::beast::http::field::user_agent, BOOST_BEAST_VERSION_STRING); // ì‚¬ìš©ì ì—ì´ì „íŠ¸ ì •ë³´ë¥¼ ì„¤ì •í•©ë‹ˆë‹¤.
+    req.set(boost::beast::http::field::host, m_Host); // ¿äÃ» Çì´õ¿¡ È£½ºÆ® Á¤º¸¸¦ ¼³Á¤ÇÕ´Ï´Ù.
+    req.set(boost::beast::http::field::user_agent, BOOST_BEAST_VERSION_STRING); // »ç¿ëÀÚ ¿¡ÀÌÀüÆ® Á¤º¸¸¦ ¼³Á¤ÇÕ´Ï´Ù.
 
-    boost::beast::http::write(m_Socket, req); // ì†Œì¼“ì„ í†µí•´ ìš”ì²­ì„ ë³´ëƒ…ë‹ˆë‹¤.
+    boost::beast::http::write(m_Socket, req); // ¼ÒÄÏÀ» ÅëÇØ ¿äÃ»À» º¸³À´Ï´Ù.
 
     boost::beast::flat_buffer buffer;
     boost::beast::http::response<boost::beast::http::dynamic_body> res;
-    boost::beast::http::read(m_Socket, buffer, res); // ì†Œì¼“ì„ í†µí•´ ì‘ë‹µì„ ì½ì–´ì˜µë‹ˆë‹¤.
+    boost::beast::http::read(m_Socket, buffer, res); // ¼ÒÄÏÀ» ÅëÇØ ÀÀ´äÀ» ÀĞ¾î¿É´Ï´Ù.
 
-    return ParseResponse(res); // ì‘ë‹µì„ íŒŒì‹±í•˜ì—¬ ë°˜í™˜í•©ë‹ˆë‹¤.
+    return ParseResponse(res); // ÀÀ´äÀ» ÆÄ½ÌÇÏ¿© ¹İÈ¯ÇÕ´Ï´Ù.
 }
 
 UserResponse HttpClient::ParseResponse(boost::beast::http::response<boost::beast::http::dynamic_body>& res)
 {
-    std::cout << res << std::endl; // ì‘ë‹µì„ ì¶œë ¥í•©ë‹ˆë‹¤.
+    std::cout << res << std::endl; // ÀÀ´äÀ» Ãâ·ÂÇÕ´Ï´Ù.
 
     std::string response_body = boost::beast::buffers_to_string(res.body().data());
     UserResponse response_message;
 
-    if (!response_message.ParseFromString(response_body)) // ì‘ë‹µ ë©”ì‹œì§€ë¥¼ íŒŒì‹±í•©ë‹ˆë‹¤.
+    if (!response_message.ParseFromString(response_body)) // ÀÀ´ä ¸Ş½ÃÁö¸¦ ÆÄ½ÌÇÕ´Ï´Ù.
     {
-        throw std::runtime_error("Failed to parse response message."); // íŒŒì‹± ì‹¤íŒ¨ ì‹œ ì˜ˆì™¸ë¥¼ ë˜ì§‘ë‹ˆë‹¤.
+        throw std::runtime_error("Failed to parse response message."); // ÆÄ½Ì ½ÇÆĞ ½Ã ¿¹¿Ü¸¦ ´øÁı´Ï´Ù.
     }
 
-    return response_message; // íŒŒì‹±ëœ ì‘ë‹µ ë©”ì‹œì§€ë¥¼ ë°˜í™˜í•©ë‹ˆë‹¤.
+    return response_message; // ÆÄ½ÌµÈ ÀÀ´ä ¸Ş½ÃÁö¸¦ ¹İÈ¯ÇÕ´Ï´Ù.
 }

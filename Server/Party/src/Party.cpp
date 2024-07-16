@@ -9,28 +9,28 @@ Party::Party(uint32_t partyId, uint32_t creator, const std::string& partyName) :
 Party::~Party()
 {
     std::cout << "[SERVER] Party {" << m_PartyName << "} is being destroyed. Cleaning up members." << std::endl;
-    m_Members.clear(); // íŒŒí‹° ë©¤ë²„ë“¤ì„ ëª¨ë‘ ì œê±°í•˜ì—¬ ì •ë¦¬
+    m_Members.clear(); // ÆÄÆ¼ ¸â¹öµéÀ» ¸ğµÎ Á¦°ÅÇÏ¿© Á¤¸®
 }
 
 bool Party::AddMember(uint32_t userId)
 {
-    m_Members.push_back(userId); // íŒŒí‹° ë©¤ë²„ ì¶”ê°€
+    m_Members.push_back(userId); // ÆÄÆ¼ ¸â¹ö Ãß°¡
     std::cout << "[SERVER] Add Member in Party {" << m_PartyName << ", " << userId << "}" << std::endl;
-    PrintMembers(); // í˜„ì¬ íŒŒí‹° ë©¤ë²„ ëª©ë¡ ì¶œë ¥
+    PrintMembers(); // ÇöÀç ÆÄÆ¼ ¸â¹ö ¸ñ·Ï Ãâ·Â
     return true;
 }
 
 bool Party::RemoveMember(uint32_t userId)
 {
     m_Members.erase(std::remove_if(m_Members.begin(), m_Members.end(),
-        [ & ] (uint32_t sid)
+        [&](uint32_t sid)
         {
-            return sid == userId; // ì¡°ê±´ì— ë§ëŠ” ë©¤ë²„ ì œê±°
+            return sid == userId; // Á¶°Ç¿¡ ¸Â´Â ¸â¹ö Á¦°Å
         }),
         m_Members.end());
 
     std::cout << "[SERVER] Remove Member in Party {" << m_PartyName << ", " << userId << "}" << std::endl;
-    PrintMembers(); // í˜„ì¬ íŒŒí‹° ë©¤ë²„ ëª©ë¡ ì¶œë ¥
+    PrintMembers(); // ÇöÀç ÆÄÆ¼ ¸â¹ö ¸ñ·Ï Ãâ·Â
     return true;
 }
 
@@ -39,21 +39,21 @@ void Party::PrintMembers() const
     std::cout << "Member List : ";
     for (auto it = m_Members.begin(); it != m_Members.end(); it++)
     {
-        std::cout << *it << " "; // íŒŒí‹° ë©¤ë²„ ëª©ë¡ ì¶œë ¥
+        std::cout << *it << " "; // ÆÄÆ¼ ¸â¹ö ¸ñ·Ï Ãâ·Â
     }
     std::cout << "\n";
 }
 
 const std::vector<uint32_t>& Party::GetMembers() const
 {
-    return m_Members; // íŒŒí‹° ë©¤ë²„ë“¤ì˜ const ì°¸ì¡° ë°˜í™˜
+    return m_Members; // ÆÄÆ¼ ¸â¹öµéÀÇ const ÂüÁ¶ ¹İÈ¯
 }
 
 bool Party::HasMember(uint32_t sessionId) const
 {
     return std::any_of(m_Members.begin(), m_Members.end(),
-        [ & ] (uint32_t sid)
+        [&](uint32_t sid)
         {
-            return sid == sessionId; // íŠ¹ì • ì‚¬ìš©ìê°€ íŒŒí‹° ë©¤ë²„ì¸ì§€ í™•ì¸
+            return sid == sessionId; // Æ¯Á¤ »ç¿ëÀÚ°¡ ÆÄÆ¼ ¸â¹öÀÎÁö È®ÀÎ
         });
 }

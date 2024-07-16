@@ -5,20 +5,20 @@ template<typename T>
 class ThreadSafeQueue
 {
 private:
-    std::mutex queueMutex;              // íì— ëŒ€í•œ ë®¤í…ìŠ¤
-    std::queue<T> queue;                // ìš”ì†Œë¥¼ ë³´ìœ í•˜ëŠ” í
+    std::mutex queueMutex;              // Å¥¿¡ ´ëÇÑ ¹ÂÅØ½º
+    std::queue<T> queue;                // ¿ä¼Ò¸¦ º¸À¯ÇÏ´Â Å¥
     std::condition_variable cvBlocking;
     std::mutex muxBlocking;
 
 public:
-    // ê¸°ë³¸ ìƒì„±ì
+    // ±âº» »ı¼ºÀÚ
     ThreadSafeQueue() = default;
 
-    // ë³µì‚¬ ìƒì„±ìì™€ ëŒ€ì… ì—°ì‚°ìë¥¼ ì‚­ì œí•˜ì—¬ ë³µì‚¬ë¥¼ ê¸ˆì§€
+    // º¹»ç »ı¼ºÀÚ¿Í ´ëÀÔ ¿¬»êÀÚ¸¦ »èÁ¦ÇÏ¿© º¹»ç¸¦ ±İÁö
     ThreadSafeQueue(const ThreadSafeQueue<T>&) = delete;
     ThreadSafeQueue& operator=(const ThreadSafeQueue<T>&) = delete;
 
-    // ì†Œë©¸ì: íë¥¼ ë¹„ì›Œ ë©”ëª¨ë¦¬ ëˆ„ìˆ˜ë¥¼ ë°©ì§€
+    // ¼Ò¸êÀÚ: Å¥¸¦ ºñ¿ö ¸Ş¸ğ¸® ´©¼ö¸¦ ¹æÁö
     ~ThreadSafeQueue() { Clear(); }
 
     const T& Front()
@@ -46,8 +46,8 @@ public:
         std::scoped_lock lock(queueMutex);
         queue.push(std::move(item));
 
-        // í•­ëª©ì„ íì— ì¶”ê°€í•˜ë©´ ì¡°ê±´ ë³€ìˆ˜ì— ë°ì´í„°ê°€ ë“¤ì–´ê°”ë‹¤ëŠ” ê²ƒì„ ì•Œë ¤ì¤˜
-        // ì ˆì „ëª¨ë“œì—ì„œ ì¼ì–´ë‚˜ê²Œ í•œë‹¤.
+        // Ç×¸ñÀ» Å¥¿¡ Ãß°¡ÇÏ¸é Á¶°Ç º¯¼ö¿¡ µ¥ÀÌÅÍ°¡ µé¾î°¬´Ù´Â °ÍÀ» ¾Ë·ÁÁà
+        // ÀıÀü¸ğµå¿¡¼­ ÀÏ¾î³ª°Ô ÇÑ´Ù.
         std::unique_lock<std::mutex> ul(muxBlocking);
         cvBlocking.notify_one();
     }
@@ -75,7 +75,7 @@ public:
     {
         while (Empty())
         {
-            // íì— ì‘ì—…í•  ê²ƒì´ ì—†ìœ¼ë©´ ì ˆì „ëª¨ë“œë¡œ ì§„í–‰í•˜ì—¬ CPU ìì›ì„ ì•„ë‚„ìˆ˜ ìˆë‹¤.
+            // Å¥¿¡ ÀÛ¾÷ÇÒ °ÍÀÌ ¾øÀ¸¸é ÀıÀü¸ğµå·Î ÁøÇàÇÏ¿© CPU ÀÚ¿øÀ» ¾Æ³¥¼ö ÀÖ´Ù.
             std::unique_lock<std::mutex> ul(muxBlocking);
             cvBlocking.wait(ul);
         }

@@ -28,5 +28,5 @@ private:
     std::string                     m_Port;
     boost::asio::ip::tcp::resolver  m_Resolver;
     boost::asio::ip::tcp::socket    m_Socket;
-    boost::asio::io_context&        io_context;
+    boost::asio::io_context& io_context;
 };
