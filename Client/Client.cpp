@@ -1,4 +1,5 @@
 #include "Client.h"
+#include <Util/HsLogger.hpp>
 
 Client::Client()
 {
@@ -28,13 +29,16 @@ void Client::Init()
     catch (const std::exception& ex)
     {
         std::cerr << "Error initializing clients: " << ex.what() << std::endl; // 클라이언트 초기화 오류 메시지 출력
+        LOG_ERROR("Error initializing clients: %s", ex.what()); // 클라이언트 초기화 오류 로그 출력
         exit(1);  // 프로그램 종료
     }
 }
 
 void Client::Start()
 {
+
     std::cout << "Initializing Success!!!" << std::endl;
+    LOG_INFO("Initializing Success!!!");
     while (true)
     {
         DisplayCommand(); // 메뉴 표시
@@ -47,6 +51,7 @@ void Client::Start()
             std::cin.clear(); // 입력 오류 초기화
             std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // 입력 버퍼 비우기
             std::cout << "Invalid input. Please enter a number between 1 and 5." << std::endl; // 잘못된 입력 메시지 출력
+            LOG_WARN("Invalid input. Please enter a number between 1 and 5."); // 잘못된 입력 경고 로그 출력
             continue;
         }
 
@@ -113,6 +118,7 @@ void Client::HandleMenuChoice(int choice)
         break;
     default:
         std::cout << "Invalid choice. Please try again." << std::endl; // 잘못된 선택 메시지 출력
+        LOG_WARN("Invalid choice. Please try again."); 
         break;
     }
 }
@@ -122,6 +128,9 @@ void Client::StartChatClient(const std::string& ip, const std::string& port, con
     std::cout << "IP : " << ip << std::endl;
     std::cout << "PORT : " << port << std::endl;
     std::cout << "SessionID : " << sessionId << std::endl;
+    LOG_INFO("IP : %s", ip.c_str());
+    LOG_INFO("PORT : %s", port.c_str());
+    LOG_INFO("SessionID : %s", sessionId.c_str());
 
     m_ChatClient->Connect(ip, std::stoi(port)); // 채팅 서버에 연결
     m_ChatClient->SendSessionId(sessionId); // 세션 ID 전송

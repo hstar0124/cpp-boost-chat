@@ -1,7 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.Extensions.Logging;
 using ApiServer.CustomException;
-using Google.Protobuf; 
+using Google.Protobuf;
 
 namespace ApiServer.Filters
 {
@@ -26,6 +27,10 @@ namespace ApiServer.Filters
             else if (exceptionType == typeof(UserValidationException))
             {
                 HandleUserValidationException(context, exception);
+            }
+            else if (exceptionType == typeof(ServerException))
+            {
+                HandleServerException(context, exception);
             }
             else
             {
@@ -55,6 +60,16 @@ namespace ApiServer.Filters
             SetResponse(context, response, 400);
         }
 
+        private void HandleServerException(ExceptionContext context, Exception exception)
+        {
+            var response = new UserErrorResponse
+            {
+                Message = exception.Message
+            };
+
+            SetResponse(context, response, 500);
+        }
+
         private void HandleUnknownException(ExceptionContext context, Exception exception)
         {
             var response = new UserErrorResponse
@@ -62,7 +77,7 @@ namespace ApiServer.Filters
                 Message = "An unexpected error occurred."
             };
 
-            _logger.LogError(exception, exception.Message);
+            _logger.LogError(exception, "Unexpected Exception occurred: {Message}", exception.Message);
             SetResponse(context, response, 500);
         }
 

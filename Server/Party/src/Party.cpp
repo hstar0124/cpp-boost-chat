@@ -1,21 +1,24 @@
 #include "Party/include/Party.h"
+#include <Util/HsLogger.hpp>
 
 Party::Party(uint32_t partyId, uint32_t creator, const std::string& partyName) :
     m_PartyId(partyId),
     m_PartyCreator(creator),
     m_PartyName(partyName)
-{}
+{
+    LOG_INFO("Party Created: ID=%d, Creator=%d, Name=%s", m_PartyId, m_PartyCreator, m_PartyName.c_str());
+}
 
 Party::~Party()
 {
-    std::cout << "[SERVER] Party {" << m_PartyName << "} is being destroyed. Cleaning up members." << std::endl;
+    LOG_INFO("Party %s is being destroyed. Cleaning up members.", m_PartyName.c_str());
     m_Members.clear(); // 파티 멤버들을 모두 제거하여 정리
 }
 
 bool Party::AddMember(uint32_t userId)
 {
     m_Members.push_back(userId); // 파티 멤버 추가
-    std::cout << "[SERVER] Add Member in Party {" << m_PartyName << ", " << userId << "}" << std::endl;
+    LOG_INFO("Add Member in Party %s: %d", m_PartyName.c_str(), userId);
     PrintMembers(); // 현재 파티 멤버 목록 출력
     return true;
 }
@@ -29,19 +32,20 @@ bool Party::RemoveMember(uint32_t userId)
         }),
         m_Members.end());
 
-    std::cout << "[SERVER] Remove Member in Party {" << m_PartyName << ", " << userId << "}" << std::endl;
+    LOG_INFO("Remove Member in Party %s: %d", m_PartyName.c_str(), userId);
     PrintMembers(); // 현재 파티 멤버 목록 출력
     return true;
 }
 
 void Party::PrintMembers() const
 {
-    std::cout << "Member List : ";
+    std::stringstream ss;
+    ss << "Member List: ";
     for (auto it = m_Members.begin(); it != m_Members.end(); it++)
     {
-        std::cout << *it << " "; // 파티 멤버 목록 출력
+        ss << *it << " "; // 파티 멤버 목록 출력
     }
-    std::cout << "\n";
+    LOG_INFO("%s", ss.str().c_str());
 }
 
 const std::vector<uint32_t>& Party::GetMembers() const

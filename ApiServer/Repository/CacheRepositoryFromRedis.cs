@@ -1,4 +1,4 @@
-﻿using LoginApiServer.Model;
+﻿using ApiServer.CustomException;
 using LoginApiServer.Repository.Interface;
 using StackExchange.Redis;
 
@@ -6,14 +6,26 @@ namespace LoginApiServer.Repository
 {
     public class CacheRepositoryFromRedis : ICacheRepository
     {
+        private readonly ILogger<CacheRepositoryFromRedis> _logger;
         private readonly ConnectionMultiplexer _redis;
         private readonly int _sessionDbIndex = 0;
         private readonly IDatabase _sessionDb;
 
-        public CacheRepositoryFromRedis()
+        public CacheRepositoryFromRedis(ILogger<CacheRepositoryFromRedis> logger)
         {
-            _redis = ConnectionMultiplexer.Connect("127.0.0.1");
-            _sessionDb = _redis.GetDatabase(_sessionDbIndex);
+            _logger = logger;
+
+            try
+            {
+                _redis = ConnectionMultiplexer.Connect("127.0.0.1");
+                _sessionDb = _redis.GetDatabase(_sessionDbIndex);
+                _logger.LogInformation("Connected to Redis successfully");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error connecting to Redis: {ex.Message}");
+                throw new ServerException("Unexpected server error occurred");
+            }
         }
 
         public async Task<UserStatusCode> CreateSession(string sessionId, long accountId)

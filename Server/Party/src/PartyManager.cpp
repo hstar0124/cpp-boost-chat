@@ -1,5 +1,6 @@
 #pragma once
 #include "Party/include/PartyManager.h"
+#include <Util/HsLogger.hpp>
 
 PartyManager::PartyManager()
 {
@@ -15,6 +16,7 @@ std::shared_ptr<Party> PartyManager::CreateParty(std::shared_ptr<UserSession> us
     if (user == nullptr || partyName == "")
     {
         std::cout << "[SERVER] Invalid Party Name" << std::endl;
+        LOG_ERROR("Invalid Party Name");
         return nullptr;
     }
 
@@ -23,6 +25,7 @@ std::shared_ptr<Party> PartyManager::CreateParty(std::shared_ptr<UserSession> us
     m_MapParties[party->GetId()] = party;                                               // 파티를 맵에 추가
 
     std::cout << "Party Count : " << m_MapParties.size() << "\n";
+    LOG_INFO("Party Count : %zu", m_MapParties.size());
     return party;
 }
 
@@ -32,10 +35,12 @@ std::shared_ptr<Party> PartyManager::JoinParty(std::shared_ptr<UserSession> user
     if (!party)
     {
         std::cout << "[SERVER] Not found party: " << partyName << std::endl;
+        LOG_INFO("Not found party: %s", partyName.c_str());
         return nullptr;
     }
 
     party->AddMember(user->GetId()); // 파티에 사용자 추가
+    LOG_INFO("User %u joined party %s", user->GetId(), partyName.c_str());
     return party;
 }
 
@@ -46,6 +51,7 @@ uint32_t PartyManager::DeleteParty(std::shared_ptr<UserSession> user, const std:
     if (!party)
     {
         std::cout << "[SERVER] Not found party: " << partyName << std::endl;
+        LOG_INFO("Not found party: %s", partyName.c_str());
         return 0;
     }
 
@@ -55,25 +61,31 @@ uint32_t PartyManager::DeleteParty(std::shared_ptr<UserSession> user, const std:
     if (party->GetPartyCreator() == user->GetId())
     {
         std::cout << "Attempting to delete party with ID: " << partyId << std::endl;
+        LOG_INFO("Attempting to delete party with ID: %u", partyId);
 
         size_t erasedCount = m_MapParties.erase(partyId);
         std::cout << "Number of parties erased: " << erasedCount << std::endl;
+        LOG_INFO("Number of parties erased: %zu", erasedCount);
 
         if (erasedCount == 0)
         {
             std::cout << "[SERVER] Failed to delete party with ID: " << partyId << ". ID not found in m_MapParties." << std::endl;
+            LOG_ERROR("Failed to delete party with ID: %u. ID not found in m_MapParties.", partyId);
             return 0;
         }
 
         std::cout << "[SERVER] Deleted party: " << partyName << std::endl;
+        LOG_INFO("[SERVER] Deleted party: %s", partyName.c_str());
     }
     else
     {
         std::cout << "[SERVER] Fail Deleted Party : " << partyName << std::endl;
+        LOG_WARN("[SERVER] Fail Deleted Party : %s", partyName.c_str());
         return 0;
     }
 
     std::cout << "Party Count : " << m_MapParties.size() << "\n";
+    LOG_INFO("Party Count : %zu", m_MapParties.size());
     return partyId;
 }
 
@@ -83,6 +95,7 @@ bool PartyManager::LeaveParty(std::shared_ptr<UserSession> user, const std::stri
     if (!party)
     {
         std::cout << "[SERVER] Not found party: " << partyName << std::endl;
+        LOG_INFO("[SERVER] Not found party: %s", partyName.c_str());
         return false;
     }
 
@@ -90,10 +103,12 @@ bool PartyManager::LeaveParty(std::shared_ptr<UserSession> user, const std::stri
     if (party->GetPartyCreator() == user->GetId())
     {
         std::cout << "[SERVER] Sorry, as the party leader, you cannot leave the party. Deletion is the only option." << std::endl;
+        LOG_WARN("[SERVER] Sorry, as the party leader, you cannot leave the party. Deletion is the only option.");
         return false;
     }
 
     party->RemoveMember(user->GetId()); // 파티 멤버에서 사용자 제거
+    LOG_INFO("User %u left the party %s", user->GetId(), partyName.c_str());
     return true;
 }
 
