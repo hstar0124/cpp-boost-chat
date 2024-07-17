@@ -1,6 +1,7 @@
 # HStar Project 
-Asp.net Core 와 Protobuf를 활용한 API Server
-Boost.Asio 와 Protobuf를 활용한 Socket Server
+
+- Asp.net Core 와 Protobuf를 활용한 API Server
+- Boost.Asio 와 Protobuf를 활용한 Socket Server
 
 ## 프로젝트 소개
 
