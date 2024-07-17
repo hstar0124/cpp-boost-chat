@@ -177,6 +177,7 @@
     <ClInclude Include="User\include\UserEntity.hpp" />
     <ClInclude Include="User\include\UserSession.h" />
     <ClInclude Include="Util\ConfigParser.hpp" />
+    <ClInclude Include="Util\HsLogger.hpp" />
     <ClInclude Include="Util\HSThreadPool.hpp" />
     <ClInclude Include="Util\PacketConverter.hpp" />
     <ClInclude Include="Util\ThreadSafeQueue.hpp" />

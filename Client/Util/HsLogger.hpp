@@ -2,252 +2,208 @@
 
 #include <iostream>
 #include <fstream>
-#include <memory>
-#include <mutex>
+#include <sstream>
 #include <string>
-#include <vector>
-#include <chrono>
 #include <ctime>
 #include <iomanip>
-#include <sstream>
-#include <sys/stat.h> // 디렉토리 생성용
-#include <direct.h>   // _mkdir 함수용
+#include <filesystem>
+#include <mutex>
+#include <memory>
 
-// 로그 레벨 정의
+// Enum for log levels
 enum class LogLevel
 {
-    DEBUG,
-    INFO,
-    WARNING,
-    ERR
+    LOG_DEBUG,
+    LOG_INFO,
+    LOG_WARN,
+    LOG_ERROR
 };
 
-// 파일 로그 기록 주기 정의
-enum class LogFilePeriod
+// Enum for log periods
+enum class LogPeriod
 {
-    DAILY,
-    MONTHLY,
-    YEARLY
+    YEAR,
+    MONTH,
+    DAY
 };
 
-
-// 로그 기록 인터페이스
-class ILogger
+// Base class for log output
+class LogOutput
 {
 public:
-    virtual ~ILogger() = default;
+    virtual ~LogOutput() = default;
+    virtual void write(const std::string& message) = 0;
+};
 
-    // 로그 기록 함수
-    virtual void Log(LogLevel level, const std::string& message, const std::string& filename, int line) = 0;
-
-    // 전역 로그 레벨 설정
-    static void SetLogLevel(LogLevel level)
+// Derived class for console output
+class ConsoleOutput : public LogOutput
+{
+public:
+    void write(const std::string& message) override
     {
-        m_GlobalLogLevel = level;
+        std::cout << message << std::endl;
+    }
+};
+
+// Derived class for file output
+class FileOutput : public LogOutput
+{
+public:
+    explicit FileOutput(const std::string& filename)
+        : logFileName(filename)
+    {
+        logFile.open(logFileName, std::ios_base::app);
+        if (!logFile.is_open())
+        {
+            std::cerr << "Failed to open log file: " << logFileName << std::endl;
+        }
     }
 
-    // 전역 로그 레벨 가져오기
-    static LogLevel GetLogLevel()
+    void write(const std::string& message) override
     {
-        return m_GlobalLogLevel;
+        logFile << message << std::endl;
+        logFile.flush(); // Ensure the message is written immediately
     }
 
-protected:
-    // 전역 로그 레벨 변수
-    static LogLevel m_GlobalLogLevel;
+private:
+    std::ofstream logFile;
+    std::string logFileName;
+};
 
-    // 현재 시간 문자열 반환
-    static std::string GetCurrentTime()
+// Logger class
+class Logger
+{
+public:
+    Logger(LogLevel level = LogLevel::LOG_INFO)
+        : logLevel(level) {}
+
+    void init(LogLevel level, LogPeriod period, bool logToFile, bool logToConsole)
     {
-        auto now = std::chrono::system_clock::now();
-        auto time_t_now = std::chrono::system_clock::to_time_t(now);
-        std::tm tm_now;
-        localtime_s(&tm_now, &time_t_now);
+        std::lock_guard<std::mutex> lock(loggerMutex);
+        logLevel = level;
 
-        std::ostringstream oss;
-        oss << std::put_time(&tm_now, "%Y-%m-%d %H:%M:%S");
-        return oss.str();
+        if (logToFile)
+        {
+            std::filesystem::create_directory("logs");
+            updateLogFile(period);
+            fileOutput = std::make_unique<FileOutput>(currentLogFileName);
+        }
+
+        if (logToConsole)
+        {
+            consoleOutput = std::make_unique<ConsoleOutput>();
+        }
     }
 
-    // 로그 레벨 enum 값을 문자열로 변환
-    static std::string LogLevelToString(LogLevel level)
+    template<typename... Args>
+    void log(LogLevel level, const std::string& message, const char* file, int line, Args... args)
+    {
+        std::lock_guard<std::mutex> lock(loggerMutex);
+        if (level >= logLevel)
+        {
+            std::stringstream logStream;
+            logStream << "[" << logLevelToString(level) << " " << currentDateTime() << "] "
+                << format(message, args...) << " (" << file << ":" << line << ")";
+
+            if (fileOutput)
+            {
+                fileOutput->write(logStream.str());
+            }
+
+            if (consoleOutput)
+            {
+                consoleOutput->write(logStream.str());
+            }
+        }
+    }
+
+    static Logger& instance()
+    {
+        static Logger logger;
+        return logger;
+    }
+
+private:
+    LogLevel logLevel;
+    std::unique_ptr<LogOutput> fileOutput;
+    std::unique_ptr<LogOutput> consoleOutput;
+    std::mutex loggerMutex; // Mutex for logger operations
+    std::string currentLogFileName;
+
+    std::string logLevelToString(LogLevel level) const
     {
         switch (level)
         {
-        case LogLevel::DEBUG: return "DEBUG";
-        case LogLevel::INFO: return "INFO";
-        case LogLevel::WARNING: return "WARNING";
-        case LogLevel::ERR: return "ERROR";
-        default: return "";
-        }
-    }
-};
-
-// 전역 로그 레벨 변수 초기화
-LogLevel ILogger::m_GlobalLogLevel = LogLevel::DEBUG;
-
-// 콘솔 로그 클래스
-class ConsoleLogger : public ILogger
-{
-public:
-    void Log(LogLevel level, const std::string& message, const std::string& filename, int line) override;
-
-private:
-    std::mutex  m_ConsoleMutex;
-    std::string FormatLogMessage(LogLevel level, const std::string& message, const std::string& filename, int line);
-};
-
-// 파일 로그 클래스
-class FileLogger : public ILogger
-{
-public:
-    FileLogger(const std::string& logFilename, LogFilePeriod period);
-
-    void Log(LogLevel level, const std::string& message, const std::string& filename, int line) override;
-
-private:
-    std::string FormatLogMessage(LogLevel level, const std::string& message, const std::string& filename, int line);
-    std::string AppendPeriodToFilename(const std::string& baseFilename);
-
-private:
-    std::ofstream   m_File;
-    std::mutex      m_FileMutex;
-    std::string     m_LogFilename;
-    LogFilePeriod   m_Period;
-
-};
-
-// 멀티 로거 클래스 (여러 로거를 관리)
-class HsLogger : public ILogger
-{
-public:
-    HsLogger() = default;
-    ~HsLogger() = default;
-
-    void AddLogger(std::shared_ptr<ILogger> logger)
-    {
-        m_Loggers.push_back(logger);
-    }
-
-    void Log(LogLevel level, const std::string& message, const std::string& filename, int line) override
-    {
-        for (const auto& logger : m_Loggers)
-        {
-            logger->Log(level, message, filename, line);
+        case LogLevel::LOG_DEBUG: return "DEBUG";
+        case LogLevel::LOG_INFO: return "INFO";
+        case LogLevel::LOG_WARN: return "WARN";
+        case LogLevel::LOG_ERROR: return "ERROR";
+        default: return "UNKNOWN";
         }
     }
 
-private:
-    std::vector<std::shared_ptr<ILogger>> m_Loggers;
-};
-
-// 전역 로거 변수
-extern std::shared_ptr<HsLogger> g_Logger;
-
-// 전역 함수로 로거 초기화
-std::shared_ptr<HsLogger> InitializeLoggers(LogLevel globalLogLevel, bool useConsoleLogger, bool useFileLogger, const std::string& logFilename, LogFilePeriod period);
-
-// 매크로 정의
-#define LOG(level, message) \
-    if (g_Logger) g_Logger->Log(level, message, __FILE__, __LINE__)
-
-// ---- 함수 정의 ----
-
-// 콘솔 로그 기록 함수
-inline void ConsoleLogger::Log(LogLevel level, const std::string& message, const std::string& filename, int line)
-{
-    if (level >= ILogger::GetLogLevel())
+    std::string currentDateTime() const
     {
-        std::lock_guard<std::mutex> lock(m_ConsoleMutex);
-        std::cout << FormatLogMessage(level, message, filename, line) << std::endl;
-    }
-}
-
-// 콘솔 로그 메시지 포맷팅
-inline std::string ConsoleLogger::FormatLogMessage(LogLevel level, const std::string& message, const std::string& filename, int line)
-{
-    std::ostringstream oss;
-    oss << "[" << LogLevelToString(level) << "] [" << GetCurrentTime() << "] [" << message << "] [" << filename << ":" << line << "]";
-    return oss.str();
-}
-
-
-// 파일 로거 생성자
-inline FileLogger::FileLogger(const std::string& logFilename, LogFilePeriod period)
-    : m_LogFilename(logFilename), m_Period(period)
-{
-    // logs 디렉토리 생성
-#if defined(_WIN32)
-    _mkdir("logs");
-#else 
-    mkdir("logs", 0777);
+        std::time_t now = std::time(nullptr);
+        std::tm tm{};
+#ifdef _WIN32
+        localtime_s(&tm, &now);
+#else
+        localtime_r(&now, &tm);
 #endif
-    // logs 디렉토리 내에 파일 이름 설정
-    std::string filenameWithPeriod = "logs/" + AppendPeriodToFilename(logFilename);
+        std::ostringstream oss;
+        oss << std::put_time(&tm, "%Y-%m-%d %H:%M:%S");
+        return oss.str();
+    }
 
-    m_File.open(filenameWithPeriod, std::ios::app);
-    if (!m_File.is_open())
+    void updateLogFile(LogPeriod period)
     {
-        throw std::runtime_error("Could not open log file: " + filenameWithPeriod);
-    }
-}
+        std::time_t now = std::time(nullptr);
+        std::tm tm{};
+#ifdef _WIN32
+        localtime_s(&tm, &now);
+#else
+        localtime_r(&now, &tm);
+#endif
+        std::ostringstream filename;
+        filename << "logs/log_";
+        switch (period)
+        {
+        case LogPeriod::YEAR:
+            filename << std::put_time(&tm, "%Y");
+            break;
+        case LogPeriod::MONTH:
+            filename << std::put_time(&tm, "%Y%m");
+            break;
+        case LogPeriod::DAY:
+            filename << std::put_time(&tm, "%Y%m%d");
+            break;
+        }
+        filename << ".log";
 
-// 파일 로그 기록 함수
-inline void FileLogger::Log(LogLevel level, const std::string& message, const std::string& filename, int line)
-{
-    if (level >= ILogger::GetLogLevel())
+        currentLogFileName = filename.str();
+    }
+
+    template<typename... Args>
+    std::string format(const std::string& format, Args... args)
     {
-        std::lock_guard<std::mutex> lock(m_FileMutex);
-        m_File << FormatLogMessage(level, message, filename, line) << std::endl;
+        size_t size = snprintf(nullptr, 0, format.c_str(), args...) + 1;
+        std::unique_ptr<char[]> buf(new char[size]);
+        snprintf(buf.get(), size, format.c_str(), args...);
+        return std::string(buf.get(), buf.get() + size - 1);
     }
-}
+};
 
-// 파일 로그 메시지 포맷팅
-inline std::string FileLogger::FormatLogMessage(LogLevel level, const std::string& message, const std::string& filename, int line)
-{
-    std::ostringstream oss;
-    oss << "[" << LogLevelToString(level) << "] [" << GetCurrentTime() << "] [" << message << "] [" << filename << ":" << line << "]";
-    return oss.str();
-}
+// Macro definitions for logging
+#define LOG_DEBUG(message, ...) \
+    Logger::instance().log(LogLevel::LOG_DEBUG, message, __FILE__, __LINE__, ##__VA_ARGS__)
 
-// 파일 이름에 로그 기록 주기 추가
-inline std::string FileLogger::AppendPeriodToFilename(const std::string& baseFilename)
-{
-    std::string filenameWithPeriod = baseFilename;
-    switch (m_Period) {
-    case LogFilePeriod::DAILY:
-        filenameWithPeriod += "_" + ILogger::GetCurrentTime().substr(0, 10);
-        break;
-    case LogFilePeriod::MONTHLY:
-        filenameWithPeriod += "_" + ILogger::GetCurrentTime().substr(0, 7);
-        break;
-    case LogFilePeriod::YEARLY:
-        filenameWithPeriod += "_" + ILogger::GetCurrentTime().substr(0, 4);
-        break;
-    }
+#define LOG_INFO(message, ...) \
+    Logger::instance().log(LogLevel::LOG_INFO, message, __FILE__, __LINE__, ##__VA_ARGS__)
 
-    return filenameWithPeriod + ".txt";
-}
+#define LOG_WARN(message, ...) \
+    Logger::instance().log(LogLevel::LOG_WARN, message, __FILE__, __LINE__, ##__VA_ARGS__)
 
-// 전역 로거 변수
-std::shared_ptr<HsLogger> g_Logger = nullptr;
+#define LOG_ERROR(message, ...) \
+    Logger::instance().log(LogLevel::LOG_ERROR, message, __FILE__, __LINE__, ##__VA_ARGS__)
 
-// 전역 함수로 로거 초기화
-inline std::shared_ptr<HsLogger> InitializeLoggers(LogLevel globalLogLevel, bool useConsoleLogger, bool useFileLogger, const std::string& logFilename, LogFilePeriod period)
-{
-    auto multiLogger = std::make_shared<HsLogger>();
-
-    ILogger::SetLogLevel(globalLogLevel);
-
-    if (useConsoleLogger) {
-        multiLogger->AddLogger(std::make_shared<ConsoleLogger>());
-    }
-
-    if (useFileLogger) {
-        multiLogger->AddLogger(std::make_shared<FileLogger>(logFilename, period));
-    }
-
-    g_Logger = multiLogger;
-
-    return multiLogger;
-}

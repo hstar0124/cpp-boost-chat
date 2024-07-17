@@ -111,6 +111,9 @@
     <ClInclude Include="Message\MyMessage.pb.h">
       <Filter>소스 파일\Message</Filter>
     </ClInclude>
+    <ClInclude Include="Util\HsLogger.hpp">
+      <Filter>소스 파일\Util</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Message\MyMessage.proto">

@@ -171,6 +171,7 @@
     <ClInclude Include="Message\MyMessage.pb.h" />
     <ClInclude Include="Message\UserMessage.pb.h" />
     <ClInclude Include="Socket\include\ChatClient.h" />
+    <ClInclude Include="Util\HsLogger.hpp" />
     <ClInclude Include="Util\ThreadSafeQueue.h" />
   </ItemGroup>
   <ItemGroup>
