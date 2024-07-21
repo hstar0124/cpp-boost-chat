@@ -150,6 +150,7 @@ C++는 **높은 성능과 자원 효율성**을 제공하며,
   - 각 DB 객체는 std::unique_ptr로 관리
 - **UserSession 관리**: 클라이언트와의 세션을 생성하고 처리
 
+
 **UserSession**
 
 - Boost Asio를 사용하여 TCP 소켓을 통해 클라이언트와 통신
@@ -160,6 +161,21 @@ C++는 **높은 성능과 자원 효율성**을 제공하며,
   - 비동기적으로 메시지 읽기 및 쓰기 처리
   - 메시지 직렬화 및 역직렬화
 - **에러 처리**: 오류 발생 시 세션 종료 및 로그 기록
+
+
+**PartyManager**
+
+- **파티 관리**: unordered_map 을 사용하여 파티 생성/가입/탈퇴/삭제 관리
+  - 파티 이름 중복 체크
+  - 파티 가입 중복 체크
+- User Session 은 Shared_ptr 로 받아서 처리
+
+
+**Party**
+
+- 파티에 대한 정보 저장 및 파티 멤버 관리
+- **파티 멤버 관리**: 파티 멤버는 Vector 로 관리
+
 
 **PacketConverter**
 
@@ -193,6 +209,71 @@ C++는 **높은 성능과 자원 효율성**을 제공하며,
 - 설정 파일을 읽어와 설정 항목을 맵에 저장
 - 파일에서 키-값 쌍을 추출하여 `std::map<std::string, std::string>`에 저장
 - 설정 값을 반환하는 함수 제공
+
+
+### Client
+
+**Client**
+
+- Api URL 로드 및 관리
+- Http Client, Socket Client 초기화 관리
+- User Interface
+
+**ChatClient**
+
+- Boost Asio io_context: io_context 객체를 사용하여 비동기 I/O 처리
+- **비동기 읽기/쓰기**: 클라이언트와의 데이터 송수신을 비동기적으로 처리
+- **Message 처리**: 유저 입력에 따른 메시지 타입 분류 및 처리
+  - 일반 메시지 / 귓속말 메시지 / 파티 메시지
+
+
+**HttpClient**
+
+- **HTTP 요청 및 응답처리**: 유저 입력에 따라 API 요청이 필요한 경우 API Server 로 요청 및 응답 처리
+  - 로그인 요청의 경우 POST로 요청을 보내며 메시지 protobuf로 직렬화하여 진행
+  - 간단한 정보 요청은 GET으로 처리
+
+
+
+### Api Server
+
+**UserController**
+
+- 생성자에서 ILogger<UserController>, IUserWriteService, IUserReadService를 주입받아 사용
+- **주요 메서드**:
+  - GetUser: userId를 쿼리 파라미터로 받아 사용자 정보를 조회
+  - Create: 요청 본문으로 받은 CreateUserRequest를 통해 새로운 사용자를 생성
+  - Login: 요청 본문으로 받은 LoginRequest를 통해 사용자의 로그인을 처리
+  - Update: 요청 본문으로 받은 UpdateUserRequest를 통해 사용자의 정보를 업데이트
+  - Delete: 요청 본문으로 받은 DeleteUserRequest를 통해 사용자를 삭제
+- **CQRS 패턴 적용**: 명령 처리와 조회 처리를 분리하여 각 역할에 맞는 서비스를 사용
+  - IUserWriteService: 사용자 관련 명령 처리 (생성, 로그인, 업데이트, 삭제)
+  - IUserReadService: 사용자 조회 처리
+
+**UserWriteService**
+
+- IUserWriteService 인터페이스를 구현
+- 프로세스에 따라 Redis 또는 MySQL DB 나눠서 처리 진행
+- **주요 메서드**:
+  - LoginUser: 사용자 자격 증명을 검증하고 세션을 생성하여 로그인 성공 응답을 반환
+  - CreateUser: 새 사용자 정보를 받아 비밀번호를 해시하여 사용자 생성 결과를 반환
+  - UpdateUser: 사용자 정보를 검증한 후, 요청된 필드를 업데이트
+  - DeleteUser: 사용자 정보를 검증하고 사용자를 소프트 삭제하여 결과를 반환
+ 
+**UserReadService**
+
+- IUserReadService 인터페이스 구현
+- **주요 메서드**:
+  - GetUserFromUserid: 사용자 ID를 기반으로 사용자 정보를 조회하고, 성공 시 사용자 정보를 포함한 응답을 반환. 실패 시 로그를 기록하고 UserNotFoundException 발생.
+
+
+**PasswordHelper**
+
+- 사용자 비밀번호를 안전하게 해시하고 검증하는 기능을 제공
+- **주요 메서드**:
+  - HashPassword: 주어진 비밀번호를 해시하여 안전한 문자열로 변환
+  - VerifyPassword : 사용자로부터 입력된 비밀번호와 해시화된 비밀번호 검증
+
 
 <br/>
 
