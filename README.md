@@ -143,12 +143,12 @@ C++는 **높은 성능과 자원 효율성**을 제공하며,
 
 **TcpServer**
 
-- Boost Asio io_context 객체를 핸들링
-- Acceptor 핸들링
-- Async Read/Write 관련 처리
-- DB(Mysql, Redis) 관련 처리
-  - 각 DB 객체는 Unique Ptr로 관리
-- User Session 관련 처리
+- Boost Asio io_context: io_context 객체를 사용하여 비동기 I/O 처리
+- **Acceptor**: 클라이언트의 연결 요청을 수락하기 위해 acceptor를 관리
+- **비동기 읽기/쓰기**: 클라이언트와의 데이터 송수신을 비동기적으로 처리
+- **DB 연동**: MySQL 및 Redis 데이터베이스와의 연결 관리
+  - 각 DB 객체는 std::unique_ptr로 관리
+- **UserSession 관리**: 클라이언트와의 세션을 생성하고 처리
 
 **UserSession**
 
