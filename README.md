@@ -63,7 +63,13 @@ C++는 **높은 성능과 자원 효율성**을 제공하며,
 
 <br/>
 
-## 특정 기술 의사결정한 이유
+
+<br/>
+
+## 프로젝트 아키텍처
+
+<img src="https://github.com/hstar0124/hstar-project/assets/57317290/cdd2701d-590f-49ac-83a5-f8d310cf3005" width="650" height="460"/>
+
 
 **1. Boost.Asio를 사용한 이유**
 - Boost 라이브러리는 풍부한 기능과 유연성을 제공
@@ -86,12 +92,6 @@ C++는 **높은 성능과 자원 효율성**을 제공하며,
 - 오픈 소스 라이센스로 제공
 - 수십 년간 개발과 개선이 되어 안정적이고 신뢰도가 높음
 - 광범위한 사용자 커뮤니티가 있어 이슈 발생시 해결방법 찾기 쉬움
-
-<br/>
-
-## 프로젝트 아키텍처
-
-<img src="https://github.com/hstar0124/hstar-project/assets/57317290/cdd2701d-590f-49ac-83a5-f8d310cf3005" width="650" height="460"/>
 
 
 <br/>
