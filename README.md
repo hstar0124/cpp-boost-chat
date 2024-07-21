@@ -139,6 +139,16 @@ C++는 **높은 성능과 자원 효율성**을 제공하며,
 
 ## 코드 설명
 
+### Socket Server
+
+**TcpServer**
+
+- Boost Asio io_context 객체를 핸들링
+- Acceptor 핸들링
+- Async Read/Write 관련 처리
+- DB(Mysql, Redis) 관련 처리
+- User Session 관련 처리
+
 
 
 
