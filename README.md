@@ -104,6 +104,8 @@ C++는 **높은 성능과 자원 효율성**을 제공하며,
 
 <img src="https://github.com/user-attachments/assets/7a8baf3f-605c-4cb0-ab09-27693a5fa7e2" width="850" height="380"/>
 
+<br/>
+
 기존엔 TcpServer 에 Input Queue 를 하나 두고 각각의 User Session 에서 메시지 수신시 해당 큐에 Lock 을 걸고 Input을 하는 방식이었다.
 하지만 Session의 수가 늘어나면 빈번한 Lock으로 인해 대기 시간이 길어질 것으로 판단되어, Queue Swap 방식으로 변경하였다.
 
