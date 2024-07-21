@@ -70,6 +70,7 @@ C++는 **높은 성능과 자원 효율성**을 제공하며,
 
 <img src="https://github.com/hstar0124/hstar-project/assets/57317290/cdd2701d-590f-49ac-83a5-f8d310cf3005" width="650" height="460"/>
 
+<br/>
 
 **1. Boost.Asio를 사용한 이유**
 - Boost 라이브러리는 풍부한 기능과 유연성을 제공
