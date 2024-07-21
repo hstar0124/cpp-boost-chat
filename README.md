@@ -130,11 +130,6 @@ C++는 **높은 성능과 자원 효율성**을 제공하며,
 ![접속_흐름도](https://github.com/hstar0124/hstar-project/assets/57317290/c510c2d1-6e41-4748-89fd-976ba140731b)
 
 
-### [메시지 발송]
-
-![메시지_발송](https://github.com/hstar0124/hstar-project/assets/57317290/bb31bdf8-0c1e-4793-94b2-b349337bba86)
-
-
 ### [친구추가 흐름도]
 
 ![친구추가_흐름도](https://github.com/hstar0124/hstar-project/assets/57317290/b5f72f61-0adc-49ac-b38b-d482020714a1)
