@@ -266,6 +266,27 @@ C++는 **높은 성능과 자원 효율성**을 제공하며,
 - **주요 메서드**:
   - GetUserFromUserid: 사용자 ID를 기반으로 사용자 정보를 조회하고, 성공 시 사용자 정보를 포함한 응답을 반환. 실패 시 로그를 기록하고 UserNotFoundException 발생.
 
+**UserRepositoryFromMysql**
+
+- Async-await로 DB 비동기 처리 
+- **Entity Framework**: DbContext인 HStarContext를 사용하여 데이터베이스 작업을 수행
+- **주요 메서드**:
+  - CreateUser: 사용자를 데이터베이스에 생성. 사용자 ID가 이미 존재하면 실패를 반환.
+  - GetUserFromUserid: 사용자 ID로 사용자 정보를 조회. 사용자 존재 여부와 활성 상태를 확인.
+  - ValidateUserCredentials: 사용자 자격 증명을 검증. 비밀번호와 사용자 상태를 확인.
+  - UpdateUser: 사용자의 정보를 업데이트. 사용자가 존재하지 않으면 실패를 반환.
+  - DeleteUser: 사용자의 상태를 '삭제됨'으로 변경. 사용자가 존재하지 않으면 실패를 반환.
+
+**CacheRepositoryFromRedis**
+
+- Async-await로 DB 비동기 처리 
+- **Redis 연결**: ConnectionMultiplexer를 사용하여 Redis에 연결하고, 세션 데이터베이스를 초기화
+- **주요 메서드**:
+  - CreateSession: 새로운 세션을 생성하고 Redis에 저장합니다. 기존 세션이 있으면 삭제 후 새 세션을 저장합니다.
+  - KeepAliveSessionFromAccountId: 세션을 갱신하여 유효 기간을 연장합니다.
+  - DeleteSessionFromAccountId: 사용자 계정과 연결된 세션을 삭제합니다.
+
+
 
 **PasswordHelper**
 
