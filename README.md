@@ -2,7 +2,7 @@
 
 - Asp.net Core 와 Protobuf를 활용한 API Server
 - Boost.Asio 와 Protobuf를 활용한 Socket Server
-
+<br/>
 ## 프로젝트 소개
 
 로그인 및 유저 정보 관리는 ASP.NET Core API 서버를 통해 안정적이고 확장 가능한 백엔드 서비스를 구축했습니다.
@@ -17,7 +17,7 @@ C++는 **높은 성능과 자원 효율성**을 제공하며,
 특히, **비동기 I/O**에 특화된 Boost.Asio 라이브러리를 활용하여 소켓 통신 기능을 구현하였고, 
 이를 통해 높은 동시성을 처리할 수 있는 서버 환경을 구축하였습니다. 
 **Protobuf**를 사용한 메시지 직렬화/역직렬화는 **JSON 대비 패킷 사이즈를 약 2/3 절감**시켜 네트워크 대역폭을 효율적으로 활용할 수 있게 해주었습니다
-
+<br/>
 ## 기술 스택
 
 - C++ 17
@@ -34,7 +34,7 @@ C++는 **높은 성능과 자원 효율성**을 제공하며,
 - Windows 10
 - Github
   
-
+<br/>
 ## 주요 특장점
 
 ### [API 서버]
@@ -88,12 +88,12 @@ C++는 **높은 성능과 자원 효율성**을 제공하며,
 <img src="https://github.com/hstar0124/hstar-project/assets/57317290/cdd2701d-590f-49ac-83a5-f8d310cf3005" width="650" height="460"/>
 
 
-
+<br/>
 ## Socket 서버 구조도
 
 <img src="https://github.com/hstar0124/hstar-project/assets/57317290/ca66e1de-bfc0-4d00-ae74-64ec5dfac3a9" width="850" height="350"/>
 
-
+<br/>
 ## 주요 기능
 
 ### [API 서버]
@@ -109,7 +109,7 @@ C++는 **높은 성능과 자원 효율성**을 제공하며,
 - 파티 생성/가입/탈퇴/삭제
 - 친구 신청/수락
   
-
+<br/>
 ## 주요 흐름도
 
 ### [접속_흐름도]
@@ -126,7 +126,7 @@ C++는 **높은 성능과 자원 효율성**을 제공하며,
 
 ![친구추가_흐름도](https://github.com/hstar0124/hstar-project/assets/57317290/b5f72f61-0adc-49ac-b38b-d482020714a1)
 
-
+<br/>
 ## Getting Started
 
 ### 소스 다운로드
