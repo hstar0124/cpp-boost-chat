@@ -102,7 +102,7 @@ C++는 **높은 성능과 자원 효율성**을 제공하며,
 
 ## Socket 서버 구조도
 
-<img src="https://github.com/hstar0124/hstar-project/assets/57317290/ca66e1de-bfc0-4d00-ae74-64ec5dfac3a9" width="850" height="350"/>
+<img src="https://github.com/user-attachments/assets/7a8baf3f-605c-4cb0-ab09-27693a5fa7e2" width="850" height="350"/>
 
 <br/>
 
