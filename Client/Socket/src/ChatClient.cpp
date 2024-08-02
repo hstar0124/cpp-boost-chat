@@ -14,7 +14,6 @@ ChatClient::~ChatClient()
 void ChatClient::Connect(const std::string& host, int port)
 {
 	m_Endpoint = boost::asio::ip::tcp::endpoint(boost::asio::ip::make_address(host), port);
-	std::cout << "[CLIENT] Try Connect!! Waiting......" << std::endl;
 	LOG_INFO("Trying to connect to %s:%d", host.c_str(), port);
 
 
@@ -32,7 +31,6 @@ void ChatClient::OnConnect(const boost::system::error_code& err)
 	}
 	else
 	{
-		std::cout << "[CLIENT] ERROR : " << err.message() << "\n";
 		LOG_ERROR("Connection error: %s", err.message().c_str());
 		exit(1);
 	}
@@ -118,7 +116,6 @@ bool ChatClient::CreateWhisperMessage(std::shared_ptr<myChatMessage::ChatMessage
 
 	if (spacePos == std::string::npos || receiverEndPos == std::string::npos)
 	{
-		std::cout << "[CLIENT] Invalid message format. Format: /w [recipient] [message]\n";
 		LOG_WARN("Invalid message format. Format: /w [recipient] [message]");
 		return false;
 	}
@@ -212,7 +209,6 @@ bool ChatClient::CreatePartyMessage(std::shared_ptr<myChatMessage::ChatMessage>&
 	{
 		if (partyName.empty())
 		{
-			std::cout << "[CLIENT] Invalid message format. Format: /p -create [party name]\n";
 			LOG_WARN("Invalid message format. Format: /p -create [party name]");
 			return false;
 		}
@@ -223,7 +219,6 @@ bool ChatClient::CreatePartyMessage(std::shared_ptr<myChatMessage::ChatMessage>&
 	}
 	else
 	{
-		std::cout << "[CLIENT] Invalid message format. Format: /p [-create | -delete | -join | -leave] [party name]\n";
 		LOG_WARN("Invalid message format. Format: /p [-create | -delete | -join | -leave] [party name]");
 		return false;
 	}
@@ -349,7 +344,6 @@ void ChatClient::AsyncWrite(std::shared_ptr<myChatMessage::ChatMessage> message)
 void ChatClient::OnWrite(const boost::system::error_code& err, size_t size) {
 	if (err)
 	{
-		std::cerr << "Error sending message: " << err.message() << std::endl;
 		LOG_ERROR("Error sending message: %s", err.message().c_str());
 	}
 }
@@ -375,7 +369,6 @@ void ChatClient::ReadHeader()
 			}
 			else
 			{
-				std::cout << "[CLIENT] Read Header Fail.\n" + ec.message();
 				LOG_ERROR("Read Header Fail");
 				m_Socket.close();
 			}
@@ -399,13 +392,11 @@ void ChatClient::ReadBody(size_t bodySize)
 				}
 				else
 				{
-					std::cerr << "[CLIENT] Failed to parse message" << std::endl;
 					LOG_ERROR("Failed to parse message");
 				}
 			}
 			else
 			{
-				std::cout << "[CLIENT] Read Body Fail.\n";
 				LOG_ERROR("Read Body Fail");
 				m_Socket.close();
 			}

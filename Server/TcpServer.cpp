@@ -34,12 +34,10 @@ TcpServer::~TcpServer()
 	catch (const std::exception& e)
 	{
 		// 소멸자에서 예외가 발생하면 메시지 출력
-		std::cerr << "[SERVER] Exception in destructor: " << e.what() << "\n";
 		LOG_ERROR("Exception in destructor: ", e.what());
 	}
 
 	// 서버 종료 메시지 출력
-	std::cout << "[SERVER] Shutdown Complete.\n";
 	LOG_INFO("Shutdown Complete!");
 }
 
@@ -57,13 +55,11 @@ bool TcpServer::Start(uint32_t maxUser /* = 3 */)
 	catch (std::exception& e)
 	{
 		// 예외 발생 시 에러 메시지 출력
-		std::cerr << "[SERVER] Exception: " << e.what() << "\n";
 		LOG_ERROR("[SERVER] Exception: %s", e.what());
 		return false;
 	}
 
 	// 서버 시작 완료 메시지 출력
-	std::cout << "[SERVER] Started!\n";
 	LOG_INFO("Tcp Server Start!! Max User : %d", m_MaxUser);
 	return true;
 }
@@ -101,7 +97,6 @@ void TcpServer::OnAccept(std::shared_ptr<UserSession> user, const boost::system:
 	else
 	{
 		// 에러 발생 시 에러 메시지 출력
-		std::cout << "[SERVER] Error " << err.message() << std::endl;
 		LOG_ERROR("[SERVER] Error: %s", err.message());
 	}
 
@@ -173,13 +168,11 @@ bool TcpServer::VerifyUser(std::shared_ptr<UserSession>& user, const std::string
 		if (m_RedisClient->Get(sessionKey, &sessionValue) != RC_SUCCESS)
 		{
 			// 세션 ID가 존재하지 않는 경우 처리
-			std::cout << "Not Found Session ID!!" << std::endl;
 			LOG_INFO("Not Found Session ID");
 			return false;
 		}
 
 		// 세션 정보 로깅
-		std::cout << sessionKey << " : " << sessionValue << std::endl;
 		LOG_INFO("SessionKey : %s, SesseionValue : %s", sessionKey.c_str(), sessionValue.c_str());
 
 		// UserSession 객체의 ID 설정 및 인증 상태 설정
@@ -195,7 +188,6 @@ bool TcpServer::VerifyUser(std::shared_ptr<UserSession>& user, const std::string
 	catch (const std::exception& e)
 	{
 		// 예외 발생 시 처리
-		std::cout << "Exception occurred: " << e.what() << std::endl;
 		LOG_ERROR("Exception occurred : %s", e.what());
 		return false;
 	}
@@ -335,7 +327,6 @@ void TcpServer::HandleAllMessage(std::shared_ptr<UserSession> user, std::shared_
 	}
 
 	// 서버에서 모든 클라이언트에게 메시지 전송
-	std::cout << "[SERVER] Send message to all clients\n";
 	LOG_INFO("Send message to all clients");
 
 	// 메시지 타입 설정
@@ -362,7 +353,6 @@ void TcpServer::HandlePartyCreate(std::shared_ptr<UserSession> user, std::shared
 		return;
 	}
 
-	std::cout << "[SERVER] Create party\n";
 	LOG_INFO("Create party");
 
 	// 파티 이름이 이미 사용 중인 경우 에러 메시지 전송 후 종료
@@ -425,7 +415,6 @@ void TcpServer::HandlePartyDelete(std::shared_ptr<UserSession> user, std::shared
 		return;
 	}
 
-	std::cout << "[SERVER] Delete party\n";
 	LOG_INFO("Delete Party!");
 
 	// 파티 삭제 시도 및 실패 시 에러 메시지 전송 후 종료
@@ -466,7 +455,6 @@ void TcpServer::HandlePartyLeave(std::shared_ptr<UserSession> user, std::shared_
 		return;
 	}
 
-	std::cout << "[SERVER] Leave party\n";
 	LOG_INFO("Leave Party : %s", user->GetUserEntity()->GetUsername());
 
 	// 사용자가 파티를 탈퇴할 수 없는 경우(파티 리더인 경우) 에러 메시지 전송 후 종료
@@ -836,8 +824,6 @@ void TcpServer::SendPartyMessage(std::shared_ptr<Party>& party, std::shared_ptr<
 
 void TcpServer::SendErrorMessage(std::shared_ptr<UserSession>& user, const std::string& errorMessage)
 {
-	// 에러 메시지를 서버 콘솔에 출력
-	std::cout << "[SERVER] " << user->GetUserEntity()->GetUserId() << " : " << errorMessage << "\n";
 	LOG_INFO("%s : %s", user->GetUserEntity()->GetUserId().c_str(), errorMessage.c_str());
 	// 클라이언트에게 전송할 에러 메시지 생성
 	auto errMsg = std::make_shared<myChatMessage::ChatMessage>();
@@ -850,8 +836,6 @@ void TcpServer::SendErrorMessage(std::shared_ptr<UserSession>& user, const std::
 
 void TcpServer::SendServerMessage(std::shared_ptr<UserSession>& user, const std::string& serverMessage)
 {
-	// 서버 메시지를 서버 콘솔에 출력
-	std::cout << "[SERVER] " << user->GetUserEntity()->GetUserId() << " : " << serverMessage << "\n";
 	LOG_INFO("%s : %s", user->GetUserEntity()->GetUserId().c_str(), serverMessage.c_str());
 	// 서버 메시지 생성
 	auto serverMsg = std::make_shared<myChatMessage::ChatMessage>();
@@ -865,8 +849,6 @@ void TcpServer::SendServerMessage(std::shared_ptr<UserSession>& user, const std:
 
 void TcpServer::SendLoginMessage(std::shared_ptr<UserSession>& user)
 {
-	// 로그인 성공 메시지를 서버 콘솔에 출력
-	std::cout << "[SERVER] " << user->GetUserEntity()->GetUserId() << " : Login Success!!" << "\n";
 	LOG_INFO("%s : %s", user->GetUserEntity()->GetUserId().c_str(), " : Login Success!!");
 	// 로그인 성공 메시지 생성
 	auto serverMsg = std::make_shared<myChatMessage::ChatMessage>();

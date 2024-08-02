@@ -14,7 +14,6 @@ int main()
 
 	if (!parser.readConfig())
 	{
-		std::cerr << "Error: Failed to read configuration from file" << std::endl;
 		LOG_ERROR("Error: Failed to read configuration from file");
 		return 1;
 	}
@@ -31,7 +30,6 @@ int main()
 		if (redisClient->Initialize(config.at("redis_host"), stoi(config.at("redis_port")), 2, 10))
 		{
 			LOG_INFO("Connected to Redis successfully.");
-			std::cout << "Connected to Redis successfully." << std::endl;
 		}
 		else
 		{
@@ -40,7 +38,6 @@ int main()
 	}
 	catch (const std::exception& e)
 	{
-		std::cerr << "Error: " << e.what() << std::endl;
 		LOG_ERROR("Redis connection error: {}", e.what());
 	}
 
@@ -55,7 +52,6 @@ int main()
 	int maxUser = 2;
 	if (!tcpServer.Start(maxUser))
 	{
-		std::cerr << "[SERVER] Server Error!!" << "\n";
 		LOG_ERROR("Tcp Server Start Error!!");
 	}
 

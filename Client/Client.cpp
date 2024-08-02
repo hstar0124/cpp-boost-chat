@@ -18,7 +18,8 @@ Client::~Client()
 
 void Client::Init()
 {
-    std::cout << "Initializing Start......" << std::endl;
+    
+    LOG_INFO("Initializing Start......");
     m_ApiUrls = LoadConfig("apiurl.txt"); // 설정 파일로부터 API URL 로드
 
     try
@@ -28,7 +29,6 @@ void Client::Init()
     }
     catch (const std::exception& ex)
     {
-        std::cerr << "Error initializing clients: " << ex.what() << std::endl; // 클라이언트 초기화 오류 메시지 출력
         LOG_ERROR("Error initializing clients: %s", ex.what()); // 클라이언트 초기화 오류 로그 출력
         exit(1);  // 프로그램 종료
     }
@@ -37,7 +37,6 @@ void Client::Init()
 void Client::Start()
 {
 
-    std::cout << "Initializing Success!!!" << std::endl;
     LOG_INFO("Initializing Success!!!");
     while (true)
     {
@@ -50,7 +49,6 @@ void Client::Start()
         {
             std::cin.clear(); // 입력 오류 초기화
             std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // 입력 버퍼 비우기
-            std::cout << "Invalid input. Please enter a number between 1 and 5." << std::endl; // 잘못된 입력 메시지 출력
             LOG_WARN("Invalid input. Please enter a number between 1 and 5."); // 잘못된 입력 경고 로그 출력
             continue;
         }
@@ -86,7 +84,7 @@ void Client::HandleMenuChoice(int choice)
         auto response = ProcessLoginUser(); // 로그인 처리
         if (response.status() != UserStatusCode::Success)
         {
-            std::cout << "Login Failed!!" << std::endl; // 로그인 실패 메시지 출력
+            LOG_ERROR("Login Failed!!");
             break;
         }
 
@@ -117,7 +115,6 @@ void Client::HandleMenuChoice(int choice)
         ProcessDeleteUser(); // 사용자 삭제
         break;
     default:
-        std::cout << "Invalid choice. Please try again." << std::endl; // 잘못된 선택 메시지 출력
         LOG_WARN("Invalid choice. Please try again."); 
         break;
     }
@@ -125,9 +122,6 @@ void Client::HandleMenuChoice(int choice)
 
 void Client::StartChatClient(const std::string& ip, const std::string& port, const std::string& sessionId)
 {
-    std::cout << "IP : " << ip << std::endl;
-    std::cout << "PORT : " << port << std::endl;
-    std::cout << "SessionID : " << sessionId << std::endl;
     LOG_INFO("IP : %s", ip.c_str());
     LOG_INFO("PORT : %s", port.c_str());
     LOG_INFO("SessionID : %s", sessionId.c_str());
@@ -178,8 +172,6 @@ UserResponse Client::ProcessGetUser()
 
     const std::string endpoint = m_ApiUrls["get_user_by_user_id"] + getUserRequest.userid(); // 엔드포인트 설정
 
-    std::cout << endpoint << "\n"; // 엔드포인트 출력
-
     return ProcessUserGetRequest(endpoint); // 사용자 정보 조회 요청 처리
 }
 
@@ -216,8 +208,8 @@ template <typename RequestType>
 UserResponse Client::ProcessUserPostRequest(const std::string& endpoint, const RequestType& request)
 {
     UserResponse response = m_HttpClient->Post(m_ApiUrls[endpoint], request); // POST 요청 전송
-    std::cout << "Response Status: " << response.status() << std::endl; // 응답 상태 출력
-    std::cout << "Response Message: " << response.message() << std::endl; // 응답 메시지 출력
+    LOG_INFO("Response Status: %s", response.status());
+    LOG_INFO("Response Message: %s", response.message());
 
     return response; // 응답 반환
 }
@@ -226,8 +218,8 @@ UserResponse Client::ProcessUserGetRequest(const std::string& endpoint)
 {
     UserResponse response = m_HttpClient->Get(endpoint); // GET 요청 전송
 
-    std::cout << "Response Status: " << response.status() << std::endl; // 응답 상태 출력
-    std::cout << "Response Message: " << response.message() << std::endl; // 응답 메시지 출력
+    LOG_INFO("Response Status: %s", response.status());
+    LOG_INFO("Response Message: %s", response.message());
 
     return response; // 응답 반환
 }
@@ -270,6 +262,6 @@ void Client::ChatLoop()
     }
     else
     {
-        std::cout << "Waiting for verification. Please wait..." << std::endl; // 확인 대기 메시지 출력
+        LOG_INFO("Waiting for verification. Please wait...");        
     }
 }

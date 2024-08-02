@@ -1,6 +1,7 @@
 #include "Api/include/HttpClient.h"
 #include <iostream>
 #include <stdexcept>
+#include "Util/HsLogger.hpp"
 
 HttpClient::HttpClient(boost::asio::io_context& ioc, const std::string& host, const std::string& port)
     : m_Host(host), m_Port(port), io_context(ioc), m_Resolver(ioc), m_Socket(ioc)
@@ -16,13 +17,13 @@ void HttpClient::Connect()
 {
     try
     {
-        std::cout << "Http Client Connect! " << "\n";
+        LOG_INFO("Http Client Connect!");
         auto const results = m_Resolver.resolve(m_Host, m_Port); // 호스트와 포트를 해결합니다.
         boost::asio::connect(m_Socket, results.begin(), results.end()); // 소켓을 호스트에 연결합니다.
     }
     catch (const std::exception& ex)
     {
-        std::cerr << "Connection failed: " << ex.what() << std::endl; // 연결 실패 시 예외 메시지를 출력합니다.
+        LOG_ERROR("Connection failed: %s", ex.what());  // 연결 실패 시 예외 메시지를 출력합니다.        
         exit(1);
     }
 }
@@ -37,7 +38,7 @@ UserResponse HttpClient::Post(const std::string& target, const google::protobuf:
 {
     Connect(); // 연결을 시도합니다.
 
-    std::cout << "target : " << target << "\n"; // 목표 URL을 출력합니다.
+    LOG_INFO("target : %s" ,target);    // 목표 URL을 출력합니다.    
     std::string body;
     if (!message.SerializeToString(&body)) // 메시지를 직렬화하여 바디로 설정합니다.
     {
@@ -67,7 +68,7 @@ UserResponse HttpClient::Get(const std::string& target)
 {
     Connect(); // 연결을 시도합니다.
 
-    std::cout << "target : " << target << "\n"; // 목표 URL을 출력합니다.
+    LOG_INFO("target : %s", target);
     boost::beast::http::request<boost::beast::http::empty_body> req{ boost::beast::http::verb::get, target, 11 };
     req.set(boost::beast::http::field::host, m_Host); // 요청 헤더에 호스트 정보를 설정합니다.
     req.set(boost::beast::http::field::user_agent, BOOST_BEAST_VERSION_STRING); // 사용자 에이전트 정보를 설정합니다.
@@ -83,7 +84,7 @@ UserResponse HttpClient::Get(const std::string& target)
 
 UserResponse HttpClient::ParseResponse(boost::beast::http::response<boost::beast::http::dynamic_body>& res)
 {
-    std::cout << res << std::endl; // 응답을 출력합니다.
+    LOG_INFO("response : %s", res);
 
     std::string response_body = boost::beast::buffers_to_string(res.body().data());
     UserResponse response_message;

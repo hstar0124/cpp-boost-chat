@@ -20,7 +20,8 @@ UserSession::~UserSession()
 	Close();
 	m_PingTimer.cancel();
 
-	std::cout << "[SERVER] User {" << m_Id << "} is being destroyed. Cleaning up resources." << std::endl;
+	
+    LOG_INFO("[SERVER] User { %d } is being destroyed. Cleaning up resources.", m_Id);
 	m_Socket.close();
 }
 
@@ -181,7 +182,6 @@ void UserSession::AsyncWrite(std::shared_ptr<myChatMessage::ChatMessage> msg)
 
 void UserSession::HandleError(const std::string& errorMessage)
 {
-    std::cout << errorMessage << "\n"; // 오류 메시지 출력
     LOG_ERROR("%s", errorMessage.c_str());
     Close(); // 세션 종료
 }
